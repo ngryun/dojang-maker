@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f6f1e7">
+<meta name="description" content="이름을 넣으면 배경이 투명한 도장(인감) PNG를 만들어 주는 웹 도구. 글씨체·모양·색을 고르고 잉크 번짐까지 조절할 수 있습니다.">
+<title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Nanum+Brush+Script&family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<!--
+  글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
+  전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
+  @font-face { font-family:'내폰트'; src:url('./myfont.ttf') format('truetype'); }
+  그리고 아래 JS의 FONTS 배열에 { fam:'내폰트', w:400, label:'내 글씨체', group:'직접 추가' } 를 추가.
+-->
+<style>
+  :root{
+    --bg:#f6f1e7; --panel:#fffdf8; --line:#e0d7c4; --ink:#2e2a24;
+    --muted:#8a8071; --accent:#b3272d; --accent-soft:#f3e2e0;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Nanum Gothic","Apple SD Gothic Neo",system-ui,sans-serif;
+    font-size:14px; line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  header{
+    padding:18px 20px 14px; border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  header h1{
+    margin:0; font-family:"Nanum Myeongjo",serif; font-size:20px; font-weight:800;
+    letter-spacing:-.01em;
+  }
+  header h1 span{color:var(--accent)}
+  header p{margin:4px 0 0; color:var(--muted); font-size:12.5px}
+
+  .wrap{
+    display:grid; grid-template-columns:minmax(320px,380px) 1fr;
+    gap:0; align-items:start;
+    min-height:calc(100vh - 74px);
+  }
+
+  /* ---------- 컨트롤 패널 ---------- */
+  .panel{
+    background:var(--panel); border-right:1px solid var(--line);
+    padding:16px 18px 60px; height:100%;
+  }
+
+  fieldset{
+    border:1px solid var(--line); border-radius:var(--radius);
+    margin:0 0 14px; padding:12px 13px 14px; background:#fff;
+  }
+  legend{
+    font-size:12px; font-weight:700; color:var(--muted);
+    padding:0 6px; letter-spacing:.02em;
+  }
+  .row{margin-bottom:11px}
+  .row:last-child{margin-bottom:0}
+  label.lb{display:block; font-size:12px; font-weight:700; margin-bottom:5px; color:#5d554a}
+  .hint{font-size:11px; color:var(--muted); font-weight:400}
+
+  input[type=text], select{
+    width:100%; padding:8px 9px; border:1px solid var(--line); border-radius:7px;
+    background:#fff; color:var(--ink); font-family:inherit; font-size:14px;
+  }
+  input[type=text]:focus, select:focus{outline:2px solid var(--accent-soft); border-color:var(--accent)}
+
+  .seg{display:flex; gap:0; border:1px solid var(--line); border-radius:7px; overflow:hidden}
+  .seg button{
+    flex:1; padding:7px 4px; border:0; background:#fff; cursor:pointer;
+    font-family:inherit; font-size:12.5px; color:#6b6357; border-right:1px solid var(--line);
+  }
+  .seg button:last-child{border-right:0}
+  .seg button[aria-pressed=true]{background:var(--accent); color:#fff; font-weight:700}
+
+  .sl{display:flex; align-items:center; gap:9px}
+  .sl input[type=range]{flex:1; accent-color:var(--accent); min-width:0}
+  .sl output{
+    width:46px; text-align:right; font-variant-numeric:tabular-nums;
+    font-size:11.5px; color:var(--muted);
+  }
+
+  .chk{display:flex; align-items:center; gap:7px; font-size:13px; cursor:pointer}
+  .chk input{accent-color:var(--accent); width:15px; height:15px}
+
+  .colors{display:flex; gap:7px; align-items:center}
+  .colors input[type=color]{
+    width:38px; height:30px; padding:0; border:1px solid var(--line);
+    border-radius:6px; background:none; cursor:pointer;
+  }
+  .swatch{
+    width:24px; height:24px; border-radius:50%; border:1px solid rgba(0,0,0,.15);
+    cursor:pointer; padding:0;
+  }
+
+  button.btn{
+    width:100%; padding:10px; border:1px solid var(--line); border-radius:8px;
+    background:#fff; cursor:pointer; font-family:inherit; font-size:13.5px; font-weight:700;
+    color:#5d554a;
+  }
+  button.btn:hover{background:#faf6ee}
+  button.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  button.btn.primary:hover{filter:brightness(1.07)}
+  button.btn:disabled{opacity:.55; cursor:default}
+  .btns{display:flex; gap:8px; margin-top:10px}
+
+  footer{
+    border-top:1px solid var(--line); background:var(--panel);
+    padding:18px 20px 24px; text-align:center;
+  }
+  footer p{margin:0}
+  footer .made{
+    font-family:"Nanum Myeongjo",serif; font-size:13.5px; color:#5d554a;
+  }
+  footer .made strong{color:var(--accent)}
+  footer .copy{font-size:11.5px; color:var(--muted); margin-top:5px}
+  footer a{color:var(--muted)}
+
+  .presets{display:flex; flex-wrap:wrap; gap:6px}
+  .presets button{
+    padding:6px 9px; border:1px solid var(--line); border-radius:99px; background:#fff;
+    cursor:pointer; font-family:inherit; font-size:12px; color:#6b6357;
+  }
+  .presets button:hover{border-color:var(--accent); color:var(--accent)}
+
+  /* ---------- 미리보기 ---------- */
+  .stage{
+    padding:26px 20px 40px; display:flex; flex-direction:column;
+    align-items:center; gap:14px;
+  }
+  .canvas-box{
+    position:relative; width:100%; max-width:470px; aspect-ratio:1;
+    border-radius:var(--radius); border:1px solid var(--line); overflow:hidden;
+  }
+  .canvas-box.checker{
+    background-color:#fff;
+    background-image:
+      linear-gradient(45deg,#e6e1d8 25%,transparent 25%,transparent 75%,#e6e1d8 75%),
+      linear-gradient(45deg,#e6e1d8 25%,transparent 25%,transparent 75%,#e6e1d8 75%);
+    background-size:18px 18px; background-position:0 0,9px 9px;
+  }
+  .canvas-box.paper{
+    background:#fbf7ee;
+    box-shadow:inset 0 0 40px rgba(120,100,60,.10);
+  }
+  #view{width:100%; height:100%; display:block}
+  .stage .meta{font-size:12px; color:var(--muted); text-align:center}
+  .toggle-view{
+    display:flex; gap:8px; align-items:center; font-size:12px; color:var(--muted);
+  }
+  .status{font-size:12px; color:var(--accent); min-height:16px}
+
+  /* ============================================================
+     모바일 (세로 좁은 화면)
+     - 미리보기를 맨 위로 올려 화면에 고정한다. 슬라이더를 만지는 동안
+       도장이 어떻게 변하는지 바로 보여야 하기 때문.
+     - 손가락으로 누를 것들은 최소 44px 가까이 키운다.
+     - 입력칸 글씨는 16px 이상이어야 iOS 사파리가 화면을 확대하지 않는다.
+     ============================================================ */
+  @media (max-width:900px){
+    header{padding:14px 16px 12px}
+    header h1{font-size:18px}
+    header p{font-size:12px}
+
+    .wrap{
+      display:flex; flex-direction:column;   /* 그리드 대신 flex — 그래야 sticky 가 끝까지 따라온다 */
+      align-items:stretch;                   /* 기본값의 start 를 되돌린다 (flex 에서는 가로 정렬이 된다) */
+      min-height:0;
+    }
+
+    .stage{
+      order:-1;                              /* 미리보기를 컨트롤 위로 */
+      position:sticky; top:0; z-index:20;
+      background:var(--bg);
+      border-bottom:1px solid var(--line);
+      box-shadow:0 6px 12px -8px rgba(80,60,30,.35);
+      padding:10px 14px 8px; gap:6px;
+    }
+    .canvas-box{max-width:min(52vw, 230px)}
+    .stage .meta{font-size:11px}
+    .toggle-view{font-size:11.5px}
+
+    .panel{
+      border-right:0; padding:14px 14px 40px;
+      padding-bottom:calc(40px + env(safe-area-inset-bottom));
+      width:100%; max-width:620px; margin:0 auto;   /* 태블릿에서 조작부가 너무 길어지지 않게 */
+    }
+    fieldset{padding:11px 12px 13px}
+
+    /* 손가락 크기에 맞춘 조작 요소 — 누르는 것은 36px 이상으로 */
+    input[type=text], select{font-size:16px; padding:12px 10px}
+    input[type=range]{height:38px}
+    .sl{gap:11px}
+    .sl output{font-size:12px; width:50px}
+    .seg button{padding:13px 4px; font-size:12px}
+    .presets button{padding:10px 14px; font-size:12.5px}
+    button.btn{padding:14px; font-size:14px}
+    .chk{padding:7px 0}
+    .chk input{width:22px; height:22px}
+    .colors{gap:10px}
+    .colors input[type=color]{width:48px; height:38px}
+    .swatch{width:36px; height:36px}
+    .toggle-view{padding:6px 0}
+    .toggle-view input{width:22px; height:22px; accent-color:var(--accent)}
+
+    footer{padding:16px 16px calc(22px + env(safe-area-inset-bottom))}
+  }
+
+  /* 세로가 짧은 화면 — 고정된 미리보기가 화면을 다 먹지 않게 줄인다 */
+  @media (max-width:900px) and (max-height:680px){
+    .canvas-box{max-width:min(42vw, 170px)}
+    .stage{padding:8px 14px 6px}
+  }
+  /* 가로로 눕힌 휴대폰 */
+  @media (max-width:900px) and (max-height:480px){
+    .canvas-box{max-width:min(26vw, 130px)}
+    .stage .meta{display:none}
+  }
+
+  /* 아주 좁은 화면 (iPhone SE 등) */
+  @media (max-width:360px){
+    .panel{padding:12px 11px 36px}
+    .seg button{padding:13px 2px; font-size:11.5px}
+    .presets button{padding:10px 11px; font-size:12px}
+  }
+
+  /* 손가락 입력 기기: 마우스 호버 효과를 끄고 탭 반응을 즉시 */
+  @media (hover:none){
+    button, .chk, label{-webkit-tap-highlight-color:transparent; touch-action:manipulation}
+    button.btn:hover{background:#fff}
+    .presets button:hover{border-color:var(--line); color:#6b6357}
+    .presets button:active{border-color:var(--accent); color:var(--accent)}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>도장 만들기 <span>印</span></h1>
+  <p>이름을 넣으면 배경이 투명한 도장 PNG를 만들어 줍니다. 글씨체·모양·색을 고르고, 슬라이더로 잉크가 번지고 끊긴 느낌을 조절하세요.</p>
+</header>
+
+<div class="wrap">
+  <!-- ================= 컨트롤 ================= -->
+  <div class="panel">
+
+    <fieldset>
+      <legend>빠른 설정</legend>
+      <div class="presets" id="presets">
+        <button data-preset="personal">개인 인감</button>
+        <button data-preset="nakgwan">사각 낙관</button>
+        <button data-preset="soft">도장밥 옅게</button>
+        <button data-preset="worn">많이 낡은</button>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>글자</legend>
+      <div class="row">
+        <label class="lb" for="text">도장에 넣을 글자</label>
+        <input type="text" id="text" value="남궁연" maxlength="14" autocomplete="off" placeholder="예: 남궁연 / 설악고등학교장">
+      </div>
+      <div class="row">
+        <label class="lb" for="suffix">보조 글자</label>
+        <select id="suffix">
+          <option value="">없음</option>
+          <option value="인">인 붙이기</option>
+          <option value="印">印 붙이기</option>
+          <option value="之印">之印 붙이기</option>
+        </select>
+      </div>
+      <div class="row">
+        <label class="lb" for="font">글씨체</label>
+        <select id="font"></select>
+      </div>
+      <div class="row">
+        <label class="lb" for="layout">배치</label>
+        <div class="seg" id="layout" role="group">
+          <button data-v="auto" aria-pressed="true">자동</button>
+          <button data-v="vertical" aria-pressed="false">세로</button>
+          <button data-v="horizontal" aria-pressed="false">가로</button>
+          <button data-v="grid" aria-pressed="false">격자</button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="trad" checked> 전통 순서 (오른쪽 줄부터)</label>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
+      </div>
+      <div class="row">
+        <label class="lb" for="glyphFill">글자 크기 <span class="hint">칸을 채우는 비율</span></label>
+        <div class="sl"><input type="range" id="glyphFill" min="50" max="115" value="96"><output id="o-glyphFill"></output></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>모양과 색</legend>
+      <div class="row">
+        <label class="lb">테두리 모양</label>
+        <div class="seg" id="shape" role="group">
+          <button data-v="circle" aria-pressed="true">원형</button>
+          <button data-v="ellipse" aria-pressed="false">타원</button>
+          <button data-v="rounded" aria-pressed="false">둥근사각</button>
+          <button data-v="square" aria-pressed="false">사각</button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lb">새김 방식</label>
+        <div class="seg" id="style" role="group">
+          <button data-v="yang" aria-pressed="true">양각 (글자가 붉게)</button>
+          <button data-v="eum" aria-pressed="false">음각 (바탕이 붉게)</button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lb" for="color">인주 색</label>
+        <div class="colors">
+          <input type="color" id="color" value="#b3272d">
+          <button class="swatch" style="background:#b3272d" data-color="#b3272d" title="전통 인주"></button>
+          <button class="swatch" style="background:#d0353a" data-color="#d0353a" title="밝은 붉은색"></button>
+          <button class="swatch" style="background:#8f1d22" data-color="#8f1d22" title="짙은 주홍"></button>
+          <button class="swatch" style="background:#1f3a93" data-color="#1f3a93" title="청인"></button>
+          <button class="swatch" style="background:#2e2a24" data-color="#2e2a24" title="먹색"></button>
+        </div>
+      </div>
+      <div class="row">
+        <label class="lb" for="border">테두리 두께</label>
+        <div class="sl"><input type="range" id="border" min="0" max="140" value="52"><output id="o-border"></output></div>
+      </div>
+      <div class="row">
+        <label class="lb" for="pad">안쪽 여백</label>
+        <div class="sl"><input type="range" id="pad" min="0" max="200" value="60"><output id="o-pad"></output></div>
+      </div>
+      <div class="row">
+        <label class="lb" for="rot">기울기</label>
+        <div class="sl"><input type="range" id="rot" min="-15" max="15" value="0" step="0.5"><output id="o-rot"></output></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>낡은 느낌</legend>
+      <div class="row">
+        <label class="lb" for="ink">잉크 번짐·끊김</label>
+        <div class="sl"><input type="range" id="ink" min="0" max="100" value="34"><output id="o-ink"></output></div>
+      </div>
+      <div class="row">
+        <label class="lb" for="grain">얼룩 크기 <span class="hint">왼쪽=굵은 얼룩, 오른쪽=고운 알갱이</span></label>
+        <div class="sl"><input type="range" id="grain" min="0" max="100" value="45"><output id="o-grain"></output></div>
+      </div>
+      <div class="row">
+        <label class="lb" for="rough">테두리 울퉁불퉁</label>
+        <div class="sl"><input type="range" id="rough" min="0" max="100" value="28"><output id="o-rough"></output></div>
+      </div>
+      <button class="btn" id="reseed">🎲 같은 설정으로 다시 찍기</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>내보내기</legend>
+      <div class="row">
+        <label class="lb" for="size">이미지 크기</label>
+        <select id="size">
+          <option value="256">256 × 256</option>
+          <option value="512">512 × 512</option>
+          <option value="1024" selected>1024 × 1024 (권장)</option>
+          <option value="2048">2048 × 2048</option>
+        </select>
+      </div>
+      <button class="btn primary" id="save">투명배경 PNG 저장</button>
+      <div class="btns">
+        <button class="btn" id="copy">클립보드로 복사</button>
+      </div>
+      <div class="status" id="status"></div>
+    </fieldset>
+
+  </div>
+
+  <!-- ================= 미리보기 ================= -->
+  <div class="stage">
+    <div class="canvas-box checker" id="cbox">
+      <canvas id="view" width="700" height="700"></canvas>
+    </div>
+    <label class="toggle-view"><input type="checkbox" id="paper"> 종이 위에 놓고 보기</label>
+    <div class="meta" id="meta"></div>
+  </div>
+</div>
+
+<footer>
+  <p class="made">만든 사람 · 강원설악고등학교 교사 <strong>남궁연</strong></p>
+  <p class="copy">© 2026 남궁연. 이 프로그램의 저작권은 만든 사람에게 있습니다.</p>
+  <p class="copy">
+    만들어진 도장 이미지는 자유롭게 쓰셔도 됩니다.
+    글씨체는 <a href="https://fonts.google.com" target="_blank" rel="noopener">구글 폰트</a>에서 불러오며,
+    각 글씨체의 저작권은 해당 제작자에게 있습니다.
+  </p>
+</footer>
+
+<script>
+"use strict";
+
+/* ============================================================
+   글씨체 목록
+   ============================================================ */
+const FONTS = [
+  { fam:'Nanum Myeongjo',  w:800, label:'나눔명조 굵게',   group:'도장 느낌' },
+  { fam:'Song Myung',      w:400, label:'송명',            group:'도장 느낌' },
+  { fam:'Hahmlet',         w:900, label:'함렛 아주굵게',   group:'도장 느낌' },
+  { fam:'Noto Serif KR',   w:900, label:'노토 세리프 블랙',group:'도장 느낌' },
+  { fam:'Gowun Batang',    w:700, label:'고운바탕 굵게',   group:'도장 느낌' },
+  { fam:'Nanum Myeongjo',  w:400, label:'나눔명조 보통',   group:'단정한' },
+  { fam:'Gowun Batang',    w:400, label:'고운바탕 보통',   group:'단정한' },
+  { fam:'Nanum Gothic',    w:800, label:'나눔고딕 굵게',   group:'단정한' },
+  { fam:'Black Han Sans',  w:400, label:'검은고딕',        group:'두꺼운' },
+  { fam:'Do Hyeon',        w:400, label:'도현',            group:'두꺼운' },
+  { fam:'Jua',             w:400, label:'주아',            group:'두꺼운' },
+  { fam:'Nanum Brush Script', w:400, label:'나눔붓글씨',   group:'손글씨' },
+  { fam:'Gaegu',           w:700, label:'개구 굵게',       group:'손글씨' },
+];
+
+/* ============================================================
+   상태
+   ============================================================ */
+const S = {
+  text:'남궁연', suffix:'',
+  fontIdx:0,
+  shape:'circle', style:'yang', layout:'auto',
+  trad:true, stretch:true, glyphFill:96,
+  color:'#b3272d',
+  border:52, pad:60, rot:0,
+  ink:34, grain:45, rough:28,
+  seed:20260730,
+};
+
+/* ============================================================
+   난수 · 노이즈
+   ============================================================ */
+function mulberry32(a){
+  return function(){
+    a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function smoothstep(a,b,x){
+  if(b<=a) return x<a?0:1;
+  let t=(x-a)/(b-a);
+  t = t<0?0:t>1?1:t;
+  return t*t*(3-2*t);
+}
+/* 격자 난수 + 부드러운 보간으로 만든 프랙탈 노이즈 (fBm) */
+function makeNoise(seed){
+  const P=256, MASK=255;
+  const rnd=mulberry32(seed|0);
+  const g=new Float32Array(P*P);
+  for(let i=0;i<g.length;i++) g[i]=rnd();
+  function v(ix,iy){ return g[((iy&MASK)<<8) + (ix&MASK)]; }
+  function n2(x,y){
+    const x0=Math.floor(x), y0=Math.floor(y);
+    const tx=x-x0, ty=y-y0;
+    const fx=tx*tx*(3-2*tx), fy=ty*ty*(3-2*ty);
+    const a=v(x0,y0), b=v(x0+1,y0), c=v(x0,y0+1), d=v(x0+1,y0+1);
+    return (a+(b-a)*fx) + ((c+(d-c)*fx) - (a+(b-a)*fx))*fy;
+  }
+  return function fbm(x,y){
+    let amp=0.5, f=1, sum=0, norm=0;
+    for(let o=0;o<4;o++){ sum+=amp*n2(x*f,y*f); norm+=amp; amp*=0.5; f*=2.13; }
+    return sum/norm;
+  };
+}
+/* 큰 이미지에서 픽셀마다 fBm을 부르면 느리므로, 절반 해상도 필드를 만들어 두고 보간해 쓴다 */
+function buildField(size, seed, freq){
+  const q=2;
+  const W=Math.ceil(size/q)+2;
+  const f=new Float32Array(W*W);
+  const fbm=makeNoise(seed);
+  for(let y=0;y<W;y++){
+    for(let x=0;x<W;x++) f[y*W+x]=fbm(x*q*freq, y*q*freq);
+  }
+  return {f,W,q};
+}
+function sampleField(F,x,y){
+  const fx=x/F.q, fy=y/F.q;
+  const x0=fx|0, y0=fy|0;
+  const tx=fx-x0, ty=fy-y0;
+  const i=y0*F.W+x0;
+  const a=F.f[i], b=F.f[i+1], c=F.f[i+F.W], d=F.f[i+F.W+1];
+  const top=a+(b-a)*tx, bot=c+(d-c)*tx;
+  return top+(bot-top)*ty;
+}
+
+/* ============================================================
+   도형
+   ============================================================ */
+/* 초타원 지수: 원=2, 둥근사각=4.2, 사각=12 */
+function shapeExp(shape){
+  return shape==='square' ? 12 : shape==='rounded' ? 4.2 : 2;
+}
+function shapeRadii(shape, R){
+  return shape==='ellipse' ? {rx:R, ry:R*0.74} : {rx:R, ry:R};
+}
+/* 각도 a 에서의 초타원 반지름. 큰 지수에서도 값이 넘치지 않도록 최댓값으로 정규화해 계산한다. */
+function outlineR(a, rx, ry, n){
+  const u=Math.abs(Math.cos(a))/rx, v=Math.abs(Math.sin(a))/ry;
+  const m=Math.max(u,v);
+  if(m<=0) return rx;
+  const s=Math.pow(Math.pow(u/m,n)+Math.pow(v/m,n), 1/n);
+  return 1/(m*s);
+}
+/* 테두리를 미세하게 떨리게 만든 폴리곤 경로. scale<1 이면 안쪽 윤곽. */
+function outlinePath(ctx, rx, ry, n, rough, fbm, phase, ampBase){
+  const N = 1080;
+  ctx.beginPath();
+  for(let i=0;i<=N;i++){
+    const a = i/N*Math.PI*2;
+    const ca=Math.cos(a), sa=Math.sin(a);
+    let r = outlineR(a, rx, ry, n);
+    if(rough>0){
+      // 저주파(전체가 살짝 찌그러짐) + 고주파(손으로 새긴 미세한 떨림)
+      const lo = fbm(ca*1.7+phase, sa*1.7+phase) - 0.5;
+      const hi = fbm(ca*8.5+phase*2.3, sa*8.5+phase*2.3) - 0.5;
+      r += (lo*1.0 + hi*0.5) * rough * ampBase;
+    }
+    const x=ca*r, y=sa*r;
+    if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y);
+  }
+  ctx.closePath();
+}
+
+/* ============================================================
+   글자 배치
+   ============================================================ */
+function layoutCells(n, mode){
+  let cols;
+  if(mode==='horizontal') cols=n;
+  else if(mode==='vertical') cols=1;
+  else if(mode==='grid') cols=Math.ceil(Math.sqrt(n));
+  else { // auto
+    if(n<=3) cols=1;
+    else if(n<=6) cols=2;
+    else if(n<=9) cols=3;
+    else cols=Math.ceil(Math.sqrt(n));
+  }
+  cols=Math.max(1, Math.min(cols, n));
+  const base=Math.floor(n/cols), extra=n%cols;
+  const counts=[];
+  for(let c=0;c<cols;c++) counts.push(base+(c<extra?1:0));
+  return {cols, counts};
+}
+/* 가로:세로 비율이 A 인 직사각형을 초타원 안에 최대로 넣었을 때의 세로 반크기 */
+function inscribedHalfHeight(A, rx, ry, n){
+  const u=A/rx, v=1/ry;
+  const m=Math.max(u,v);
+  const s=Math.pow(Math.pow(u/m,n)+Math.pow(v/m,n), 1/n);
+  return 1/(m*s);
+}
+/* 글자를 채울 순서대로 칸(중심좌표+크기) 목록을 만든다 */
+function buildCells(grid, trad, boxW, boxH){
+  const {cols, counts}=grid;
+  const cw=boxW/cols;
+  // 칸 높이는 가장 긴 열을 기준으로 통일하고, 짧은 열은 위아래 가운데로 모은다.
+  // (열마다 높이를 다르게 하면 글자 크기가 들쭉날쭉해진다)
+  const ch=boxH/Math.max(...counts);
+  const cells=[];
+  for(let c=0;c<cols;c++){
+    const colPos = trad ? (cols-1-c) : c;
+    const cx = -boxW/2 + cw*(colPos+0.5);
+    const rows=counts[c];
+    const colH=ch*rows;
+    for(let r=0;r<rows;r++){
+      cells.push({ cx, cy:-colH/2 + ch*(r+0.5), w:cw, h:ch });
+    }
+  }
+  return cells;
+}
+
+/* ============================================================
+   전체 렌더
+   ============================================================ */
+const REF = 220; // 글자 측정용 기준 폰트 크기
+
+function fontSpec(f, px){ return `${f.w} ${px}px "${f.fam}", serif`; }
+
+async function ensureFont(f, sample){
+  try{
+    await document.fonts.load(fontSpec(f, 100), sample || '가');
+    await document.fonts.load(fontSpec(f, REF), sample || '가');
+  }catch(e){ /* CDN 차단 등 — 대체 글씨체로 그린다 */ }
+}
+
+function render(ctx, size, st){
+  const f = FONTS[st.fontIdx] || FONTS[0];
+  const chars = [...st.text.trim()].filter(c=>c!==' ');
+  const all = chars.concat([...st.suffix]);
+  const n = all.length;
+
+  ctx.clearRect(0,0,size,size);
+  ctx.save();
+  ctx.translate(size/2, size/2);
+  ctx.rotate(st.rot*Math.PI/180);
+
+  const margin = size*0.045;
+  const R = size/2 - margin;
+  const {rx, ry} = shapeRadii(st.shape, R);
+  const nExp = shapeExp(st.shape);
+  const rough = st.rough/100;
+  const fbm = makeNoise(st.seed ^ 0x9e37);
+  const roughAmp = R*0.09;
+
+  const bw = R * (st.border/1000);          // 테두리 두께 (0 ~ 0.14R)
+  const padIn = R * (st.pad/1000);          // 안쪽 여백
+
+  /* ---- 테두리 / 바탕 ---- */
+  ctx.fillStyle = st.color;
+  ctx.strokeStyle = st.color;
+  ctx.lineJoin='round';
+
+  if(st.style==='eum'){
+    // 음각: 도형을 붉게 채우고, 글자는 나중에 파낸다
+    outlinePath(ctx, rx, ry, nExp, rough, fbm, 3.1, roughAmp);
+    ctx.fill();
+    if(bw > R*0.012){
+      // 바탕 안쪽에 테두리 선을 파내 전통 관인 느낌을 준다
+      const inset = bw*1.9;
+      ctx.save();
+      ctx.globalCompositeOperation='destination-out';
+      ctx.lineWidth = bw*0.55;
+      outlinePath(ctx, rx-inset, ry-inset, nExp, rough, fbm, 3.1, roughAmp*0.8);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }else if(bw > 0.5){
+    // 양각: 테두리 선만 그린다
+    ctx.lineWidth = bw;
+    outlinePath(ctx, rx-bw/2, ry-bw/2, nExp, rough, fbm, 3.1, roughAmp);
+    ctx.stroke();
+  }
+
+  /* ---- 안쪽 여유 반지름 ---- */
+  let riX = rx - bw - padIn;
+  let riY = ry - bw - padIn;
+  if(st.style==='eum'){ riX -= bw*1.4; riY -= bw*1.4; }
+
+  /* ---- 글자 ---- */
+  if(n>0 && riX>4 && riY>4){
+    // 칸이 정사각형에 가까워지도록 글자판 비율을 정하고, 그 비율로 초타원에 내접시킨다
+    const grid = layoutCells(n, st.layout);
+    const rowsMax = Math.max(...grid.counts);
+    const A = grid.cols/rowsMax;
+    const boost = 1.0;                // 글자판은 내접 사각형까지. 여유는 '글자 크기' 슬라이더로 준다.
+    const halfH = inscribedHalfHeight(A, riX, riY, nExp);
+    const boxH = 2*halfH*boost;
+    const boxW = boxH*A;
+    const cells = buildCells(grid, st.trad, boxW, boxH);
+    const fill = st.glyphFill/100;
+
+    ctx.save();
+    if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
+    ctx.fillStyle = st.color;
+    ctx.font = fontSpec(f, REF);
+    ctx.textAlign='center';
+    ctx.textBaseline='alphabetic';
+
+    for(let i=0;i<n && i<cells.length;i++){
+      const ch=all[i], cell=cells[i];
+      const m=ctx.measureText(ch);
+      const gw=Math.max(1, (m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0) || m.width);
+      const gh=Math.max(1, (m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0));
+      const gx=((m.actualBoundingBoxRight||0)-(m.actualBoundingBoxLeft||0))/2;
+      const gy=((m.actualBoundingBoxAscent||REF*0.72)-(m.actualBoundingBoxDescent||0))/2;
+
+      let sx=(cell.w*fill)/gw, sy=(cell.h*fill)/gh;
+      if(!st.stretch){
+        const s=Math.min(sx,sy); sx=s; sy=s;
+      }else{
+        // 칸을 채우되 장평이 과하게 일그러지지 않도록 가로:세로 비율을 제한한다
+        const AR=1.35;
+        if(sx > sy*AR) sx = sy*AR;
+        if(sy > sx*AR) sy = sx*AR;
+      }
+
+      ctx.save();
+      ctx.translate(cell.cx, cell.cy);
+      ctx.scale(sx, sy);
+      ctx.fillText(ch, -gx, gy);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  /* ---- 잉크 번짐·끊김 ---- */
+  if(st.ink>0) applyInk(ctx, size, st);
+}
+
+/* 잉크가 고르게 묻지 않은 느낌: 획 경계부터 벗겨지고, 넓은 면은 얼룩진다 */
+function applyInk(ctx, size, st){
+  const img = ctx.getImageData(0,0,size,size);
+  const d = img.data;
+  const N = size*size;
+
+  const A = new Float32Array(N);
+  let any=false;
+  for(let i=0;i<N;i++){ const a=d[i*4+3]/255; A[i]=a; if(a>0) any=true; }
+  if(!any) return;
+
+  const amt = (st.ink/100)*0.78;                        // 끊김 강도
+  const gr  = st.grain/100;
+  // 얼룩 크기는 1024px 기준으로 정하고, 해상도가 달라도 같은 모습이 되도록 반비례로 맞춘다
+  const freqBreak = (0.005 + gr*0.032) * (1024/size);
+  const freqSoft  = freqBreak*0.32;
+  const Fb = buildField(size, st.seed*7919+13, freqBreak);
+  const Fs = buildField(size, st.seed*104729+7, freqSoft);
+
+  const step = Math.max(2, Math.round(size*0.006));     // 경계 판정 간격 (도장 크기에 비례)
+  const soft = 0.11;
+
+  for(let y=0;y<size;y++){
+    const row=y*size;
+    for(let x=0;x<size;x++){
+      const i=row+x;
+      const a0=A[i];
+      if(a0<=0) continue;
+
+      // 주변 알파 평균 → 1에 가까우면 획 내부, 작으면 경계
+      const xm=x>step?x-step:0, xp=x+step<size?x+step:size-1;
+      const ym=y>step?y-step:0, yp=y+step<size?y+step:size-1;
+      const cov=(A[row+xm]+A[row+xp]+A[ym*size+x]+A[yp*size+x])*0.25;
+      const edge=1-Math.min(1,cov);
+
+      const nb=sampleField(Fb,x,y);
+      const ns=sampleField(Fs,x,y);
+
+      // 경계일수록 문턱이 높아져 먼저 벗겨진다
+      const th = amt*(0.5 + 1.05*edge);
+      const keep = smoothstep(th-soft, th+soft, nb);
+
+      // 남은 부분도 농담 차이가 생긴다. fBm 은 값이 중앙에 몰리므로 폭을 넓혀 대비를 살린다.
+      const nsw = smoothstep(0.32, 0.68, ns);
+      const dens = 1 - (st.ink/100)*0.45*(1-nsw);
+
+      const a = a0*keep*dens;
+      d[i*4+3] = a<=0 ? 0 : a>=1 ? 255 : (a*255)|0;
+    }
+  }
+  ctx.putImageData(img,0,0);
+}
+
+/* ============================================================
+   UI 연결
+   ============================================================ */
+const view = document.getElementById('view');
+const vctx = view.getContext('2d', {willReadFrequently:true});
+const statusEl = document.getElementById('status');
+const metaEl = document.getElementById('meta');
+
+const $ = id => document.getElementById(id);
+
+/* 글씨체 select 채우기 */
+(function fillFonts(){
+  const sel=$('font');
+  const groups=[...new Set(FONTS.map(f=>f.group))];
+  groups.forEach(g=>{
+    const og=document.createElement('optgroup');
+    og.label=g;
+    FONTS.forEach((f,i)=>{
+      if(f.group!==g) return;
+      const o=document.createElement('option');
+      o.value=i; o.textContent=f.label;
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+  sel.value='0';
+})();
+
+/* 슬라이더 표시값 */
+const SL_FMT = {
+  glyphFill:v=>v+'%', border:v=>(v/10).toFixed(1)+'%', pad:v=>(v/10).toFixed(1)+'%',
+  rot:v=>(+v).toFixed(1)+'°', ink:v=>v+'%', grain:v=>v+'%', rough:v=>v+'%',
+};
+function syncOutputs(){
+  Object.keys(SL_FMT).forEach(k=>{
+    const el=$(k), out=$('o-'+k);
+    if(el&&out) out.textContent=SL_FMT[k](el.value);
+  });
+}
+
+/* 세그먼트 버튼 */
+function wireSeg(id, key){
+  const box=$(id);
+  box.addEventListener('click', e=>{
+    const b=e.target.closest('button');
+    if(!b) return;
+    [...box.querySelectorAll('button')].forEach(x=>x.setAttribute('aria-pressed', String(x===b)));
+    S[key]=b.dataset.v;
+    schedule();
+  });
+}
+function setSeg(id, key, val){
+  S[key]=val;
+  [...$(id).querySelectorAll('button')].forEach(x=>x.setAttribute('aria-pressed', String(x.dataset.v===val)));
+}
+wireSeg('layout','layout');
+wireSeg('shape','shape');
+wireSeg('style','style');
+
+/* 입력 → 상태 */
+const TEXT_KEYS=[['text','text'],['suffix','suffix']];
+TEXT_KEYS.forEach(([id,key])=>{
+  $(id).addEventListener('input', e=>{ S[key]=e.target.value; schedule(); });
+});
+const NUM_KEYS=['glyphFill','border','pad','rot','ink','grain','rough'];
+NUM_KEYS.forEach(id=>{
+  $(id).addEventListener('input', e=>{ S[id]=+e.target.value; syncOutputs(); schedule(); });
+});
+const CHK_KEYS=['trad','stretch'];
+CHK_KEYS.forEach(id=>{
+  $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
+});
+$('font').addEventListener('change', async e=>{
+  S.fontIdx=+e.target.value;
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  schedule();
+});
+$('color').addEventListener('input', e=>{ S.color=e.target.value; schedule(); });
+document.querySelectorAll('.swatch').forEach(b=>{
+  b.addEventListener('click', ()=>{ S.color=b.dataset.color; $('color').value=S.color; schedule(); });
+});
+$('reseed').addEventListener('click', ()=>{
+  S.seed=(Math.random()*2147483647)|0;
+  schedule();
+});
+$('paper').addEventListener('change', e=>{
+  const box=$('cbox');
+  box.classList.toggle('paper', e.target.checked);
+  box.classList.toggle('checker', !e.target.checked);
+});
+
+/* 프리셋 */
+const PRESETS = {
+  personal:{ text:'남궁연', suffix:'', shape:'circle', style:'yang', layout:'auto',
+             fontIdx:0, border:52, pad:60, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
+  nakgwan:{ text:'남궁연', suffix:'印', shape:'rounded', style:'eum', layout:'grid',
+             fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
+  soft:{ ink:16, grain:62, rough:14 },
+  worn:{ ink:62, grain:34, rough:58 },
+};
+$('presets').addEventListener('click', async e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  const p=PRESETS[b.dataset.preset]; if(!p) return;
+  Object.assign(S, p);
+  S.seed=(Math.random()*2147483647)|0;
+  pushStateToUI();
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  schedule();
+});
+
+function pushStateToUI(){
+  $('text').value=S.text;
+  $('suffix').value=S.suffix;
+  $('font').value=String(S.fontIdx);
+  $('color').value=S.color;
+  NUM_KEYS.forEach(id=>{ $(id).value=S[id]; });
+  CHK_KEYS.forEach(id=>{ $(id).checked=!!S[id]; });
+  setSeg('layout','layout',S.layout);
+  setSeg('shape','shape',S.shape);
+  setSeg('style','style',S.style);
+  syncOutputs();
+}
+
+/* ---- 미리보기 (프레임마다 한 번만) ---- */
+let pending=false;
+function schedule(){
+  if(pending) return;
+  pending=true;
+  requestAnimationFrame(()=>{
+    pending=false;
+    try{
+      render(vctx, view.width, S);
+      const n=[...S.text.trim()].filter(c=>c!==' ').length+[...S.suffix].length;
+      metaEl.textContent = `글자 ${n}자 · ${FONTS[S.fontIdx].label} · ${S.style==='yang'?'양각':'음각'} · 미리보기 ${view.width}px`;
+    }catch(err){
+      statusEl.textContent='그리기 오류: '+err.message;
+      console.error(err);
+    }
+  });
+}
+
+/* ---- 저장 ---- */
+function sanitize(s){
+  return (s||'도장').trim().replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30) || '도장';
+}
+async function renderToBlob(){
+  const size=+$('size').value;
+  const c=document.createElement('canvas');
+  c.width=c.height=size;
+  const ctx=c.getContext('2d',{willReadFrequently:true});
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  render(ctx, size, S);
+  return await new Promise(res=>c.toBlob(res,'image/png'));
+}
+async function withBusy(msg, fn){
+  const btns=[$('save'),$('copy')];
+  btns.forEach(b=>b.disabled=true);
+  statusEl.textContent=msg;
+  await new Promise(r=>setTimeout(r,16));
+  try{ await fn(); }
+  catch(err){ statusEl.textContent='오류: '+err.message; console.error(err); }
+  finally{ btns.forEach(b=>b.disabled=false); }
+}
+$('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', async()=>{
+  const blob=await renderToBlob();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`도장_${sanitize(S.text+S.suffix)}_${$('size').value}.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  statusEl.textContent=`저장했습니다 · ${$('size').value}px · 배경 투명`;
+}));
+$('copy').addEventListener('click', ()=>withBusy('복사할 이미지를 만들고 있습니다…', async()=>{
+  const blob=await renderToBlob();
+  if(!navigator.clipboard || !window.ClipboardItem){
+    statusEl.textContent='이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 저장을 이용하세요.';
+    return;
+  }
+  await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+  statusEl.textContent='클립보드에 복사했습니다. 문서에 붙여넣기 하세요.';
+}));
+
+/* ---- 시작 ---- */
+(async function init(){
+  pushStateToUI();
+  schedule();                                  // 폰트 로딩 전에도 일단 보여준다
+  // 브라우저가 새로고침 때 입력값을 되살려 놓는 경우가 있어, 로드 후 한 번 더 맞춘다
+  window.addEventListener('load', ()=>{ pushStateToUI(); schedule(); });
+  try{ await document.fonts.ready; }catch(e){}
+  await ensureFont(FONTS[S.fontIdx], S.text+'가印');
+  schedule();                                  // 웹폰트가 적용된 모습으로 다시 그린다
+})();
+</script>
+</body>
+</html>
