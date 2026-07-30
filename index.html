@@ -270,7 +270,7 @@
         <label class="lb" for="suffix">보조 글자</label>
         <select id="suffix">
           <option value="">없음</option>
-          <option value="인">인 붙이기</option>
+          <option value="인" selected>인 붙이기</option>
           <option value="印">印 붙이기</option>
           <option value="之印">之印 붙이기</option>
         </select>
@@ -426,7 +426,7 @@ const FONTS = [
    상태
    ============================================================ */
 const S = {
-  text:'남궁연', suffix:'',
+  text:'남궁연', suffix:'인',
   fontIdx:0,
   shape:'circle', style:'yang', layout:'auto',
   trad:true, stretch:true, glyphFill:96,
@@ -845,7 +845,7 @@ $('paper').addEventListener('change', e=>{
 
 /* 프리셋 */
 const PRESETS = {
-  personal:{ text:'남궁연', suffix:'', shape:'circle', style:'yang', layout:'auto',
+  personal:{ text:'남궁연', suffix:'인', shape:'circle', style:'yang', layout:'auto',
              fontIdx:0, border:52, pad:60, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
   nakgwan:{ text:'남궁연', suffix:'印', shape:'rounded', style:'eum', layout:'grid',
              fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
