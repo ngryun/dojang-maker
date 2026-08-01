@@ -847,11 +847,13 @@ $('paper').addEventListener('change', e=>{
   box.classList.toggle('checker', !e.target.checked);
 });
 
-/* 프리셋 */
+/* 프리셋
+   생김새만 바꾼다. 입력한 이름(text)은 건드리지 않는다 —
+   프리셋을 눌러 볼 때마다 이름을 다시 치게 만들면 안 되므로 여기에 text 를 넣지 않는다. */
 const PRESETS = {
-  personal:{ text:'남궁연', suffix:'인', shape:'circle', style:'yang', layout:'auto',
+  personal:{ suffix:'인', shape:'circle', style:'yang', layout:'auto',
              fontIdx:0, border:52, pad:60, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
-  nakgwan:{ text:'남궁연', suffix:'印', shape:'rounded', style:'eum', layout:'grid',
+  nakgwan:{ suffix:'印', shape:'rounded', style:'eum', layout:'grid',
              fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
   soft:{ ink:16, grain:62, rough:14 },
   worn:{ ink:62, grain:34, rough:58 },
