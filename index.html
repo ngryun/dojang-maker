@@ -129,6 +129,18 @@
   }
   .presets button:hover{border-color:var(--accent); color:var(--accent)}
 
+  .saveline{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    margin-top:10px; padding-top:9px; border-top:1px dashed var(--line);
+  }
+  .saveline span{font-size:11px; color:var(--muted); line-height:1.35}
+  .saveline button{
+    flex:none; padding:6px 10px; border:1px solid var(--line); border-radius:7px;
+    background:#fff; cursor:pointer; font-family:inherit; font-size:11.5px; color:#6b6357;
+    white-space:nowrap;
+  }
+  .saveline button:hover{border-color:var(--accent); color:var(--accent)}
+
   /* ---------- 미리보기 ---------- */
   .stage{
     padding:26px 20px 40px; display:flex; flex-direction:column;
@@ -206,6 +218,7 @@
     .colors{gap:10px}
     .colors input[type=color]{width:48px; height:38px}
     .swatch{width:36px; height:36px}
+    .saveline button{padding:10px 12px; font-size:12px}
     .toggle-view{padding:6px 0}
     .toggle-view input{width:22px; height:22px; accent-color:var(--accent)}
 
@@ -257,6 +270,10 @@
         <button data-preset="nakgwan">사각 낙관</button>
         <button data-preset="soft">도장밥 옅게</button>
         <button data-preset="worn">많이 낡은</button>
+      </div>
+      <div class="saveline">
+        <span id="saveNote">설정은 이 브라우저에 자동으로 저장됩니다.</span>
+        <button type="button" id="reset">처음 설정으로</button>
       </div>
     </fieldset>
 
@@ -842,9 +859,17 @@ $('reseed').addEventListener('click', ()=>{
   schedule();
 });
 $('paper').addEventListener('change', e=>{
-  const box=$('cbox');
-  box.classList.toggle('paper', e.target.checked);
-  box.classList.toggle('checker', !e.target.checked);
+  setPaper(e.target.checked);
+  saveState();
+});
+$('reset').addEventListener('click', async ()=>{
+  Object.assign(S, JSON.parse(JSON.stringify(DEFAULTS)));
+  S.seed=(Math.random()*2147483647)|0;
+  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  setPaper(false);
+  pushStateToUI();
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  schedule();
 });
 
 /* 프리셋
@@ -881,6 +906,78 @@ function pushStateToUI(){
   syncOutputs();
 }
 
+/* ============================================================
+   브라우저에 설정 저장 (localStorage)
+   ============================================================ */
+const STORE_KEY='dojang-maker/settings/v1';
+const DEFAULTS=JSON.parse(JSON.stringify(S));   // 되돌리기용 원본. S 가 바뀌기 전에 떠 둔다.
+
+// github.io 는 한 계정의 모든 프로젝트가 같은 origin 을 쓴다.
+// 다른 프로젝트와 섞이지 않도록 키에 이름을 붙인다.
+const CAN_STORE=(function(){
+  try{
+    const k=STORE_KEY+'/__test';
+    localStorage.setItem(k,'1'); localStorage.removeItem(k); return true;
+  }catch(e){ return false; }   // 시크릿 모드·저장 차단 등
+})();
+
+let saveTimer=0;
+function saveState(){
+  if(!CAN_STORE) return;
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(Object.assign({}, S, {paper:$('paper').checked})));
+    }catch(e){ /* 용량 초과 등 — 저장 못 해도 그리기에는 지장 없다 */ }
+  }, 350);
+}
+
+/* 저장된 값은 예전 버전일 수도, 손으로 고쳐졌을 수도 있다.
+   기본값과 자료형이 같고 허용 범위 안에 드는 것만 받아들인다. */
+function loadState(){
+  if(!CAN_STORE) return null;
+  let saved;
+  try{
+    const raw=localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    saved=JSON.parse(raw);
+  }catch(e){ return null; }
+  if(!saved || typeof saved!=='object') return null;
+
+  const segVals=id=>[...$(id).querySelectorAll('button')].map(b=>b.dataset.v);
+  const ENUM={shape:segVals('shape'), style:segVals('style'), layout:segVals('layout')};
+  const SUFFIXES=[...$('suffix').options].map(o=>o.value);
+
+  Object.keys(DEFAULTS).forEach(k=>{
+    const v=saved[k], d=DEFAULTS[k];
+    if(v===undefined || typeof v!==typeof d) return;
+
+    if(typeof d==='boolean'){ S[k]=v; return; }
+
+    if(typeof d==='number'){
+      if(!isFinite(v)) return;
+      const el=$(k);
+      if(el && el.type==='range') S[k]=Math.min(+el.max, Math.max(+el.min, v));
+      else if(k==='fontIdx')      S[k]=Math.min(FONTS.length-1, Math.max(0, Math.round(v)));
+      else                        S[k]=v|0;
+      return;
+    }
+
+    // 문자열
+    if(k==='text')        S.text=v.slice(0, +$('text').maxLength || 14);
+    else if(k==='suffix'){ if(SUFFIXES.includes(v)) S.suffix=v; }
+    else if(k==='color') { if(/^#[0-9a-fA-F]{6}$/.test(v)) S.color=v; }
+    else if(ENUM[k])     { if(ENUM[k].includes(v)) S[k]=v; }
+  });
+  return saved;
+}
+
+function setPaper(on){
+  $('paper').checked=on;
+  $('cbox').classList.toggle('paper', on);
+  $('cbox').classList.toggle('checker', !on);
+}
+
 /* ---- 미리보기 (프레임마다 한 번만) ---- */
 let pending=false;
 function schedule(){
@@ -896,6 +993,7 @@ function schedule(){
       statusEl.textContent='그리기 오류: '+err.message;
       console.error(err);
     }
+    saveState();
   });
 }
 
@@ -943,7 +1041,10 @@ $('copy').addEventListener('click', ()=>withBusy('복사할 이미지를 만들�
 
 /* ---- 시작 ---- */
 (async function init(){
+  const restored = loadState();                // 지난번에 쓰던 설정 복원
+  if(!CAN_STORE) $('saveNote').textContent='이 브라우저에서는 설정 저장을 쓸 수 없습니다.';
   pushStateToUI();
+  setPaper(!!(restored && restored.paper));
   schedule();                                  // 폰트 로딩 전에도 일단 보여준다
   // 브라우저가 새로고침 때 입력값을 되살려 놓는 경우가 있어, 로드 후 한 번 더 맞춘다
   window.addEventListener('load', ()=>{ pushStateToUI(); schedule(); });
