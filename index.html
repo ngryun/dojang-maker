@@ -146,6 +146,14 @@
     padding:26px 20px 40px; display:flex; flex-direction:column;
     align-items:center; gap:14px;
   }
+
+  /* 데스크톱에서는 설정을 내려도 결과를 계속 보면서 조절할 수 있게 고정한다. */
+  @media (min-width:901px){
+    .stage{
+      position:sticky; top:0; align-self:start;
+      height:100vh; max-height:100vh; overflow:auto;
+    }
+  }
   .canvas-box{
     position:relative; width:100%; max-width:470px; aspect-ratio:1;
     border-radius:var(--radius); border:1px solid var(--line); overflow:hidden;
@@ -266,6 +274,9 @@
     <fieldset>
       <legend>빠른 설정</legend>
       <div class="presets" id="presets">
+        <button data-preset="modern" title="여백을 살린 단정한 명조 도장">미니멀</button>
+        <button data-preset="classic" title="가느다란 안쪽 선을 두른 정갈한 인감">클래식 이중선</button>
+        <button data-preset="brush" title="붓글씨와 은은한 인주 질감의 낙관">붓글씨 낙관</button>
         <button data-preset="personal">개인 인감</button>
         <button data-preset="nakgwan">사각 낙관</button>
         <button data-preset="soft">도장밥 옅게</button>
@@ -312,6 +323,10 @@
         <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
       </div>
       <div class="row">
+        <label class="lb" for="spacing">글자 간격 <span class="hint">글자 사이에 숨 쉴 여백</span></label>
+        <div class="sl"><input type="range" id="spacing" min="0" max="24" value="0"><output id="o-spacing"></output></div>
+      </div>
+      <div class="row">
         <label class="lb" for="glyphFill">글자 크기 <span class="hint">칸을 채우는 비율</span></label>
         <div class="sl"><input type="range" id="glyphFill" min="50" max="115" value="96"><output id="o-glyphFill"></output></div>
       </div>
@@ -349,6 +364,9 @@
       <div class="row">
         <label class="lb" for="border">테두리 두께</label>
         <div class="sl"><input type="range" id="border" min="0" max="140" value="52"><output id="o-border"></output></div>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="doubleBorder"> 이중 테두리 <span class="hint">양각에 가는 안쪽 선 추가</span></label>
       </div>
       <div class="row">
         <label class="lb" for="pad">안쪽 여백</label>
@@ -450,7 +468,7 @@ const S = {
   text:'남궁연', suffix:'인',
   fontIdx:0,
   shape:'circle', style:'yang', layout:'auto',
-  trad:true, stretch:true, glyphFill:96,
+  trad:true, stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
   border:52, pad:60, rot:0,
   ink:34, grain:45, rough:28,
@@ -614,6 +632,18 @@ async function ensureFont(f, sample){
   }catch(e){ /* CDN 차단 등 — 대체 글씨체로 그린다 */ }
 }
 
+/* 회전된 윤곽과 최대 요철을 캔버스 안에 두어 모서리 잘림을 막는다. */
+function stampRadius(size, shape, rotation, rough){
+  const {rx,ry}=shapeRadii(shape,1), exponent=shapeExp(shape);
+  const turn=rotation*Math.PI/180;
+  let extent=1;
+  for(let i=0;i<720;i++){
+    const a=i*Math.PI*2/720, r=outlineR(a,rx,ry,exponent);
+    extent=Math.max(extent,Math.abs(r*Math.cos(a+turn)),Math.abs(r*Math.sin(a+turn)));
+  }
+  return size*0.455/(extent+rough/100*0.0675);
+}
+
 function render(ctx, size, st){
   const f = FONTS[st.fontIdx] || FONTS[0];
   const chars = [...st.text.trim()].filter(c=>c!==' ');
@@ -625,8 +655,7 @@ function render(ctx, size, st){
   ctx.translate(size/2, size/2);
   ctx.rotate(st.rot*Math.PI/180);
 
-  const margin = size*0.045;
-  const R = size/2 - margin;
+  const R = stampRadius(size, st.shape, st.rot, st.rough);
   const {rx, ry} = shapeRadii(st.shape, R);
   const nExp = shapeExp(st.shape);
   const rough = st.rough/100;
@@ -662,9 +691,18 @@ function render(ctx, size, st){
     ctx.stroke();
   }
 
+  // 바깥 선보다 가늘게, 선 사이에는 일정한 여백을 둔다.
+  const doubleInset=st.doubleBorder && st.style==='yang' && bw>0.5 ? bw*2.15 : 0;
+  if(doubleInset){
+    ctx.lineWidth=bw*0.38;
+    outlinePath(ctx, rx-doubleInset, ry-doubleInset, nExp, rough, fbm, 3.1, roughAmp*0.8);
+    ctx.stroke();
+  }
+
   /* ---- 안쪽 여유 반지름 ---- */
-  let riX = rx - bw - padIn;
-  let riY = ry - bw - padIn;
+  const frameInset=doubleInset ? doubleInset+bw*0.19 : bw;
+  let riX = rx - frameInset - padIn;
+  let riY = ry - frameInset - padIn;
   if(st.style==='eum'){ riX -= bw*1.4; riY -= bw*1.4; }
 
   /* ---- 글자 ---- */
@@ -679,6 +717,7 @@ function render(ctx, size, st){
     const boxW = boxH*A;
     const cells = buildCells(grid, st.trad, boxW, boxH);
     const fill = st.glyphFill/100;
+    const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
 
     ctx.save();
     if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
@@ -687,17 +726,24 @@ function render(ctx, size, st){
     ctx.textAlign='center';
     ctx.textBaseline='alphabetic';
 
+    const metrics=all.map(ch=>ctx.measureText(ch));
+    // 원래 비율 모드에서는 모든 글자에 같은 배율을 적용한다.
+    // 글자마다 다른 실제 획 폭을 같은 너비로 늘리면 명조·붓글씨가 흐트러진다.
+    const uniformScale=Math.min(...metrics.map((m,i)=>Math.min(
+      (cells[i].w-gap)*fill/Math.max(1,(m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0)||m.width),
+      (cells[i].h-gap)*fill/Math.max(1,(m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0))
+    )));
     for(let i=0;i<n && i<cells.length;i++){
       const ch=all[i], cell=cells[i];
-      const m=ctx.measureText(ch);
+      const m=metrics[i];
       const gw=Math.max(1, (m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0) || m.width);
       const gh=Math.max(1, (m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0));
       const gx=((m.actualBoundingBoxRight||0)-(m.actualBoundingBoxLeft||0))/2;
       const gy=((m.actualBoundingBoxAscent||REF*0.72)-(m.actualBoundingBoxDescent||0))/2;
 
-      let sx=(cell.w*fill)/gw, sy=(cell.h*fill)/gh;
+      let sx=((cell.w-gap)*fill)/gw, sy=((cell.h-gap)*fill)/gh;
       if(!st.stretch){
-        const s=Math.min(sx,sy); sx=s; sy=s;
+        sx=uniformScale; sy=uniformScale;
       }else{
         // 칸을 채우되 장평이 과하게 일그러지지 않도록 가로:세로 비율을 제한한다
         const AR=1.35;
@@ -804,7 +850,7 @@ const $ = id => document.getElementById(id);
 /* 슬라이더 표시값 */
 const SL_FMT = {
   glyphFill:v=>v+'%', border:v=>(v/10).toFixed(1)+'%', pad:v=>(v/10).toFixed(1)+'%',
-  rot:v=>(+v).toFixed(1)+'°', ink:v=>v+'%', grain:v=>v+'%', rough:v=>v+'%',
+  spacing:v=>v+'%', rot:v=>(+v).toFixed(1)+'°', ink:v=>v+'%', grain:v=>v+'%', rough:v=>v+'%',
 };
 function syncOutputs(){
   Object.keys(SL_FMT).forEach(k=>{
@@ -837,11 +883,11 @@ const TEXT_KEYS=[['text','text'],['suffix','suffix']];
 TEXT_KEYS.forEach(([id,key])=>{
   $(id).addEventListener('input', e=>{ S[key]=e.target.value; schedule(); });
 });
-const NUM_KEYS=['glyphFill','border','pad','rot','ink','grain','rough'];
+const NUM_KEYS=['glyphFill','spacing','border','pad','rot','ink','grain','rough'];
 NUM_KEYS.forEach(id=>{
   $(id).addEventListener('input', e=>{ S[id]=+e.target.value; syncOutputs(); schedule(); });
 });
-const CHK_KEYS=['trad','stretch'];
+const CHK_KEYS=['trad','stretch','doubleBorder'];
 CHK_KEYS.forEach(id=>{
   $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
 });
@@ -876,9 +922,18 @@ $('reset').addEventListener('click', async ()=>{
    생김새만 바꾼다. 입력한 이름(text)은 건드리지 않는다 —
    프리셋을 눌러 볼 때마다 이름을 다시 치게 만들면 안 되므로 여기에 text 를 넣지 않는다. */
 const PRESETS = {
-  personal:{ suffix:'인', shape:'circle', style:'yang', layout:'auto',
+  modern:{ suffix:'', shape:'circle', style:'yang', layout:'auto', color:'#8f1d22',
+           fontIdx:0, border:30, pad:100, glyphFill:92, spacing:12, doubleBorder:false,
+           ink:6, grain:65, rough:4, rot:0, stretch:false, trad:true },
+  classic:{ suffix:'인', shape:'circle', style:'yang', layout:'auto', color:'#9b252b',
+            fontIdx:0, border:42, pad:65, glyphFill:96, spacing:7, doubleBorder:true,
+            ink:12, grain:58, rough:8, rot:0, stretch:false, trad:true },
+  brush:{ suffix:'', shape:'rounded', style:'yang', layout:'auto', color:'#a3382c',
+          fontIdx:11, border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
+          ink:20, grain:55, rough:24, rot:-2, stretch:false, trad:true },
+  personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
              fontIdx:0, border:52, pad:60, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
-  nakgwan:{ suffix:'印', shape:'rounded', style:'eum', layout:'grid',
+  nakgwan:{ spacing:0, doubleBorder:false, suffix:'印', shape:'rounded', style:'eum', layout:'grid',
              fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
   soft:{ ink:16, grain:62, rough:14 },
   worn:{ ink:62, grain:34, rough:58 },
@@ -925,12 +980,20 @@ let saveTimer=0;
 function saveState(){
   if(!CAN_STORE) return;
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{
-    try{
-      localStorage.setItem(STORE_KEY, JSON.stringify(Object.assign({}, S, {paper:$('paper').checked})));
-    }catch(e){ /* 용량 초과 등 — 저장 못 해도 그리기에는 지장 없다 */ }
-  }, 350);
+  saveTimer=setTimeout(flushState, 350);
 }
+
+function flushState(){
+  clearTimeout(saveTimer);
+  if(!CAN_STORE) return;
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:$('paper').checked}));
+  }catch(e){ $('saveNote').textContent='설정을 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.'; }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.visibilityState==='hidden') flushState();
+});
+window.addEventListener('pagehide', flushState);
 
 /* 저장된 값은 예전 버전일 수도, 손으로 고쳐졌을 수도 있다.
    기본값과 자료형이 같고 허용 범위 안에 드는 것만 받아들인다. */
@@ -1001,41 +1064,52 @@ function schedule(){
 function sanitize(s){
   return (s||'도장').trim().replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30) || '도장';
 }
-async function renderToBlob(){
-  const size=+$('size').value;
+async function renderToBlob(st, size){
   const c=document.createElement('canvas');
   c.width=c.height=size;
   const ctx=c.getContext('2d',{willReadFrequently:true});
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
-  render(ctx, size, S);
-  return await new Promise(res=>c.toBlob(res,'image/png'));
+  await ensureFont(FONTS[st.fontIdx], st.text+st.suffix+'가印');
+  render(ctx, size, st);
+  return await new Promise((resolve,reject)=>c.toBlob(blob=>{
+    if(blob) resolve(blob);
+    else reject(new Error('이미지를 만들지 못했습니다. 다시 시도하세요.'));
+  },'image/png'));
 }
 async function withBusy(msg, fn){
   const btns=[$('save'),$('copy')];
   btns.forEach(b=>b.disabled=true);
   statusEl.textContent=msg;
-  await new Promise(r=>setTimeout(r,16));
+  // 복사는 클릭의 사용자 활성화가 유지되는 동안 시작해야 한다.
   try{ await fn(); }
   catch(err){ statusEl.textContent='오류: '+err.message; console.error(err); }
   finally{ btns.forEach(b=>b.disabled=false); }
 }
 $('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', async()=>{
-  const blob=await renderToBlob();
+  const st={...S}, size=+$('size').value;
+  const blob=await renderToBlob(st, size);
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download=`도장_${sanitize(S.text+S.suffix)}_${$('size').value}.png`;
+  a.download=`도장_${sanitize(st.text+st.suffix)}_${size}.png`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(()=>URL.revokeObjectURL(url), 4000);
-  statusEl.textContent=`저장했습니다 · ${$('size').value}px · 배경 투명`;
+  statusEl.textContent=`저장했습니다 · ${size}px · 배경 투명`;
 }));
 $('copy').addEventListener('click', ()=>withBusy('복사할 이미지를 만들고 있습니다…', async()=>{
-  const blob=await renderToBlob();
-  if(!navigator.clipboard || !window.ClipboardItem){
+  if(!navigator.clipboard?.write || !window.ClipboardItem){
     statusEl.textContent='이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 저장을 이용하세요.';
     return;
   }
-  await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+  const blobPromise=renderToBlob({...S}, +$('size').value);
+  // 권한 거부 이후 이미지 생성이 실패해도 미처리 오류를 남기지 않는다.
+  blobPromise.catch(()=>{});
+  try{
+    await navigator.clipboard.write([new ClipboardItem({'image/png':blobPromise})]);
+  }catch(err){
+    statusEl.textContent='이미지 복사를 완료하지 못했습니다. 브라우저 권한을 확인하거나 PNG 저장을 이용하세요.';
+    console.error(err);
+    return;
+  }
   statusEl.textContent='클립보드에 복사했습니다. 문서에 붙여넣기 하세요.';
 }));
 
