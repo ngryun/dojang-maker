@@ -598,6 +598,33 @@ function inscribedHalfHeight(A, rx, ry, n){
   const s=Math.pow(Math.pow(u/m,n)+Math.pow(v/m,n), 1/n);
   return 1/(m*s);
 }
+/* 글자판(사각형)의 세로 반크기를 정한다.
+   내접 사각형만 쓰면 원형 도장에서 글자가 지름의 71%까지밖에 못 커진다.
+   실제 도장처럼 모서리 칸의 글자가 테두리에 살짝 잘리는 것을 허용해 글자판을 키우되,
+   잘리는 깊이는 글자 폭·높이의 CORNER_CUT 배를 넘지 않게 한다. (잘리는 부분은 render 에서 clip 으로 깎는다)
+   사각 도장(지수가 큰 초타원)은 모서리가 거의 직각이라 자연히 내접 사각형과 같아진다. */
+const CORNER_CUT = 0.12;
+function fitBlockHalfHeight(grid, riX, riY, nExp, fill, spacing){
+  const rowsMax=Math.max(...grid.counts), cols=grid.cols;
+  const A=cols/rowsMax;
+  const base=inscribedHalfHeight(A, riX, riY, nExp);
+  const fits = halfH => {
+    const boxH=2*halfH, boxW=boxH*A;
+    const cw=boxW/cols, ch=boxH/rowsMax;
+    const gap=Math.min(cw,ch)*spacing/100;
+    const gw=(cw-gap)*fill, gh=(ch-gap)*fill;            // 글자 상자 크기
+    const gx=boxW/2-(cw-gw)/2, gy=boxH/2-(ch-gh)/2;      // 모서리 칸 글자 상자의 바깥 모서리
+    if(gx>=riX || gy>=riY) return false;
+    // 그 모서리 높이/너비에서 윤곽이 뻗는 범위. 모서리가 바깥이면 그 차이만큼 잘린다.
+    const xe=riX*Math.pow(1-Math.pow(gy/riY,nExp),1/nExp);
+    const ye=riY*Math.pow(1-Math.pow(gx/riX,nExp),1/nExp);
+    return (gx-xe)<=CORNER_CUT*gw && (gy-ye)<=CORNER_CUT*gh;
+  };
+  if(!fits(base)) return base;                           // 글자가 칸보다 큰 설정 등 — 예전대로
+  let lo=base, hi=base*2;
+  for(let i=0;i<30;i++){ const mid=(lo+hi)/2; if(fits(mid)) lo=mid; else hi=mid; }
+  return lo;
+}
 /* 글자를 채울 순서대로 칸(중심좌표+크기) 목록을 만든다 */
 function buildCells(grid, trad, boxW, boxH){
   const {cols, counts}=grid;
@@ -711,15 +738,19 @@ function render(ctx, size, st){
     const grid = layoutCells(n, st.layout);
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
-    const boost = 1.0;                // 글자판은 내접 사각형까지. 여유는 '글자 크기' 슬라이더로 준다.
-    const halfH = inscribedHalfHeight(A, riX, riY, nExp);
-    const boxH = 2*halfH*boost;
+    const fill = st.glyphFill/100;
+    const halfH = fitBlockHalfHeight(grid, riX, riY, nExp, fill, st.spacing || 0);
+    const boxH = 2*halfH;
     const boxW = boxH*A;
     const cells = buildCells(grid, st.trad, boxW, boxH);
-    const fill = st.glyphFill/100;
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
 
     ctx.save();
+    // 모서리 칸의 글자가 테두리 쪽으로 넘치는 부분은 안쪽 윤곽을 따라 깎는다 (실제 도장에서 획이 테두리에 맞춰 잘리는 것처럼).
+    // 여백 슬라이더(pad)가 0 이어도 글자가 테두리와 붙지 않도록 최소 간격을 둔다.
+    const clipInset = frameInset + (st.style==='eum' ? bw*1.4 : 0) + Math.max(padIn, bw*0.45, size*0.004);
+    outlinePath(ctx, rx-clipInset, ry-clipInset, nExp, rough, fbm, 3.1, roughAmp*0.8);
+    ctx.clip();
     if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
     ctx.fillStyle = st.color;
     ctx.font = fontSpec(f, REF);
