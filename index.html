@@ -370,7 +370,7 @@
       </div>
       <div class="row">
         <label class="lb" for="pad">안쪽 여백</label>
-        <div class="sl"><input type="range" id="pad" min="0" max="200" value="60"><output id="o-pad"></output></div>
+        <div class="sl"><input type="range" id="pad" min="0" max="200" value="40"><output id="o-pad"></output></div>
       </div>
       <div class="row">
         <label class="lb" for="rot">기울기</label>
@@ -470,7 +470,7 @@ const S = {
   shape:'circle', style:'yang', layout:'auto',
   trad:true, stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
-  border:52, pad:60, rot:0,
+  border:52, pad:40, rot:0,
   ink:34, grain:45, rough:28,
   seed:20260730,
 };
@@ -598,31 +598,97 @@ function inscribedHalfHeight(A, rx, ry, n){
   const s=Math.pow(Math.pow(u/m,n)+Math.pow(v/m,n), 1/n);
   return 1/(m*s);
 }
+/* 글자 하나의 실측 정보. 상자 크기(gw,gh)와 상자 중심이 기준선 원점에서 벗어난 양(gx,gy) */
+function glyphBox(m){
+  return {
+    gw: Math.max(1, (m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0) || m.width),
+    gh: Math.max(1, (m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0)),
+    gx: ((m.actualBoundingBoxRight||0)-(m.actualBoundingBoxLeft||0))/2,
+    gy: ((m.actualBoundingBoxAscent||REF*0.72)-(m.actualBoundingBoxDescent||0))/2,
+  };
+}
+/* 칸마다 글자를 얼마나 늘릴지(sx,sy). 그릴 때와 글자판 크기를 정할 때 같은 계산을 써야 하므로 함수로 뺐다. */
+function glyphScales(boxes, cells, gap, fill, stretch){
+  const each=boxes.map((b,i)=>({ sx:(cells[i].w-gap)*fill/b.gw, sy:(cells[i].h-gap)*fill/b.gh }));
+  if(!stretch){
+    // 원래 비율 모드에서는 모든 글자에 같은 배율을 적용한다.
+    // 글자마다 다른 실제 획 폭을 같은 너비로 늘리면 명조·붓글씨가 흐트러진다.
+    const u=Math.min(...each.map(e=>Math.min(e.sx,e.sy)));
+    return each.map(()=>({sx:u, sy:u}));
+  }
+  // 칸을 채우되 장평이 과하게 일그러지지 않도록 가로:세로 비율을 제한한다
+  const AR=1.35;
+  return each.map(({sx,sy})=>{
+    if(sx > sy*AR) sx = sy*AR;
+    if(sy > sx*AR) sy = sx*AR;
+    return {sx,sy};
+  });
+}
+
+/* 글자의 실제 잉크가 어디에 있는지 표본점으로 뽑아 둔다 (상자 중심 기준, REF 폰트 단위).
+   상자 모서리가 비어 있는 글자(ㅇ, 金 …)를 사각형으로 보면 테두리 가까이 넣을 수 없으므로,
+   글자판 크기를 정할 때 실제 획 모양을 본다. 글씨체·글자별로 한 번만 만들고 재사용한다. */
+const GLYPH_SAMPLES=new Map();
+let sampleCanvas=null;
+function glyphSamples(f, ch, box){
+  const key=f.fam+'|'+f.w+'|'+ch;
+  let smp=GLYPH_SAMPLES.get(key);
+  if(smp) return smp;
+  const N=48;
+  if(!sampleCanvas){ sampleCanvas=document.createElement('canvas'); sampleCanvas.width=sampleCanvas.height=N; }
+  const c=sampleCanvas.getContext('2d',{willReadFrequently:true});
+  const k=(N-4)/Math.max(box.gw, box.gh);
+  c.setTransform(1,0,0,1,0,0);
+  c.clearRect(0,0,N,N);
+  c.fillStyle='#000';
+  c.font=fontSpec(f, REF); c.textAlign='center'; c.textBaseline='alphabetic';
+  c.setTransform(k,0,0,k,N/2,N/2);
+  c.fillText(ch, -box.gx, box.gy);
+  const d=c.getImageData(0,0,N,N).data;
+  const pts=[];
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){
+    if(d[(j*N+i)*4+3]>96) pts.push((i+0.5-N/2)/k, (j+0.5-N/2)/k);
+  }
+  smp=new Float32Array(pts);
+  if(smp.length) GLYPH_SAMPLES.set(key, smp);   // 아직 폰트가 안 떠서 빈 결과면 다음에 다시
+  return smp;
+}
+
 /* 글자판(사각형)의 세로 반크기를 정한다.
    내접 사각형만 쓰면 원형 도장에서 글자가 지름의 71%까지밖에 못 커진다.
-   실제 도장처럼 모서리 칸의 글자가 테두리에 살짝 잘리는 것을 허용해 글자판을 키우되,
-   잘리는 깊이는 글자 폭·높이의 CORNER_CUT 배를 넘지 않게 한다. (잘리는 부분은 render 에서 clip 으로 깎는다)
-   사각 도장(지수가 큰 초타원)은 모서리가 거의 직각이라 자연히 내접 사각형과 같아진다. */
-const CORNER_CUT = 0.12;
-function fitBlockHalfHeight(grid, riX, riY, nExp, fill, spacing){
+   실제 도장처럼 글자를 테두리 가까이 붙이되, 각 글자의 잉크 가운데 윤곽 밖으로 나가는 양이
+   CLIP_FRAC 이하이고 가장 깊이 나가는 획도 글자 크기의 CLIP_DEPTH 배를 넘지 않는 최대 크기를 찾는다.
+   (밖으로 나간 부분은 render 에서 clip 으로 깎는다) */
+const CLIP_FRAC = 0.04;    // 글자 잉크 가운데 깎여도 되는 비율
+const CLIP_DEPTH = 0.10;   // 획이 윤곽 밖으로 나가도 되는 최대 깊이 (글자 크기 대비)
+function fitBlockHalfHeight(f, all, boxes, grid, trad, riX, riY, nExp, fill, spacing, stretch){
   const rowsMax=Math.max(...grid.counts), cols=grid.cols;
   const A=cols/rowsMax;
   const base=inscribedHalfHeight(A, riX, riY, nExp);
+  const samples=all.map((ch,i)=>glyphSamples(f, ch, boxes[i]));
+  if(samples.some(s=>!s.length)) return base;            // 측정 실패 — 내접 사각형으로
   const fits = halfH => {
     const boxH=2*halfH, boxW=boxH*A;
-    const cw=boxW/cols, ch=boxH/rowsMax;
-    const gap=Math.min(cw,ch)*spacing/100;
-    const gw=(cw-gap)*fill, gh=(ch-gap)*fill;            // 글자 상자 크기
-    const gx=boxW/2-(cw-gw)/2, gy=boxH/2-(ch-gh)/2;      // 모서리 칸 글자 상자의 바깥 모서리
-    if(gx>=riX || gy>=riY) return false;
-    // 그 모서리 높이/너비에서 윤곽이 뻗는 범위. 모서리가 바깥이면 그 차이만큼 잘린다.
-    const xe=riX*Math.pow(1-Math.pow(gy/riY,nExp),1/nExp);
-    const ye=riY*Math.pow(1-Math.pow(gx/riX,nExp),1/nExp);
-    return (gx-xe)<=CORNER_CUT*gw && (gy-ye)<=CORNER_CUT*gh;
+    const cells=buildCells(grid, trad, boxW, boxH);
+    const gap=Math.min(boxW/cols, boxH/rowsMax)*spacing/100;
+    const sc=glyphScales(boxes, cells, gap, fill, stretch);
+    for(let i=0;i<all.length;i++){
+      const {cx,cy}=cells[i], {sx,sy}=sc[i], s=samples[i];
+      const size=Math.max(boxes[i].gw*sx, boxes[i].gh*sy);
+      let out=0;
+      const total=s.length/2, maxOut=total*CLIP_FRAC, maxDepth=size*CLIP_DEPTH;
+      for(let k=0;k<s.length;k+=2){
+        const X=cx+s[k]*sx, Y=cy+s[k+1]*sy;
+        const q=Math.pow(Math.pow(Math.abs(X)/riX,nExp)+Math.pow(Math.abs(Y)/riY,nExp), 1/nExp);
+        if(q<=1) continue;
+        if(++out>maxOut) return false;
+        if(Math.hypot(X,Y)*(1-1/q) > maxDepth) return false;   // 윤곽에서 밖으로 나간 거리
+      }
+    }
+    return true;
   };
-  if(!fits(base)) return base;                           // 글자가 칸보다 큰 설정 등 — 예전대로
-  let lo=base, hi=base*2;
-  for(let i=0;i<30;i++){ const mid=(lo+hi)/2; if(fits(mid)) lo=mid; else hi=mid; }
+  let lo=0, hi=base*2;
+  for(let i=0;i<28;i++){ const mid=(lo+hi)/2; if(fits(mid)) lo=mid; else hi=mid; }
   return lo;
 }
 /* 글자를 채울 순서대로 칸(중심좌표+크기) 목록을 만든다 */
@@ -734,58 +800,38 @@ function render(ctx, size, st){
 
   /* ---- 글자 ---- */
   if(n>0 && riX>4 && riY>4){
-    // 칸이 정사각형에 가까워지도록 글자판 비율을 정하고, 그 비율로 초타원에 내접시킨다
+    ctx.save();
+    ctx.fillStyle = st.color;
+    ctx.font = fontSpec(f, REF);
+    ctx.textAlign='center';
+    ctx.textBaseline='alphabetic';
+    const boxes=all.map(ch=>glyphBox(ctx.measureText(ch)));
+
+    // 칸이 정사각형에 가까워지도록 글자판 비율을 정하고, 실제 획 모양이 허용하는 만큼 테두리 가까이 키운다
     const grid = layoutCells(n, st.layout);
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
     const fill = st.glyphFill/100;
-    const halfH = fitBlockHalfHeight(grid, riX, riY, nExp, fill, st.spacing || 0);
+    const halfH = fitBlockHalfHeight(f, all, boxes, grid, st.trad, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
     const boxH = 2*halfH;
     const boxW = boxH*A;
     const cells = buildCells(grid, st.trad, boxW, boxH);
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
+    const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
 
-    ctx.save();
-    // 모서리 칸의 글자가 테두리 쪽으로 넘치는 부분은 안쪽 윤곽을 따라 깎는다 (실제 도장에서 획이 테두리에 맞춰 잘리는 것처럼).
+    // 테두리 쪽으로 넘치는 획은 안쪽 윤곽을 따라 깎는다 (실제 도장에서 획이 테두리에 맞춰 잘리는 것처럼).
     // 여백 슬라이더(pad)가 0 이어도 글자가 테두리와 붙지 않도록 최소 간격을 둔다.
     const clipInset = frameInset + (st.style==='eum' ? bw*1.4 : 0) + Math.max(padIn, bw*0.45, size*0.004);
     outlinePath(ctx, rx-clipInset, ry-clipInset, nExp, rough, fbm, 3.1, roughAmp*0.8);
     ctx.clip();
     if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
-    ctx.fillStyle = st.color;
-    ctx.font = fontSpec(f, REF);
-    ctx.textAlign='center';
-    ctx.textBaseline='alphabetic';
 
-    const metrics=all.map(ch=>ctx.measureText(ch));
-    // 원래 비율 모드에서는 모든 글자에 같은 배율을 적용한다.
-    // 글자마다 다른 실제 획 폭을 같은 너비로 늘리면 명조·붓글씨가 흐트러진다.
-    const uniformScale=Math.min(...metrics.map((m,i)=>Math.min(
-      (cells[i].w-gap)*fill/Math.max(1,(m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0)||m.width),
-      (cells[i].h-gap)*fill/Math.max(1,(m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0))
-    )));
     for(let i=0;i<n && i<cells.length;i++){
-      const ch=all[i], cell=cells[i];
-      const m=metrics[i];
-      const gw=Math.max(1, (m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0) || m.width);
-      const gh=Math.max(1, (m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0));
-      const gx=((m.actualBoundingBoxRight||0)-(m.actualBoundingBoxLeft||0))/2;
-      const gy=((m.actualBoundingBoxAscent||REF*0.72)-(m.actualBoundingBoxDescent||0))/2;
-
-      let sx=((cell.w-gap)*fill)/gw, sy=((cell.h-gap)*fill)/gh;
-      if(!st.stretch){
-        sx=uniformScale; sy=uniformScale;
-      }else{
-        // 칸을 채우되 장평이 과하게 일그러지지 않도록 가로:세로 비율을 제한한다
-        const AR=1.35;
-        if(sx > sy*AR) sx = sy*AR;
-        if(sy > sx*AR) sy = sx*AR;
-      }
-
+      const cell=cells[i], b=boxes[i], {sx,sy}=scales[i];
       ctx.save();
       ctx.translate(cell.cx, cell.cy);
       ctx.scale(sx, sy);
-      ctx.fillText(ch, -gx, gy);
+      ctx.fillText(all[i], -b.gx, b.gy);
       ctx.restore();
     }
     ctx.restore();
@@ -963,7 +1009,7 @@ const PRESETS = {
           fontIdx:11, border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
           ink:20, grain:55, rough:24, rot:-2, stretch:false, trad:true },
   personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
-             fontIdx:0, border:52, pad:60, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
+             fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
   nakgwan:{ spacing:0, doubleBorder:false, suffix:'印', shape:'rounded', style:'eum', layout:'grid',
              fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
   soft:{ ink:16, grain:62, rough:14 },
