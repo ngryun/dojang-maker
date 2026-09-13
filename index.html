@@ -657,10 +657,10 @@ function glyphSamples(f, ch, box){
 /* 글자판(사각형)의 세로 반크기를 정한다.
    내접 사각형만 쓰면 원형 도장에서 글자가 지름의 71%까지밖에 못 커진다.
    실제 도장처럼 글자를 테두리 가까이 붙이되, 각 글자의 잉크 가운데 윤곽 밖으로 나가는 양이
-   CLIP_FRAC 이하이고 가장 깊이 나가는 획도 글자 크기의 CLIP_DEPTH 배를 넘지 않는 최대 크기를 찾는다.
-   (밖으로 나간 부분은 render 에서 clip 으로 깎는다) */
-const CLIP_FRAC = 0.04;    // 글자 잉크 가운데 깎여도 되는 비율
-const CLIP_DEPTH = 0.10;   // 획이 윤곽 밖으로 나가도 되는 최대 깊이 (글자 크기 대비)
+   OVERLAP_FRAC 이하이고 가장 깊이 나가는 획도 글자 크기의 OVERLAP_DEPTH 배를 넘지 않는 최대 크기를 찾는다.
+   안쪽 윤곽을 넘는 획도 자르지 않고 테두리와 자연스럽게 겹쳐 그린다. */
+const OVERLAP_FRAC = 0.04;    // 안쪽 윤곽과 겹칠 수 있는 잉크 비율
+const OVERLAP_DEPTH = 0.10;   // 획이 윤곽 밖으로 나가도 되는 최대 깊이 (글자 크기 대비)
 function fitBlockHalfHeight(f, all, boxes, grid, trad, riX, riY, nExp, fill, spacing, stretch){
   const rowsMax=Math.max(...grid.counts), cols=grid.cols;
   const A=cols/rowsMax;
@@ -676,7 +676,7 @@ function fitBlockHalfHeight(f, all, boxes, grid, trad, riX, riY, nExp, fill, spa
       const {cx,cy}=cells[i], {sx,sy}=sc[i], s=samples[i];
       const size=Math.max(boxes[i].gw*sx, boxes[i].gh*sy);
       let out=0;
-      const total=s.length/2, maxOut=total*CLIP_FRAC, maxDepth=size*CLIP_DEPTH;
+      const total=s.length/2, maxOut=total*OVERLAP_FRAC, maxDepth=size*OVERLAP_DEPTH;
       for(let k=0;k<s.length;k+=2){
         const X=cx+s[k]*sx, Y=cy+s[k+1]*sy;
         const q=Math.pow(Math.pow(Math.abs(X)/riX,nExp)+Math.pow(Math.abs(Y)/riY,nExp), 1/nExp);
@@ -819,11 +819,7 @@ function render(ctx, size, st){
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
     const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
 
-    // 테두리 쪽으로 넘치는 획은 안쪽 윤곽을 따라 깎는다 (실제 도장에서 획이 테두리에 맞춰 잘리는 것처럼).
-    // 여백 슬라이더(pad)가 0 이어도 글자가 테두리와 붙지 않도록 최소 간격을 둔다.
-    const clipInset = frameInset + (st.style==='eum' ? bw*1.4 : 0) + Math.max(padIn, bw*0.45, size*0.004);
-    outlinePath(ctx, rx-clipInset, ry-clipInset, nExp, rough, fbm, 3.1, roughAmp*0.8);
-    ctx.clip();
+    // 테두리와 겹치더라도 글자의 획 전체를 그린다.
     if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
 
     for(let i=0;i<n && i<cells.length;i++){
