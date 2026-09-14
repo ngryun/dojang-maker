@@ -6,7 +6,7 @@ const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 function setup({unsupported=false, denied=false, nullBlob=false}={}){
   const events={}, lifecycle={}, nodes={}, saved=[], renders=[], downloads=[];
-  for(const id of ['save','copy','size','paper','saveNote']) nodes[id]={value:'1024',checked:false,disabled:false,addEventListener:(name,fn)=>events[id]=fn};
+  for(const id of ['save','copy','copyWhite','size','paper','saveNote']) nodes[id]={value:'1024',checked:false,disabled:false,addEventListener:(name,fn)=>events[id]=fn};
   let resolveFont;
   const fontReady=new Promise(r=>resolveFont=r);
   const blob={type:'image/png'};

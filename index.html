@@ -8,7 +8,7 @@
 <title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Nanum+Brush+Script&family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Nanum+Brush+Script&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
 <!--
   글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
   전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
@@ -108,7 +108,9 @@
   button.btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
   button.btn.primary:hover{filter:brightness(1.07)}
   button.btn:disabled{opacity:.55; cursor:default}
-  .btns{display:flex; gap:8px; margin-top:10px}
+  .btns{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:10px}
+  .btns .btn{padding-left:4px; padding-right:4px; line-height:1.5}
+  .btns .btn span{display:block; white-space:nowrap}
 
   footer{
     border-top:1px solid var(--line); background:var(--panel);
@@ -246,6 +248,7 @@
 
   /* 아주 좁은 화면 (iPhone SE 등) */
   @media (max-width:360px){
+    .btns .btn{font-size:12.5px}
     .panel{padding:12px 11px 36px}
     .seg button{padding:13px 2px; font-size:11.5px}
     .presets button{padding:10px 11px; font-size:12px}
@@ -400,16 +403,18 @@
       <div class="row">
         <label class="lb" for="size">이미지 크기</label>
         <select id="size">
-          <option value="256">256 × 256</option>
+          <option value="256" selected>256 × 256 (기본)</option>
           <option value="512">512 × 512</option>
-          <option value="1024" selected>1024 × 1024 (권장)</option>
+          <option value="1024">1024 × 1024</option>
           <option value="2048">2048 × 2048</option>
         </select>
       </div>
       <button class="btn primary" id="save">투명배경 PNG 저장</button>
       <div class="btns">
-        <button class="btn" id="copy">클립보드로 복사</button>
+        <button class="btn" id="copy"><span>투명 배경</span><span>클립보드 복사</span></button>
+        <button class="btn" id="copyWhite" title="한글에서 클립보드의 투명 배경 이미지를 붙여넣으면 배경이 검게 나오는 호환 문제가 발생할 수 있습니다. 흰 배경으로 복사하면 이 문제를 피할 수 있습니다."><span>흰 배경 (한글용)</span><span>클립보드 복사</span></button>
       </div>
+      <p class="hint">한글에서 배경이 검게 나오면 흰 배경으로 복사하세요. 투명 배경이 필요하면 PNG를 저장한 뒤 한글의 그림 넣기로 삽입하세요.</p>
       <div class="status" id="status"></div>
     </fieldset>
 
@@ -459,6 +464,11 @@ const FONTS = [
   { fam:'Jua',             w:400, label:'주아',            group:'두꺼운' },
   { fam:'Nanum Brush Script', w:400, label:'나눔붓글씨',   group:'손글씨' },
   { fam:'Gaegu',           w:700, label:'개구 굵게',       group:'손글씨' },
+  // 저장된 fontIdx와 프리셋을 유지하도록 새 글씨체는 목록 끝에 추가한다.
+  { fam:'East Sea Dokdo',  w:400, label:'동해독도 · 힘찬 붓글씨', group:'손글씨' },
+  { fam:'Yeon Sung',       w:400, label:'연성 · 부드러운 붓글씨', group:'손글씨' },
+  { fam:'Nanum Pen Script',w:400, label:'나눔펜글씨',          group:'손글씨' },
+  { fam:'Gugi',            w:400, label:'구기 · 개성 있는 장식체', group:'개성 있는' },
 ];
 
 /* ============================================================
@@ -1137,19 +1147,27 @@ function schedule(){
 function sanitize(s){
   return (s||'도장').trim().replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30) || '도장';
 }
-async function renderToBlob(st, size){
+async function renderToBlob(st, size, background=null){
   const c=document.createElement('canvas');
   c.width=c.height=size;
   const ctx=c.getContext('2d',{willReadFrequently:true});
   await ensureFont(FONTS[st.fontIdx], st.text+st.suffix+'가印');
   render(ctx, size, st);
+  if(background){
+    // 음각과 잉크의 반투명 영역까지 완성된 도장 뒤에 배경을 합성한다.
+    ctx.save();
+    ctx.globalCompositeOperation='destination-over';
+    ctx.fillStyle=background;
+    ctx.fillRect(0,0,size,size);
+    ctx.restore();
+  }
   return await new Promise((resolve,reject)=>c.toBlob(blob=>{
     if(blob) resolve(blob);
     else reject(new Error('이미지를 만들지 못했습니다. 다시 시도하세요.'));
   },'image/png'));
 }
 async function withBusy(msg, fn){
-  const btns=[$('save'),$('copy')];
+  const btns=[$('save'),$('copy'),$('copyWhite')];
   btns.forEach(b=>b.disabled=true);
   statusEl.textContent=msg;
   // 복사는 클릭의 사용자 활성화가 유지되는 동안 시작해야 한다.
@@ -1168,12 +1186,13 @@ $('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', as
   setTimeout(()=>URL.revokeObjectURL(url), 4000);
   statusEl.textContent=`저장했습니다 · ${size}px · 배경 투명`;
 }));
-$('copy').addEventListener('click', ()=>withBusy('복사할 이미지를 만들고 있습니다…', async()=>{
+function copyImage(background=null){
+  return withBusy('복사할 이미지를 만들고 있습니다…', async()=>{
   if(!navigator.clipboard?.write || !window.ClipboardItem){
     statusEl.textContent='이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 저장을 이용하세요.';
     return;
   }
-  const blobPromise=renderToBlob({...S}, +$('size').value);
+  const blobPromise=renderToBlob({...S}, +$('size').value, background);
   // 권한 거부 이후 이미지 생성이 실패해도 미처리 오류를 남기지 않는다.
   blobPromise.catch(()=>{});
   try{
@@ -1183,8 +1202,13 @@ $('copy').addEventListener('click', ()=>withBusy('복사할 이미지를 만들�
     console.error(err);
     return;
   }
-  statusEl.textContent='클립보드에 복사했습니다. 문서에 붙여넣기 하세요.';
-}));
+  statusEl.textContent=background
+    ? '흰 배경으로 복사했습니다. 한글에 붙여넣기 하세요. (배경 불투명)'
+    : '투명 배경으로 복사했습니다. 문서에 붙여넣기 하세요.';
+  });
+}
+$('copy').addEventListener('click', ()=>copyImage());
+$('copyWhite').addEventListener('click', ()=>copyImage('#ffffff'));
 
 /* ---- 시작 ---- */
 (async function init(){
