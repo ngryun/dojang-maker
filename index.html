@@ -8,7 +8,7 @@
 <title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Nanum+Brush+Script&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&display=swap" rel="stylesheet">
 <!--
   글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
   전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
@@ -462,20 +462,24 @@ const FONTS = [
   { fam:'Black Han Sans',  w:400, label:'검은고딕',        group:'두꺼운' },
   { fam:'Do Hyeon',        w:400, label:'도현',            group:'두꺼운' },
   { fam:'Jua',             w:400, label:'주아',            group:'두꺼운' },
-  { fam:'Nanum Brush Script', w:400, label:'나눔붓글씨',   group:'손글씨' },
+  // 나눔붓글씨는 목록에서 숨긴다. 저장값·프리셋의 번호가 어긋나지 않도록 자리는 남겨 둔다.
+  { fam:'Nanum Brush Script', w:400, label:'나눔붓글씨',   group:'손글씨', hidden:true },
   { fam:'Gaegu',           w:700, label:'개구 굵게',       group:'손글씨' },
   // 저장된 fontIdx와 프리셋을 유지하도록 새 글씨체는 목록 끝에 추가한다.
   { fam:'East Sea Dokdo',  w:400, label:'동해독도 · 힘찬 붓글씨', group:'손글씨' },
   { fam:'Yeon Sung',       w:400, label:'연성 · 부드러운 붓글씨', group:'손글씨' },
   { fam:'Nanum Pen Script',w:400, label:'나눔펜글씨',          group:'손글씨' },
   { fam:'Gugi',            w:400, label:'구기 · 개성 있는 장식체', group:'개성 있는' },
+  { fam:'Kirang Haerang',  w:400, label:'기랑해랑 · 굵은 붓글씨',   group:'도장 느낌' },
 ];
 
 /* ============================================================
    상태
    ============================================================ */
+/* 글꼴 이름으로 목록 번호를 찾는다. 없으면 0(첫 글씨체). */
+const fontIdxOf = fam => Math.max(0, FONTS.findIndex(f=>f.fam===fam));
 /* 처음 들어왔을 때 글씨체. 이름으로 찾으므로 목록 순서가 바뀌어도 그대로 연성이다. */
-const DEFAULT_FONT_IDX = Math.max(0, FONTS.findIndex(f=>f.fam==='Yeon Sung'));   // 연성 · 부드러운 붓글씨
+const DEFAULT_FONT_IDX = fontIdxOf('Yeon Sung');   // 연성 · 부드러운 붓글씨
 
 const S = {
   text:'남궁연', suffix:'인',
@@ -918,12 +922,13 @@ const $ = id => document.getElementById(id);
 /* 글씨체 select 채우기 */
 (function fillFonts(){
   const sel=$('font');
-  const groups=[...new Set(FONTS.map(f=>f.group))];
+  const shown=FONTS.filter(f=>!f.hidden);                 // hidden:true 는 목록에 내놓지 않는다
+  const groups=[...new Set(shown.map(f=>f.group))];
   groups.forEach(g=>{
     const og=document.createElement('optgroup');
     og.label=g;
     FONTS.forEach((f,i)=>{
-      if(f.group!==g) return;
+      if(f.group!==g || f.hidden) return;
       const o=document.createElement('option');
       o.value=i; o.textContent=f.label;
       og.appendChild(o);
@@ -1015,7 +1020,7 @@ const PRESETS = {
             fontIdx:0, border:42, pad:65, glyphFill:96, spacing:7, doubleBorder:true,
             ink:12, grain:58, rough:8, rot:0, stretch:false, trad:true },
   brush:{ suffix:'', shape:'rounded', style:'yang', layout:'auto', color:'#a3382c',
-          fontIdx:11, border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
+          fontIdx:fontIdxOf('Kirang Haerang'), border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
           ink:20, grain:55, rough:24, rot:-2, stretch:false, trad:true },
   personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
              fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
@@ -1107,7 +1112,10 @@ function loadState(){
       if(!isFinite(v)) return;
       const el=$(k);
       if(el && el.type==='range') S[k]=Math.min(+el.max, Math.max(+el.min, v));
-      else if(k==='fontIdx')      S[k]=Math.min(FONTS.length-1, Math.max(0, Math.round(v)));
+      else if(k==='fontIdx'){
+        const i=Math.min(FONTS.length-1, Math.max(0, Math.round(v)));
+        S[k]=FONTS[i].hidden ? DEFAULT_FONT_IDX : i;   // 숨긴 글씨체를 가리키면 기본 글씨체로
+      }
       else                        S[k]=v|0;
       return;
     }
