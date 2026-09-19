@@ -474,9 +474,12 @@ const FONTS = [
 /* ============================================================
    상태
    ============================================================ */
+/* 처음 들어왔을 때 글씨체. 이름으로 찾으므로 목록 순서가 바뀌어도 그대로 연성이다. */
+const DEFAULT_FONT_IDX = Math.max(0, FONTS.findIndex(f=>f.fam==='Yeon Sung'));   // 연성 · 부드러운 붓글씨
+
 const S = {
   text:'남궁연', suffix:'인',
-  fontIdx:0,
+  fontIdx:DEFAULT_FONT_IDX,
   shape:'circle', style:'yang', layout:'auto',
   trad:true, stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
@@ -927,7 +930,7 @@ const $ = id => document.getElementById(id);
     });
     sel.appendChild(og);
   });
-  sel.value='0';
+  sel.value=String(S.fontIdx);
 })();
 
 /* 슬라이더 표시값 */
