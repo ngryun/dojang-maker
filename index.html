@@ -8,7 +8,7 @@
 <title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet">
 <!--
   글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
   전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
@@ -261,6 +261,144 @@
     .presets button:hover{border-color:var(--line); color:#6b6357}
     .presets button:active{border-color:var(--accent); color:var(--accent)}
   }
+
+  /* ---------- 글씨체 고르기 — 글씨체마다 지금 설정으로 찍은 도장을 보고 고른다 ---------- */
+  .fontpick{border:1px solid var(--line); border-radius:7px; background:#fff; overflow:hidden}
+  .fontcur{
+    display:flex; align-items:center; gap:10px; width:100%; padding:7px 10px; border:0; background:#fff;
+    cursor:pointer; font-family:inherit; text-align:left; color:var(--ink);
+  }
+  .fontcur:hover{background:#faf6ee}
+  .fp-sample{color:var(--accent); line-height:1.2; white-space:nowrap; overflow:hidden}
+  .fontcur .fp-sample{font-size:22px; flex:none; max-width:55%}
+  .fontcur .fp-name{flex:1; min-width:0; font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .fontcur .fp-chev{flex:none; font-size:11.5px; font-weight:700; color:#6b6357}
+  .fontgrid{
+    position:relative; display:grid; grid-template-columns:repeat(auto-fill, minmax(88px,1fr)); gap:6px;   /* 380px 패널에서 세 칸 */
+    padding:8px; border-top:1px solid var(--line); background:#fbf9f4;
+    max-height:min(460px, 58vh); overflow:auto;
+  }
+  .fontgrid[hidden]{display:none}
+  .fp-group{grid-column:1/-1; margin:6px 2px 0; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.02em}
+  .fp-group:first-child{margin-top:0}
+  .fp-tile{
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:5px 4px 4px; border:1px solid var(--line); border-radius:8px; background:#fff;
+    cursor:pointer; font-family:inherit; color:var(--ink);
+  }
+  .fp-img{display:block; width:100%; aspect-ratio:1; border-radius:6px; background:#fff}   /* 도장 미리보기 캔버스 */
+  .fp-tile .fp-name{   /* 이름은 두 줄까지 보여 주고 그 뒤는 줄임 */
+    font-size:10px; line-height:1.3; color:var(--muted); max-width:100%; text-align:center;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:keep-all;
+  }
+  .fp-tile:hover{border-color:var(--accent)}
+  .fp-tile[aria-pressed=true]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--accent-soft)}
+  .fp-tile[aria-pressed=true] .fp-name{color:var(--accent); font-weight:700}
+  @media (max-width:900px){
+    .fontcur{padding:10px 12px}
+    .fontcur .fp-sample{font-size:24px}
+    .fontcur .fp-name{font-size:12.5px}
+    .fp-tile .fp-name{font-size:11px}
+  }
+  @media (hover:none){
+    .fontcur:hover{background:#fff}
+    .fp-tile:hover{border-color:var(--line)}
+    .fp-tile[aria-pressed=true]:hover, .fp-tile:active{border-color:var(--accent)}
+  }
+
+  /* ---------- 한자 변환 ---------- */
+  .textline{display:flex; gap:6px; align-items:stretch}
+  .textline input[type=text]{flex:1; min-width:0; width:auto}
+  .textline button{
+    flex:none; padding:0 12px; border:1px solid var(--line); border-radius:7px; background:#fff;
+    cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:700; color:#6b6357; white-space:nowrap;
+  }
+  .textline button:hover{border-color:var(--accent); color:var(--accent)}
+  #hanjaNote, #fontNote{margin:5px 0 0; line-height:1.45}
+  #hanjaNote:empty, #fontNote:empty{display:none}
+
+  body.modal-open{overflow:hidden}
+  dialog.hj:not([open]){display:none}          /* <dialog> 를 모르는 브라우저에서 내용이 그냥 보이지 않게 */
+  dialog.hj{
+    padding:0; border:1px solid var(--line); border-radius:var(--radius);
+    background:var(--panel); color:var(--ink);
+    width:min(640px, calc(100vw - 32px)); max-height:min(85vh, 780px);
+    box-shadow:0 20px 60px -20px rgba(40,30,10,.5);
+  }
+  dialog.hj[open]{display:flex; flex-direction:column}
+  dialog.hj::backdrop{background:rgba(46,42,36,.5)}
+  .hj [hidden]{display:none !important}
+  .hj-head{
+    display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+    padding:14px 16px 10px; border-bottom:1px solid var(--line);
+  }
+  .hj-head h2{margin:0; font-family:"Nanum Myeongjo",serif; font-size:17px; font-weight:800}
+  .hj-head .hint{margin:3px 0 0}
+  .hj-x{
+    flex:none; width:36px; height:36px; border:1px solid var(--line); border-radius:50%; background:#fff;
+    cursor:pointer; color:#6b6357; font-size:14px; font-family:inherit;
+  }
+  .hj-x:hover{border-color:var(--accent); color:var(--accent)}
+  .hj-body{flex:1; min-height:0; overflow:auto; padding:6px 16px 12px}
+  .hj-row{
+    display:grid; grid-template-columns:44px minmax(0,1fr); gap:10px;
+    padding:10px 0; border-bottom:1px dashed var(--line);
+  }
+  .hj-row:last-child{border-bottom:0}
+  .hj-syl{font-family:"Nanum Myeongjo",serif; font-size:24px; font-weight:800; line-height:44px; text-align:center; color:var(--accent)}
+  .hj-chips{display:flex; flex-wrap:wrap; gap:6px; align-content:flex-start}
+  .hj-chip{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-width:56px; min-height:52px; padding:4px 8px; border:1px solid var(--line); border-radius:8px;
+    background:#fff; cursor:pointer; font-family:inherit; color:var(--ink); line-height:1.15;
+  }
+  /* 후보는 컴퓨터의 한자 글꼴로 보여 준다. 웹 글씨체를 쓰면 후보마다 글꼴 조각을 수십 개 내려받게 된다. */
+  .hj-chip b{font-family:"Batang","BatangChe","Apple Myungjo","AppleMyungjo",serif; font-weight:400; font-size:22px}
+  .hj-chip small{font-size:10.5px; color:var(--muted); max-width:88px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .hj-chip.keep b, .hj-chip.hangul b{font-family:inherit; font-weight:700; font-size:18px}
+  .hj-chip.rare{border-style:dashed}
+  .hj-chip:hover{border-color:var(--accent)}
+  .hj-chip[aria-pressed=true]{background:var(--accent); border-color:var(--accent); color:#fff}
+  .hj-chip[aria-pressed=true] small{color:#fff}
+  .hj-more{
+    min-height:52px; padding:0 10px; border:1px dashed var(--line); border-radius:8px; background:#fff;
+    cursor:pointer; font-family:inherit; font-size:12px; color:var(--muted);
+  }
+  .hj-more:hover{border-color:var(--accent); color:var(--accent)}
+  .hj-cap, .hj-rarehint{flex-basis:100%; font-size:11px; color:var(--muted)}
+  .hj-cap{margin-top:4px}
+  .hj-empty{font-size:12.5px; color:var(--muted); line-height:52px}
+  .hj-foot{display:grid; gap:6px; padding:10px 16px 14px; border-top:1px solid var(--line); background:var(--panel)}
+  .hj-preview{display:flex; align-items:baseline; gap:10px; min-height:30px}
+  .hj-preview span{font-size:11px; color:var(--muted); flex:none}
+  /* 결과 미리보기는 캔버스가 쓸 글씨체로 보여 준다 — 적용 전에 필요한 글꼴 조각을 미리 받아 오는 효과도 있다 */
+  .hj-preview strong{font-family:"Noto Serif KR",serif; font-weight:900; font-size:22px; letter-spacing:.06em; color:var(--accent); word-break:break-all}
+  .hj-btns{display:grid; grid-template-columns:1fr 2fr; gap:8px; margin-top:4px}
+
+  @media (max-width:900px){
+    .textline button{font-size:14px; padding:0 14px}
+    dialog.hj{width:100vw; max-width:100vw; height:100vh; height:100dvh; max-height:100dvh; margin:0; border:0; border-radius:0}
+    .hj-head{padding:12px 14px 10px}
+    .hj-x{width:44px; height:44px}
+    .hj-body{padding:4px 14px 10px}
+    .hj-row{grid-template-columns:40px minmax(0,1fr); gap:8px}
+    .hj-chip{min-height:56px; min-width:60px}
+    .hj-chip b{font-size:24px}
+    .hj-chip small{font-size:11.5px}
+    .hj-more{min-height:56px; font-size:13px}
+    .hj-foot{padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+    .hj-btns .btn{padding:14px}
+  }
+  @media (max-width:360px){
+    .textline button{padding:0 10px; font-size:13px}
+    .hj-row{grid-template-columns:34px minmax(0,1fr)}
+  }
+  @media (hover:none){
+    .textline button:hover{border-color:var(--line); color:#6b6357}
+    .hj-chip:hover{border-color:var(--line)}
+    .hj-chip:active{border-color:var(--accent)}
+    .hj-more:hover{border-color:var(--line); color:var(--muted)}
+  }
 </style>
 </head>
 <body>
@@ -295,7 +433,11 @@
       <legend>글자</legend>
       <div class="row">
         <label class="lb" for="text">도장에 넣을 글자</label>
-        <input type="text" id="text" value="남궁연" maxlength="14" autocomplete="off" placeholder="예: 남궁연 / 설악고등학교장">
+        <div class="textline">
+          <input type="text" id="text" value="남궁연" maxlength="14" autocomplete="off" placeholder="예: 남궁연 / 설악고등학교장">
+          <button type="button" id="hanjaBtn" title="한글을 한 글자씩 골라 한자로 바꿉니다">한자 변환</button>
+        </div>
+        <p class="hint" id="hanjaNote"></p>
       </div>
       <div class="row">
         <label class="lb" for="suffix">보조 글자</label>
@@ -307,8 +449,16 @@
         </select>
       </div>
       <div class="row">
-        <label class="lb" for="font">글씨체</label>
-        <select id="font"></select>
+        <label class="lb" for="fontToggle">글씨체 <span class="hint">글씨체별로 찍힌 도장을 보고 고르세요</span></label>
+        <div class="fontpick">
+          <button type="button" class="fontcur" id="fontToggle" aria-expanded="false" aria-controls="fontGrid">
+            <span class="fp-sample" id="fontCurSample"></span>
+            <span class="fp-name" id="fontCurName"></span>
+            <span class="fp-chev" id="fontChev">바꾸기 ▾</span>
+          </button>
+          <div class="fontgrid" id="fontGrid" role="group" aria-label="글씨체 고르기" hidden></div>
+        </div>
+        <p class="hint" id="fontNote"></p>
       </div>
       <div class="row">
         <label class="lb" for="layout">배치</label>
@@ -444,17 +594,44 @@
   </p>
 </footer>
 
+<!-- ================= 한자 변환 대화상자 ================= -->
+<dialog id="hanjaDlg" class="hj" aria-labelledby="hjTitle">
+  <div class="hj-head">
+    <div>
+      <h2 id="hjTitle">한자 변환</h2>
+      <p class="hint">글자마다 원하는 한자를 고르세요. 고르지 않은 글자는 한글 그대로 둡니다.</p>
+    </div>
+    <button type="button" class="hj-x" id="hjClose" aria-label="닫기">✕</button>
+  </div>
+  <div class="hj-body" id="hanjaRows"></div>
+  <div class="hj-foot">
+    <div class="hj-preview"><span>결과</span><strong id="hjPreview"></strong></div>
+    <label class="chk" id="hjSuffixWrap"><input type="checkbox" id="hjSuffix" checked> 보조 글자 ‘인’도 ‘印’으로 바꾸기</label>
+    <label class="chk" id="hjFontWrap"><input type="checkbox" id="hjFont" checked> <span>한자가 있는 글씨체(<span id="hjFontName">노토 세리프 블랙</span>)로 바꾸기</span></label>
+    <div class="hj-btns">
+      <button type="button" class="btn" id="hjCancel">취소</button>
+      <button type="button" class="btn primary" id="hjApply">적용</button>
+    </div>
+  </div>
+</dialog>
+
 <script>
 "use strict";
 
 /* ============================================================
    글씨체 목록
+   - hanja:true   한자 글리프가 있는 글씨체
+   - hangul:false 한글 글리프가 없는 글씨체(한자 전용). fb 의 대체 글씨체로 한글을 그린다.
+   - fb           글꼴에 없는 글자를 그릴 대체 글씨체(앞에서부터 차례로). 캔버스 font 문자열 뒤에 붙는다.
+   - rare:true    대법원 인명용 추가 한자(KS X 1001 밖)도 대부분 웹 글씨체로 그릴 수 있는 글씨체
    ============================================================ */
+const HANJA_GROUP='한자 전용 · 한글은 노토 세리프로';
+const HANJA_FB=['Noto Serif KR','Noto Serif JP'];   // 한글 → 노토 세리프 KR, KR 에도 없는 한자 → 같은 디자인의 JP
 const FONTS = [
   { fam:'Nanum Myeongjo',  w:800, label:'나눔명조 굵게',   group:'도장 느낌' },
   { fam:'Song Myung',      w:400, label:'송명',            group:'도장 느낌' },
   { fam:'Hahmlet',         w:900, label:'함렛 아주굵게',   group:'도장 느낌' },
-  { fam:'Noto Serif KR',   w:900, label:'노토 세리프 블랙',group:'도장 느낌' },
+  { fam:'Noto Serif KR',   w:900, label:'노토 세리프 블랙',group:'도장 느낌', hanja:true },   // hanja:true — 한자 글리프가 있는 글씨체
   { fam:'Gowun Batang',    w:700, label:'고운바탕 굵게',   group:'도장 느낌' },
   { fam:'Nanum Myeongjo',  w:400, label:'나눔명조 보통',   group:'단정한' },
   { fam:'Gowun Batang',    w:400, label:'고운바탕 보통',   group:'단정한' },
@@ -471,6 +648,17 @@ const FONTS = [
   { fam:'Nanum Pen Script',w:400, label:'나눔펜글씨',          group:'손글씨' },
   { fam:'Gugi',            w:400, label:'구기 · 개성 있는 장식체', group:'개성 있는' },
   { fam:'Kirang Haerang',  w:400, label:'기랑해랑 · 굵은 붓글씨',   group:'도장 느낌' },
+  // 한자 변환용. 구글 폰트의 한글 글씨체 중 한자 글리프가 있는 것은 노토 세리프·노토 산스뿐이다.
+  { fam:'Noto Sans KR',    w:900, label:'노토 산스 블랙',   group:'두꺼운', hanja:true },
+  // 인명용 추가 한자까지: 노토 세리프 KR 로 그리되, KR 에 없는 한자만 같은 디자인의 JP 글꼴로 보완한다.
+  { fam:'Noto Serif KR',   w:900, fb:['Noto Serif JP'], label:'노토 세리프 블랙 · 인명용 한자까지', group:'도장 느낌', hanja:true, rare:true },
+  // 한자 전용: 한글 글리프가 없는 일본·번체 중국어 글꼴. 한글과 글꼴에 없는 한자는 HANJA_FB 순서로 그린다.
+  // (구글 폰트의 실제 글리프 기준 KS X 1001 한자 91~99% 보유. 간체 붓글씨 글꼴은 58%에 그쳐 넣지 않았다.)
+  { fam:'Yuji Syuku',      w:400, fb:HANJA_FB, label:'유지 슈쿠 · 비문 붓글씨',       group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
+  { fam:'Yuji Boku',       w:400, fb:HANJA_FB, label:'유지 보쿠 · 먹 붓글씨',         group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
+  { fam:'LXGW WenKai TC',  w:700, fb:HANJA_FB, label:'LXGW 원카이 · 해서체',          group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
+  { fam:'Cactus Classical Serif', w:400, fb:HANJA_FB, label:'캑터스 클래시컬 · 옛 명조', group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
+  { fam:'Shippori Mincho B1', w:800, fb:HANJA_FB, label:'싯포리 명조 굵게',           group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
 ];
 
 /* ============================================================
@@ -648,7 +836,7 @@ function glyphScales(boxes, cells, gap, fill, stretch){
 const GLYPH_SAMPLES=new Map();
 let sampleCanvas=null;
 function glyphSamples(f, ch, box){
-  const key=f.fam+'|'+f.w+'|'+ch;
+  const key=f.fam+'|'+f.w+'|'+[].concat(f.fb||[]).join('+')+'|'+ch;   // 대체 글씨체가 다르면 같은 글자도 모양이 다를 수 있다
   let smp=GLYPH_SAMPLES.get(key);
   if(smp) return smp;
   const N=48;
@@ -667,7 +855,9 @@ function glyphSamples(f, ch, box){
     if(d[(j*N+i)*4+3]>96) pts.push((i+0.5-N/2)/k, (j+0.5-N/2)/k);
   }
   smp=new Float32Array(pts);
-  if(smp.length) GLYPH_SAMPLES.set(key, smp);   // 아직 폰트가 안 떠서 빈 결과면 다음에 다시
+  // 아직 웹폰트가 안 떠서 빈 결과이거나 대체 글꼴로 측정한 것이면 캐시하지 않고 다음에 다시 본다.
+  // (한자처럼 글꼴 조각이 늦게 오는 글자를 대체 글꼴 모양으로 굳혀 두면 글자판 크기가 어긋난다)
+  if(smp.length && fontReadyFor(f, ch)) GLYPH_SAMPLES.set(key, smp);
   return smp;
 }
 
@@ -733,13 +923,22 @@ function buildCells(grid, trad, boxW, boxH){
    ============================================================ */
 const REF = 220; // 글자 측정용 기준 폰트 크기
 
-function fontSpec(f, px){ return `${f.w} ${px}px "${f.fam}", serif`; }
+/* 글꼴에 없는 글자(한자 전용 글씨체의 한글, KR 에 없는 인명용 한자)는 fb 의 대체 글씨체가 차례로 이어 그린다. */
+function fontSpec(f, px){
+  const fb=[].concat(f.fb||[]).map(x=>`"${x}", `).join('');
+  return `${f.w} ${px}px "${f.fam}", ${fb}serif`;
+}
 
 async function ensureFont(f, sample){
   try{
     await document.fonts.load(fontSpec(f, 100), sample || '가');
     await document.fonts.load(fontSpec(f, REF), sample || '가');
   }catch(e){ /* CDN 차단 등 — 대체 글씨체로 그린다 */ }
+}
+/* 이 글자를 그릴 웹폰트 조각이 이미 떠 있는가. 글씨체에 그 글자가 없어 대체 글꼴로 그려질 때와
+   CDN 이 막혀 웹폰트 자체가 없을 때도 true — 그때는 지금 보이는 모양이 최종 모양이므로 캐시해도 된다. */
+function fontReadyFor(f, ch){
+  try{ return document.fonts.check(fontSpec(f, REF), ch); }catch(e){ return true; }
 }
 
 /* 회전된 윤곽과 최대 요철을 캔버스 안에 두어 모서리 잘림을 막는다. */
@@ -916,27 +1115,107 @@ const view = document.getElementById('view');
 const vctx = view.getContext('2d', {willReadFrequently:true});
 const statusEl = document.getElementById('status');
 const metaEl = document.getElementById('meta');
+const fontNoteEl = document.getElementById('fontNote');   // 글씨체와 글자가 맞지 않을 때의 안내
 
 const $ = id => document.getElementById(id);
 
-/* 글씨체 select 채우기 */
-(function fillFonts(){
-  const sel=$('font');
-  const shown=FONTS.filter(f=>!f.hidden);                 // hidden:true 는 목록에 내놓지 않는다
-  const groups=[...new Set(shown.map(f=>f.group))];
+/* ---- 글씨체 고르기 ----
+   글씨체마다 지금 설정으로 찍은 도장을 작은 캔버스에 그려 보여 준다.
+   격자는 처음 펼칠 때 만들고(글씨체마다 글꼴 조각을 내려받게 되므로), 설정이 바뀌면 펼쳐진 동안에만
+   잠깐 뒤에 다시 그린다. 글씨체 번호(fontIdx)만 바뀌면 타일은 그대로다. */
+const fontGrid=$('fontGrid'), fontToggle=$('fontToggle');
+const TILE_PX=200;                        // 타일 캔버스 해상도 — 표시 크기의 두 배쯤이라 선명하다
+let fontTiles=null;                       // [{idx, ctx, btn}] — 펼칠 때 만든다
+let fontTileKey='', fontTileTimer=0, fontTileJob=0;
+function fontOptionLabel(f){ return f.label+(f.hanja && f.hangul!==false ? ' · 한자 지원' : ''); }   // 한자 전용은 묶음 이름이 말해 준다
+function fontFamilyList(f){ return [f.fam].concat(f.fb||[]).map(x=>`"${x}"`).join(', ')+', serif'; }
+/* 현재 글씨체 버튼에 보여 줄 글자: 입력한 이름 앞 네 글자 (한자 전용 글씨체는 한자만) */
+function fontPreviewText(f){
+  const t=[...S.text.replace(/\s+/g,'')];
+  if(f.hangul===false){ const hj=t.filter(isHanja); return (hj.length ? hj : [...'印章']).slice(0,4).join(''); }
+  return (t.length ? t : [...'도장']).slice(0,4).join('');
+}
+function styleSample(el, f){ el.style.fontFamily=fontFamilyList(f); el.style.fontWeight=String(f.w); }
+function buildFontGrid(){
+  fontGrid.textContent=''; fontTiles=[];
+  const groups=[...new Set(FONTS.filter(f=>!f.hidden).map(f=>f.group))];   // hidden:true 는 목록에 내놓지 않는다
   groups.forEach(g=>{
-    const og=document.createElement('optgroup');
-    og.label=g;
+    const h=document.createElement('div'); h.className='fp-group'; h.textContent=g;
+    fontGrid.appendChild(h);
     FONTS.forEach((f,i)=>{
       if(f.group!==g || f.hidden) return;
-      const o=document.createElement('option');
-      o.value=i; o.textContent=f.label;
-      og.appendChild(o);
+      const b=document.createElement('button');
+      b.type='button'; b.className='fp-tile'; b.dataset.idx=i;
+      b.title=fontOptionLabel(f); b.setAttribute('aria-label', fontOptionLabel(f));
+      const c=document.createElement('canvas');
+      c.width=c.height=TILE_PX; c.className='fp-img'; c.setAttribute('aria-hidden','true');
+      const n=document.createElement('span'); n.className='fp-name'; n.textContent=fontOptionLabel(f);
+      b.appendChild(c); b.appendChild(n);
+      fontGrid.appendChild(b);
+      fontTiles.push({idx:i, ctx:c.getContext('2d',{willReadFrequently:true}), btn:b});
     });
-    sel.appendChild(og);
   });
-  sel.value=String(S.fontIdx);
-})();
+}
+/* 타일 그림에 영향을 주는 상태 — 글씨체 번호만 빼고 전부 */
+function fontTileStateKey(){ return JSON.stringify({...S, fontIdx:0}); }
+/* 타일을 프레임마다 세 개씩 나눠 그린다. 한 번에 다 그리면 화면이 잠깐 멈춘다. */
+function refreshFontTiles(){
+  clearTimeout(fontTileTimer);
+  if(!fontTiles) return;
+  if(fontGrid.hidden){ fontTileKey=''; return; }    // 접혀 있으면 펼칠 때 그린다
+  const job=++fontTileJob;                          // 새로 시작하면 진행 중이던 작업은 멈춘다
+  const snap={...S};
+  fontTileKey=fontTileStateKey();
+  const order=fontTiles.slice().sort((a,b)=>(a.idx===snap.fontIdx?0:1)-(b.idx===snap.fontIdx?0:1));   // 지금 글씨체부터
+  const jobs=order.map(t=>({t, ready:ensureFont(FONTS[t.idx], snap.text+snap.suffix+'가印')}));   // 글꼴은 한꺼번에 받기 시작한다
+  let i=0;
+  const step=async()=>{
+    if(job!==fontTileJob) return;
+    const end=Math.min(i+3, jobs.length);
+    for(; i<end; i++){
+      const {t, ready}=jobs[i];
+      await ready;
+      if(job!==fontTileJob) return;
+      try{ render(t.ctx, TILE_PX, {...snap, fontIdx:t.idx}); }catch(e){ console.error(e); }
+    }
+    if(i<jobs.length) requestAnimationFrame(step);
+  };
+  step();
+}
+/* 설정이 바뀌었으니 (펼쳐져 있으면) 잠깐 뒤에 타일을 다시 그린다. 슬라이더를 끄는 동안에는 기다린다. */
+function queueFontTiles(){
+  if(!fontTiles || fontGrid.hidden) return;
+  if(fontTileStateKey()===fontTileKey) return;
+  clearTimeout(fontTileTimer);
+  fontTileTimer=setTimeout(refreshFontTiles, 250);
+}
+/* 현재 글씨체 버튼과 타일의 선택 표시를 상태(S)에 맞춘다 */
+function syncFontPicker(){
+  const f=FONTS[S.fontIdx]||FONTS[0];
+  const cur=$('fontCurSample');
+  cur.textContent=fontPreviewText(f); styleSample(cur, f);
+  $('fontCurName').textContent=fontOptionLabel(f);
+  if(fontTiles) fontTiles.forEach(t=>t.btn.setAttribute('aria-pressed', String(t.idx===S.fontIdx)));
+}
+fontToggle.addEventListener('click', ()=>{
+  const open=fontGrid.hidden;
+  if(open && !fontTiles){ buildFontGrid(); syncFontPicker(); }
+  fontGrid.hidden=!open;
+  fontToggle.setAttribute('aria-expanded', String(open));
+  $('fontChev').textContent = open ? '접기 ▴' : '바꾸기 ▾';
+  if(open){
+    if(fontTileStateKey()!==fontTileKey) refreshFontTiles();   // 접혀 있는 동안 바뀐 설정으로 새로 그린다
+    const sel=fontGrid.querySelector('.fp-tile[aria-pressed=true]');   // 지금 글씨체가 보이는 위치로 격자만 스크롤
+    if(sel) fontGrid.scrollTop=Math.max(0, sel.offsetTop-fontGrid.clientHeight/2+sel.offsetHeight/2);
+  }
+});
+fontGrid.addEventListener('click', async e=>{
+  const b=e.target.closest('.fp-tile'); if(!b) return;
+  S.fontIdx=+b.dataset.idx;
+  syncFontPicker();
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  schedule();
+});
 
 /* 슬라이더 표시값 */
 const SL_FMT = {
@@ -972,7 +1251,11 @@ wireSeg('style','style');
 /* 입력 → 상태 */
 const TEXT_KEYS=[['text','text'],['suffix','suffix']];
 TEXT_KEYS.forEach(([id,key])=>{
-  $(id).addEventListener('input', e=>{ S[key]=e.target.value; schedule(); });
+  $(id).addEventListener('input', e=>{
+    S[key]=e.target.value;
+    if(key==='text') syncFontPicker();   // 글씨체 미리보기도 지금 글자로
+    schedule();
+  });
 });
 const NUM_KEYS=['glyphFill','spacing','border','pad','rot','ink','grain','rough'];
 NUM_KEYS.forEach(id=>{
@@ -981,11 +1264,6 @@ NUM_KEYS.forEach(id=>{
 const CHK_KEYS=['trad','stretch','doubleBorder'];
 CHK_KEYS.forEach(id=>{
   $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
-});
-$('font').addEventListener('change', async e=>{
-  S.fontIdx=+e.target.value;
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
-  schedule();
 });
 $('color').addEventListener('input', e=>{ S.color=e.target.value; schedule(); });
 document.querySelectorAll('.swatch').forEach(b=>{
@@ -1042,7 +1320,7 @@ $('presets').addEventListener('click', async e=>{
 function pushStateToUI(){
   $('text').value=S.text;
   $('suffix').value=S.suffix;
-  $('font').value=String(S.fontIdx);
+  syncFontPicker();
   $('color').value=S.color;
   NUM_KEYS.forEach(id=>{ $(id).value=S[id]; });
   CHK_KEYS.forEach(id=>{ $(id).checked=!!S[id]; });
@@ -1051,6 +1329,243 @@ function pushStateToUI(){
   setSeg('style','style',S.style);
   syncOutputs();
 }
+
+/* ============================================================
+   한자 변환
+   한글로 적은 이름을 글자마다 한자로 바꾼다. 사전은 문서 끝의 JSON 블록(id="hanja-data",
+   type="application/json" 스크립트)에 들어 있고 처음 쓸 때 한 번만 읽는다.
+   ============================================================ */
+/* ---- 한자 변환: 순수 함수 ---- */
+const HANJA_RE=/[㐀-䶿一-鿿豈-﫿]/;
+function isHangulSyllable(ch){ const c=ch.codePointAt(0); return c>=0xAC00 && c<=0xD7A3; }
+function isHanja(ch){ return [...ch].length===1 && HANJA_RE.test(ch); }
+function hasHanja(str){ return HANJA_RE.test(str||''); }
+const HANGUL_RE=/[가-힣]/;
+function hasHangul(str){ return HANGUL_RE.test(str||''); }
+
+/* 사전 JSON 문자열 → 조회용 구조.
+   값 형식 "姸고울,延늘일;妍고울": 쉼표로 항목을 나누고, 항목의 첫 글자가 한자(BMP 1글자), 나머지가 훈(뜻).
+   세미콜론 뒤는 인명용 추가 한자 — 웹 글씨체에 글리프가 없어 컴퓨터의 한자 글꼴로 그려지는 글자. */
+function parseHanjaData(raw){
+  const byReading=new Map();   // 읽기 → {common:[{ch,hun,rare}], rare:[…]}
+  const byHanja=new Map();     // 한자 → 읽기 목록 (樂 → 낙 락 악 요)
+  const served=new Set();      // 어느 읽기에서든 KS X 1001 그룹에 있는 글자
+  let data={};
+  try{ data=JSON.parse(raw||'{}'); }catch(e){ data={}; }
+  if(!data || typeof data!=='object') data={};
+  const parseList=(s, rare)=>(s ? s.split(',') : []).filter(Boolean).map(e=>({ch:e[0], hun:e.slice(1), rare}));
+  const addReading=(ch, reading)=>{
+    const l=byHanja.get(ch);
+    if(!l) byHanja.set(ch, [reading]); else if(!l.includes(reading)) l.push(reading);
+  };
+  for(const reading of Object.keys(data)){
+    const v=String(data[reading]), cut=v.indexOf(';');
+    const common=parseList(cut<0 ? v : v.slice(0,cut), false);
+    const rare=parseList(cut<0 ? '' : v.slice(cut+1), true);
+    byReading.set(reading, {common, rare});
+    common.forEach(e=>{ served.add(e.ch); addReading(e.ch, reading); });
+    rare.forEach(e=>addReading(e.ch, reading));
+  }
+  const rareSet=new Set();
+  for(const ch of byHanja.keys()) if(!served.has(ch)) rareSet.add(ch);
+  return {byReading, byHanja, rare:rareSet};
+}
+function hanjaCandidates(dict, reading){ return dict.byReading.get(reading) || {common:[], rare:[]}; }
+function readingsOf(dict, ch){ return dict.byHanja.get(ch.normalize('NFC')) || []; }
+
+/* 텍스트를 글자별 행으로 만든다. 한글 음절과 한자만 행이 되고 공백·자모·숫자·영문은 건너뛴다.
+   행: {i, ch, kind:'hangul'|'hanja', groups:[{reading, common, rare}]}
+   한자 글자는 읽기마다 그룹을 하나씩 두고(樂 → 낙·락·악·요) 자기 자신은 후보에서 뺀다. i 는 [...text] 의 위치. */
+function buildHanjaRows(dict, text){
+  const rows=[];
+  [...text].forEach((ch,i)=>{
+    if(isHangulSyllable(ch)){
+      const c=hanjaCandidates(dict, ch);
+      rows.push({i, ch, kind:'hangul', groups:[{reading:ch, common:c.common, rare:c.rare}]});
+    }else if(isHanja(ch)){
+      const self=ch.normalize('NFC'), other=e=>e.ch!==self;
+      const groups=readingsOf(dict, ch).map(reading=>{
+        const c=hanjaCandidates(dict, reading);
+        return {reading, common:c.common.filter(other), rare:c.rare.filter(other)};
+      });
+      rows.push({i, ch, kind:'hanja', groups});
+    }
+  });
+  return rows;
+}
+/* choices[i]: null(그대로) | 한자 | 한글 음절(되돌리기). 모두 BMP 1글자라 UTF-16 길이가 바뀌지 않는다 (입력칸 maxlength). */
+function applyHanjaChoices(text, choices){
+  return [...text].map((c,i)=>(choices[i]==null ? c : choices[i])).join('');
+}
+/* 조사 ‘(으)로’: 받침 없음·ㄹ 받침 → ‘로’, 그 외 → ‘으로’. 한글이 아니면 둘 다 적는다. */
+function josaRo(word){
+  const last=[...word].pop()||'';
+  if(!isHangulSyllable(last)) return '(으)로';
+  const jong=(last.codePointAt(0)-0xAC00)%28;
+  return (jong===0 || jong===8) ? '로' : '으로';
+}
+
+/* ---- 한자 변환: 대화상자 ---- */
+const HANJA_FONT_IDX=fontIdxOf('Noto Serif KR');   // 한자 지원 글씨체로 바꿀 때 쓰는 기본 글씨체
+const HANJA_RARE_FONT_IDX=FONTS.findIndex(f=>f.hanja && f.rare && f.hangul!==false);   // 인명용 추가 한자까지 그리는 한글 글씨체
+let HANJA=null;                                    // 사전은 처음 쓸 때 한 번만 읽는다
+function hanjaDict(){
+  if(!HANJA){ const el=$('hanja-data'); HANJA=parseHanjaData(el ? el.textContent : '{}'); }
+  return HANJA;
+}
+/* 텍스트에 인명용 추가 한자(KS X 1001 밖 → 노토 세리프 KR 에 없음)가 있는가 */
+function hasRareHanja(text){
+  return hasHanja(text) && [...text].some(c=>isHanja(c) && hanjaDict().rare.has(c.normalize('NFC')));
+}
+/* 적용할 때 바꿔 줄 글씨체: 인명용 추가 한자가 있으면 그것까지 그리는 쪽으로 */
+function hanjaTargetFont(text){
+  return (HANJA_RARE_FONT_IDX>=0 && hasRareHanja(text)) ? HANJA_RARE_FONT_IDX : HANJA_FONT_IDX;
+}
+/* 지금 글씨체가 결과의 한자를 다 못 그리면 바꿔 줄 글씨체 번호, 괜찮으면 -1 */
+function fontSwitchTarget(text){
+  const cur=FONTS[S.fontIdx]||FONTS[0], target=hanjaTargetFont(text);
+  if(!cur.hanja) return target;
+  if(target===HANJA_RARE_FONT_IDX && !cur.rare) return target;
+  return -1;
+}
+const hjDlg=$('hanjaDlg'), hjRows=$('hanjaRows'), hjNote=$('hanjaNote');
+const HJ={text:'', rows:[], choices:[]};           // 대화상자가 열려 있는 동안의 작업 상태
+
+function openHanjaDialog(){
+  const input=$('text');
+  input.blur();                                    // 조합 중인 글자를 확정시킨다
+  const text=input.value;
+  S.text=text;
+  hjNote.textContent='';
+  if(!text.trim()){ hjNote.textContent='먼저 도장에 넣을 글자를 입력하세요.'; input.focus(); return; }
+  const rows=buildHanjaRows(hanjaDict(), text);
+  if(!rows.length){ hjNote.textContent='한글이나 한자 글자가 없어 바꿀 것이 없습니다.'; return; }
+  if(!hjDlg || typeof hjDlg.showModal!=='function'){
+    hjNote.textContent='이 브라우저는 한자 변환 창을 지원하지 않습니다. 키보드의 한자 키로 직접 바꿔 넣으세요.';
+    return;
+  }
+  HJ.text=text; HJ.rows=rows; HJ.choices=[...text].map(()=>null);
+  renderHanjaRows();
+  $('hjSuffixWrap').hidden = S.suffix!=='인';
+  $('hjSuffix').checked=true;
+  $('hjFont').checked=true;
+  updateHanjaPreview();
+  document.body.classList.add('modal-open');
+  hjDlg.showModal();
+  hjRows.scrollTop=0;
+}
+
+function chipEl(i, ch, main, sub, cls, pressed){
+  const b=document.createElement('button');
+  b.type='button'; b.className='hj-chip'+(cls ? ' '+cls : '');
+  b.dataset.i=i; b.dataset.ch=ch;
+  b.setAttribute('aria-pressed', String(!!pressed));
+  const m=document.createElement('b'); m.textContent=main; b.appendChild(m);
+  if(sub){ const s=document.createElement('small'); s.textContent=sub; s.title=sub; b.appendChild(s); }
+  return b;
+}
+function noteEl(cls, msg){ const d=document.createElement('div'); d.className=cls; d.textContent=msg; return d; }
+
+function renderHanjaRows(){
+  hjRows.textContent='';
+  HJ.rows.forEach(row=>{
+    const sec=document.createElement('section');
+    sec.className='hj-row'; sec.dataset.i=row.i;
+    sec.setAttribute('role','group'); sec.setAttribute('aria-label', row.ch);
+    const syl=document.createElement('div'); syl.className='hj-syl'; syl.textContent=row.ch;
+    const chips=document.createElement('div'); chips.className='hj-chips';
+    chips.appendChild(chipEl(row.i, '', row.ch, row.kind==='hangul' ? '한글 그대로' : '그대로', 'keep', true));
+    if(row.kind==='hanja' && !row.groups.length) chips.appendChild(noteEl('hj-empty', '사전에 없는 한자입니다'));
+    row.groups.forEach((g, gi)=>{
+      if(row.kind==='hanja'){
+        if(row.groups.length>1) chips.appendChild(noteEl('hj-cap', `‘${g.reading}’${josaRo(g.reading)} 읽을 때`));
+        chips.appendChild(chipEl(row.i, g.reading, g.reading, '한글로', 'hangul', false));
+      }
+      g.common.forEach(e=>chips.appendChild(chipEl(row.i, e.ch, e.ch, e.hun, '', false)));
+      if(!g.common.length && !g.rare.length) chips.appendChild(noteEl('hj-empty', '해당하는 한자가 없습니다'));
+      if(g.rare.length){
+        const more=document.createElement('button');
+        more.type='button'; more.className='hj-more'; more.dataset.i=row.i; more.dataset.g=gi;
+        more.textContent=`인명용 한자 더 보기 (${g.rare.length})`;
+        chips.appendChild(more);
+      }
+    });
+    sec.appendChild(syl); sec.appendChild(chips);
+    hjRows.appendChild(sec);
+  });
+}
+/* '더 보기' — 인명용 추가 한자는 눌렀을 때만 만든다 (읽기 하나에 수십 개씩 있다) */
+function expandRare(more){
+  const row=HJ.rows.find(r=>r.i===+more.dataset.i);
+  const g=row && row.groups[+more.dataset.g];
+  if(!g) return;
+  const frag=document.createDocumentFragment();
+  g.rare.forEach(e=>frag.appendChild(chipEl(row.i, e.ch, e.ch, e.hun, 'rare', false)));
+  frag.appendChild(noteEl('hj-rarehint', '점선은 인명용 추가 한자입니다. ‘인명용 한자까지’·‘한자 전용’ 글씨체에서는 웹 글씨체로, 다른 글씨체에서는 컴퓨터의 기본 한자 글꼴로 그려집니다.'));
+  more.replaceWith(frag);
+}
+/* 적용 뒤의 보조 글자: '인' 이고 체크돼 있고 결과에 한자가 있으면 '印' */
+function hanjaSuffixAfter(text){
+  return (S.suffix==='인' && $('hjSuffix').checked && hasHanja(text)) ? '印' : S.suffix;
+}
+function updateHanjaPreview(){
+  const text=applyHanjaChoices(HJ.text, HJ.choices), suffix=hanjaSuffixAfter(text);
+  $('hjPreview').textContent = text + (suffix ? ' · '+suffix : '');
+  // 지금 글씨체가 결과의 한자를 못 그릴 때만 글씨체 바꾸기를 제안한다 (고른 한자에 따라 바뀐다)
+  const t=fontSwitchTarget(text);
+  $('hjFontWrap').hidden = t<0;
+  if(t>=0) $('hjFontName').textContent=FONTS[t].label;
+}
+async function applyHanja(){
+  const text=applyHanjaChoices(HJ.text, HJ.choices);
+  const suffix=hanjaSuffixAfter(text);
+  const notes=[];
+  notes.push(text!==HJ.text ? `바꾼 글자: ${text}${suffix ? ' · '+suffix : ''}` : '바뀐 글자가 없습니다.');
+  S.text=text;
+  if(suffix!==S.suffix){ S.suffix=suffix; notes.push('보조 글자를 印으로 바꿨습니다.'); }
+  const target=fontSwitchTarget(text);
+  if(target>=0 && $('hjFont').checked && hasHanja(text+S.suffix)){
+    S.fontIdx=target;
+    const label=FONTS[target].label;
+    notes.push(`글씨체를 ${label}${josaRo(label)} 바꿨습니다.`);
+  }
+  pushStateToUI();
+  hjDlg.close();
+  schedule();                                    // 우선 지금 있는 글꼴로 보여 주고
+  if(hasHanja(S.text+S.suffix)){
+    hjNote.textContent=notes.join(' ')+' 글씨체를 불러오는 중…';
+    await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+    const rare=[...new Set([...S.text].filter(c=>isHanja(c) && hanjaDict().rare.has(c.normalize('NFC'))))];
+    if(rare.length && !(FONTS[S.fontIdx]||FONTS[0]).rare)
+      notes.push(`인명용 추가 한자(${rare.join(' ')})는 이 글씨체에 없어 컴퓨터의 기본 한자 글꼴로 그려집니다. ‘인명용 한자까지’ 글씨체를 고르면 웹 글씨체로 그려집니다.`);
+  }
+  hjNote.textContent=notes.join(' ');
+  schedule();                                    // 웹폰트가 적용된 모습으로 다시 그린다
+}
+
+$('hanjaBtn').addEventListener('click', openHanjaDialog);
+$('hjClose').addEventListener('click', ()=>hjDlg.close());
+$('hjCancel').addEventListener('click', ()=>hjDlg.close());
+$('hjApply').addEventListener('click', ()=>{
+  applyHanja().catch(err=>{ hjNote.textContent='한자 변환 오류: '+err.message; console.error(err); });
+});
+$('hjSuffix').addEventListener('change', updateHanjaPreview);
+hjRows.addEventListener('click', e=>{
+  const more=e.target.closest('.hj-more');
+  if(more){ expandRare(more); return; }
+  const chip=e.target.closest('.hj-chip');
+  if(!chip) return;
+  HJ.choices[+chip.dataset.i]=chip.dataset.ch || null;
+  chip.closest('.hj-row').querySelectorAll('.hj-chip').forEach(x=>x.setAttribute('aria-pressed', String(x===chip)));
+  updateHanjaPreview();
+});
+// 어두운 배경(대화상자 바깥)을 누르면 닫는다. 배경 클릭은 대화상자 자신이 target 이 되므로 좌표로 안팎을 가른다.
+hjDlg.addEventListener('click', e=>{
+  if(e.target!==hjDlg) return;
+  const r=hjDlg.getBoundingClientRect();
+  if(e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom) hjDlg.close();
+});
+hjDlg.addEventListener('close', ()=>document.body.classList.remove('modal-open'));
 
 /* ============================================================
    브라우저에 설정 저장 (localStorage)
@@ -1078,8 +1593,9 @@ function flushState(){
   clearTimeout(saveTimer);
   if(!CAN_STORE) return;
   try{
-    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:$('paper').checked}));
-  }catch(e){ $('saveNote').textContent='설정을 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.'; }
+    const paper=$('paper');   // 글꼴이 늦게 떠서 다시 그릴 때 화면이 이미 바뀌었을 수도 있다
+    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:!!(paper && paper.checked)}));
+  }catch(e){ const note=$('saveNote'); if(note) note.textContent='설정을 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.'; }
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.visibilityState==='hidden') flushState();
@@ -1135,6 +1651,18 @@ function setPaper(on){
   $('cbox').classList.toggle('checker', !on);
 }
 
+/* 글씨체와 글자가 맞지 않을 때 글씨체 선택 아래에 보여 주는 안내 */
+const FB_LABEL={'Noto Serif KR':'노토 세리프', 'Noto Sans KR':'노토 산스'};
+function fontNoteText(f, text){
+  if(f.hangul===false && hasHangul(text))
+    return `이 글씨체에는 한글이 없어 한글 부분은 ${FB_LABEL[[].concat(f.fb||[])[0]]||'기본 글씨체'}로 그려집니다.`;
+  if(!f.hanja && hasHanja(text))
+    return '이 글씨체에는 한자가 없어 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. “한자 지원”·“한자 전용” 글씨체를 고르면 웹 글씨체로 그려집니다.';
+  if(f.hanja && !f.rare && hasRareHanja(text))
+    return '이 글씨체에 없는 인명용 추가 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. “인명용 한자까지”나 “한자 전용” 글씨체를 고르면 웹 글씨체로 그려집니다.';
+  return '';
+}
+
 /* ---- 미리보기 (프레임마다 한 번만) ---- */
 let pending=false;
 function schedule(){
@@ -1146,6 +1674,8 @@ function schedule(){
       render(vctx, view.width, S);
       const n=[...S.text.trim()].filter(c=>c!==' ').length+[...S.suffix].length;
       metaEl.textContent = `글자 ${n}자 · ${FONTS[S.fontIdx].label} · ${S.style==='yang'?'양각':'음각'} · 미리보기 ${view.width}px`;
+      fontNoteEl.textContent = fontNoteText(FONTS[S.fontIdx]||FONTS[0], S.text+S.suffix);
+      queueFontTiles();                          // 글씨체 고르기 타일도 바뀐 설정으로 (펼쳐져 있을 때만)
     }catch(err){
       statusEl.textContent='그리기 오류: '+err.message;
       console.error(err);
@@ -1227,13 +1757,513 @@ $('copyWhite').addEventListener('click', ()=>copyImage('#ffffff'));
   if(!CAN_STORE) $('saveNote').textContent='이 브라우저에서는 설정 저장을 쓸 수 없습니다.';
   pushStateToUI();
   setPaper(!!(restored && restored.paper));
+  // 웹폰트 조각이 뒤늦게 뜨면(한자·印 등) 그 모양으로 다시 그린다
+  try{ document.fonts.addEventListener('loadingdone', ()=>schedule()); }catch(e){}
   schedule();                                  // 폰트 로딩 전에도 일단 보여준다
   // 브라우저가 새로고침 때 입력값을 되살려 놓는 경우가 있어, 로드 후 한 번 더 맞춘다
   window.addEventListener('load', ()=>{ pushStateToUI(); schedule(); });
   try{ await document.fonts.ready; }catch(e){}
-  await ensureFont(FONTS[S.fontIdx], S.text+'가印');
+  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
   schedule();                                  // 웹폰트가 적용된 모습으로 다시 그린다
 })();
 </script>
+
+<!--
+  한자 변환 사전 (읽기 → 한자 후보). 아래 JSON 은 tools/build-hanja-data.cjs 가 만들어 넣는다.
+  손으로 고치지 말고 `node tools/build-hanja-data.cjs --write` 로 다시 생성한다.
+  형식: { "연": "姸고울·예쁠,延늘일,…;妍고울,…" } — 쉼표로 항목을 나누고 항목의 첫 글자가 한자, 나머지가 훈(뜻).
+        세미콜론 뒤는 대법원 인명용 추가 한자(웹 글씨체에 없어 컴퓨터의 한자 글꼴로 그려진다).
+  출처: Unihan Database kHangul (© Unicode, Inc., Unicode License v3) ·
+        libhangul data/hanja/hanja.txt, freq-hanja.txt (Copyright (c) 2005,2006 Choe Hwanjin, BSD-3-Clause).
+        라이선스 전문은 tools/build-hanja-data.cjs 머리 주석에 있다.
+-->
+<script type="application/json" id="hanja-data">{
+"가":"可옳을,家집,加더할,歌노래,價값,街거리,假거짓,佳아름다울,暇겨를,架시렁,賈값·값/성,伽절,柯가지,迦부처이름,軻수레 가기 힘들·바퀴굴대,嘉아름다울,駕멍에,嫁시집갈,稼심을·곡식심을,哥노래·형언니,呵꾸짖을,苛매울·까다로울,袈가사,訶꾸짖을,枷목칼·도리깨채,珂옥 이름,茄가지,痂헌데 딱지,跏책상다리할·도사리어 앉을;斝옥잔,葭갈대,笳갈잎피리,舸큰 배,哿좋을,坷험할,檟오동나무,珈머리꾸미개,謌,榎,耞도리깨,嘏,泇",
+"각":"各각각,角뿔,脚다리·종아리,覺깨달을,閣문설주·다락집,刻새길,却물리칠,珏쌍옥,恪삼갈·공경할,殼껍질,慤삼갈·정성;桷서까래,卻,搉칠,咯토할,埆메마를,擱놓을,愨",
+"간":"間틈·사이,干방패,看볼,幹줄기·우물난간,姦간사할,刊책 펴낼,肝간,簡대쪽,懇정성·간절할,奸범할·간악할,艮괘이름·간방,杆지레·나무이름,諫간할,艱어려울·고생살이,揀가릴·분별할,澗산골물,竿장대·화살대,墾따비질할·개간할,癎경풍·간질,侃강직할,柬가릴,磵산골 시내·석간수,桿줄기,稈짚·볏짚;赶달릴,衎즐길·바를,慳아낄,榦,玕옥돌,迀구할·권할,偘,栞도표,秆,茛독초이름·미나리아재비,齦물을,忓,癇,矸",
+"갈":"渴목마를·급할,葛칡,鞨말갈나라·말갈보석,竭다할·마를,喝꾸짖을·성낸 소리,褐털베·굵은 베,曷어찌·그칠,碣비·우뚝선 돌,蝎전갈·빈대,乫땅이름;羯불친 양·땅이름,秸볏짚·짚 고갱이,噶벼슬이름·땅이름,楬패를 써서 표시할,蠍전갈",
+"감":"感감동할·찌를,減덜·무지러질,敢감히·구태여,甘달·달게 여길,監거느릴·살필,鑑거울·밝을,憾섭섭할·한할,邯조나라 서울,堪견딜·이길,勘마감할·정할,瞰굽어볼·내려다 볼,紺아청·보랏빛,柑감귤·감자,疳감질병·궤양,坎구덩이·험할,戡찌를·이길,鑒거울,嵌깊은 골·곁굴,橄감람나무,龕취할·이길;歛,酣,撼흔들·움직일,欿서운할·찌푸릴,弇뚜껑·사람이름,嵁산 험할,憨어리석을·미련할,坩도가니,埳구덩이,泔,淦,澉,矙,轗,鹻,玪",
+"갑":"甲갑옷·첫째 천간,閘문 빗장·물 문,岬산 허구리·줄이 느런할,鉀갑옷,匣궤·상자,胛어깻죽지",
+"강":"江가람·물,講강론할·강구할,降내릴·떨어질,康편안할·즐거울,綱벼리·근본,鋼쇠·강철,剛굳을·굳셀,強강할,强강할·나머지,姜성씨·강할,疆땅 경계·갈피,岡멧동·산등성이,彊굳셀·센 활,崗산등성이,慷강개할,腔창자·속 빌,薑생강·새앙,糠겨·번쇄할,舡오나라 배,絳깊게 붉을·강초,襁포대기,羌오랑캐·말 끝낼,堈언덕·밭 두둑,畺지경,鱇천징어;杠외나무 다리·깃대,僵엎드러질·쓰러질,忼강개할·뜻이 크고 기개있을,橿참죽나무·호미자루,茳강리풀,韁고삐,壃,扛마주 들,悾정성,殭죽어 썩지 않을·마른 누에,矼돌다리·징검다리,繈,傋아첨 아니할,穅겨·악기이름,罡강별,羫밭 갈,豇광저기,玒,鏹,嫝,跭,鎠,顜",
+"개":"改고칠·거듭할,開열·통할,個낱·치우칠,皆모두·한 가지,槪평두목·절개,介낄·도울,蓋뚜껑·덮개,慨분할·강개할,豈승전악·일찍,价착할·클,塏시원한 땅,箇낱·개수,漑물 댈·씻을,芥겨자·갓,凱싸움 이긴 풍류·착할,愾한숨 쉴·성낼,盖뚜껑,鎧투구·갑옷,愷탐할·급할,疥옴;槩,剴낫·가까울,揩문지를·문질러 훔칠,玠큰 서옥,匃청구할·줄,闓열·풀,磕돌 부딪는 소리",
+"객":"客손님·부칠,喀기침할·토할",
+"갱":"更다시,坑빠질·묻을,羹국,粳메벼;賡이을·일,鏗금석 소리·사람이름,硜아릿아릿할·알랑알랑할",
+"갹":"醵술추렴",
+"거":"車수레·그물,去갈·버릴,居살·곳,巨클·많을,擧들·받들,拒막을·맞설,距며느리 발톱·지낼,據의지할·기댈,渠개천·도랑,倨거만할·걸터 앉을,遽급할·두려울,据가질·길거할,祛물리칠·빌,鉅갈고리·클,炬횃불·불 땔,踞걸터앉을,鋸톱·다리 꺾는 형벌;裾옷 뒷자락,袪소매·소매 아귀,蘧패랭이꽃·석죽화,莒모시풀·나라이름,秬검은 기장,蕖연꽃,籧대자리·천상바라기,駏튀기·거공벌레,腒건치·꿩 포,苣상추·검은 깨,呿입 딱 벌일,昛밝을,筥쌀 담는 광주리·볏단,胠열·갈비",
+"건":"建세울·둘,乾하늘·괘 이름,件조건·가지,健굳셀·병 없을,巾수건·덮을,鍵열쇠·수레 굴대,虔정성·빼앗을,腱힘줄,愆죄·허물,蹇절름거릴·험할,騫말 배 앓을·이지러질,楗문 빗장·문지방;褰바지·걷을,謇말 더듬거릴·바른말할,鞬칼집·동개,揵멜·막을,犍불친 소·짐승이름,睷눈으로 세어볼,搴,䢖,湕,乹,漧,踺",
+"걸":"傑호걸·준걸,乞구걸할·요구할,杰준걸,桀찢을·홰;朅갈,乬갈,榤닭의 홰",
+"검":"檢교정할·금제할,儉검소할·흉년들,劍칼·칼로 찔러 죽일,劒칼,黔검을,鈐굴대 비녀장·자물쇠,瞼눈시울;撿잡을·구속할,芡마름·가시연밥",
+"겁":"怯무서워할·겁낼,劫위협할·겁탈할,迲자내;刦겁탈할·구속할,刧",
+"게":"揭높이 들·옷 걷고 물 건널,憩쉴,偈쉴·게타",
+"격":"格이를·올,激물결 부딪혀 흐를·찌를,擊칠,隔막을·멀,檄격서·격문,膈명치,覡박수·남자무당;骼마른 뼈·드러난 뼈,闃고요할,鬲오지병·땅이름,挌칠·들,毄맞부딛는 소리·충돌할,鴃왜가리·때까치",
+"견":"見볼·만날,犬큰 개,堅굳을·굳셀,遣보낼·쫓을,牽당길·이끌,肩어깨·이길,絹비단·깁,甄질그릇·살필,譴꾸짖을·성낼,鵑접동새·두견새,繭고치·발 부르틀;蠲밝을·조촐할,畎밭 도랑·산골 도랑,縳,狷고집스러울·조수할,繾곡진할·마지 않을,筧대 홈통,羂걸·걸릴,鰹큰 가물치·물치",
+"결":"結맺을·마칠,決결단할·물이름,潔맑을·정결할,缺이지러질·번개 번쩍거릴,訣이별할·열결할,抉긁을·당길;闋쉴·다할,觖서운할·들쳐낼,玦옥패·활 깍지,㓗,洯,鍥,㛃,䤿,焆,迼",
+"겸":"兼겸할·아우를,謙사양할·겸손할,慊앙심먹을·불만족하게 생각할,箝재갈·족집개,鉗목사슬·입 다물,鎌낫;歉흉년들·적을,嗛부족히 여길·겸손,蒹갈대,縑합사비단,傔겸종,拑자갈 먹일,岒,黚얕은 금향빛,鼸두더쥐,嵰,槏",
+"경":"京서울,敬공경할,輕가벼울,經날·경서,慶경사,景별·볕,庚일곱째 천간,驚놀랄,耕밭갈,競겨룰·다툴,境지경,竟다할·마칠,警경계할,鏡거울,傾기울·기울어질,卿벼슬,頃밭 넓이 단위·백이랑,徑지름길,硬굳을·단단할,更고칠·다시,梗대개·곧을,瓊옥·붉은옥,儆경계할,璟옥 빛·옥광채날,炅빛날·빗날,勁굳셀,鯨고래,磬경쇠,頸목,莖줄기,脛정강이,憬깨달을·깨우칠,痙심줄 땅길·목뻣뻣할,絅끌어 쥘·낚을,耿빛날·반짝거릴,逕소로·가까울,坰들,璥경옥,擎들,勍셀·굳셀,涇통할,烱빛날·불김,暻밝을,俓곧을,倞굳셀;罄빌,扃빗장,竸,冏빛날,惸근심할,煢외로울,畊,哽목멜,鯁생선뼈,檠도지개,綆두레박줄,黥묵형할,褧홑옷,謦기침,駉목장,剄목 벨,熲빛날,憼공경할,焭근싱할,顈홑옷,亰,㯳,曔,囧,鶊,冂멀다,巠,燛,璄",
+"계":"計꾀·셀,界지경,癸열째 천간,溪시내,季끝,鷄닭,啓열,繼이을,戒경계할,係걸릴·이을,系이을·실마리,階섬돌,契맺을·계약할,桂계수나무,械형틀·기계,繫맬·맺을,悸두근거를·두근거릴,谿시내,稽머무를,棨창·창틀,誡경계할,屆이를·다다를,磎시냇물,堺지경;雞닭,烓화덕,罽물고기 그물,薊삽주,堦섬돌,髻상투,禊계제,綮발 고운 비단,瘈미칠,縘",
+"고":"古옛,高높을,告알릴·고할,苦쓸·괴로울,固굳을,故옛·연고,考상고할,姑시어미·시어머니,孤외로울,庫곳집,鼓북,稿볏집,枯마를,顧돌아볼,雇새이름·머슴,賈장사·값/성,皐부르는 소리·언덕,錮땜질할,拷가질·때릴,痼고질·고질병,辜허물,膏살찔·기름,叩두드릴,股넓적다리,袴바지,敲두드릴,呱울·아이우는 소리,誥고할·가르칠,槁마른나무,藁마른 나무·짚,攷생각할,沽팔,蠱독·회충,羔새끼양,苽줄,睾못·고환,菰향초,暠흴·밝고흰,尻꽁무니;瞽소경,刳가를,靠기댈,翺날,罟그물,觚술잔,杲밝을,栲북나무,槀마를,估값,盬염지,篙상앗대,詁주석,皋못,鴣자고,櫜활집,糕떡,酤계명주,胯사타구니,郜나라이름,羖검은 암양,凅얼어붙을,牯암소,稁,箍테,鈷다리미,鷱새이름,鼔",
+"곡":"曲굽을,谷골짜기,穀곡식,哭울,鵠고니·과녁,梏쇠고랑·수갑,斛휘·헤아릴;轂바퀴,嚳,縠주름 비단,觳뿔잔,槲떡갈나무",
+"곤":"困괴로울·곤할,坤땅,昆형·맏.형,棍몽둥이·곤장,袞곤룡포·천자의 옷,崑산이름,梱문지방,鯤준마 이름·물고기 알,滾흐를·끓는 물,琨옥돌·아름다운옥;衮,悃정성,閫문지방,髡머리 깍을,崐곤륜산,鵾댓닭,褌잠방이,堃따,捆두드릴,緄띠,裍걷어 올릴,錕붉은 쇠,鶤댓닭,齫이 빠질",
+"골":"骨뼈,滑어지러울,汨골몰할;鶻송골매,榾등걸,搰팔",
+"공":"工장인,公공변될,功공,空빌,共함께·한가지,恐두려울,恭공손할·공순할,供이바지할·베풀,貢바칠,孔구멍,攻칠,控당길,拱두 손 맞잡을·팔짱길,鞏묶을·가죽테,珙큰 옥·옥이름,蚣지네;倥어리석을,跫발자국 소리,崆산이름,蛩메뚜기,釭굴대,箜공후,栱두공,槓지렛대,蛬귀뚜라미,贛줄,龔공손할",
+"곶":"串땅이름",
+"과":"果실과·과실,過지날,科과정·과거,課매길·시험할,寡적을,誇자랑할,瓜오이·외,戈창,菓과일·과자,顆낟알·알갱이,跨타넘을,鍋노구솥;夸자랑할,窠보금자리,裹쌀,夥많을,撾칠,侉자랑할,堝도가니,猓긴 꼬리 원숭이,稞보리,蝌올챙이,踝복사뼈,銙대구,騍암말",
+"곽":"郭성곽,廓둘레·클,槨덧널·궤,藿콩잎;霍빠를,癨곽란,椁관,鞹무두질한 가죽",
+"관":"官벼슬,觀볼,關빗장,館객사,管피리·대통,冠갓,寬너그러울,貫꿸,慣버릇·익숙할,款정성,灌물 댈,串땅이름·꿸,琯옥피리·옥저,棺널,瓘옥 이름·구슬,罐두레박·물동이,菅골풀·왕골,梡네 발 도마·토막나무;顴광대뼈,盥대야,祼강신제,錧비녀장,綰얽을,丱쌍상투,鸛황새,窾빌,筦피리,爟봉화,涫끓을,輨줏대,鑵두레박,雚황새,髖허리뼈,舘,寛",
+"괄":"括묶을·헤아릴,刮깍을·긁는,适빠를,恝걱정 없을·깜짝;聒떠들석할,栝노송나무,佸힘 쓸,筈하눌타리,髺머리 묶을,鴰재두루미",
+"광":"光빛,廣넓을,狂미질·미칠,鑛쇳돌·쇳덩이,匡바룰·바를,曠밝을·빌,壙광·텅빈,胱오줌통·방광,筐광주리,洸물 용솟음할·물솟을,侊성한 모양·클,珖옥피리,炚햇빚 뜨거울·밝을;絖솜,誑속일,纊솜,恇겁낼,獷사나울,磺쇳돌,桄광랑나무,框문테,爌불 빛 환할,茪초결명,誆속일,広,炛,硄",
+"괘":"掛걸,卦걸·점괘,罫줄·줄칠;挂그림족자,詿그르칠,罣걸,咼입 비뚤어질",
+"괴":"怪기이할,愧부끄러워할·부끄러울,壞무너질,塊흙덩이·흙덩어리,槐홰나무·느티나무,傀클·괴이할,乖어그러질·어긋날,魁으뜸·괴수,拐속일;媿창피줄,瑰슬이름,蒯황모,廥여물광,璝옥돌,襘띠매듭",
+"괵":";馘벨",
+"굉":"宏클·넓을,肱팔뚝,轟울릴·수레몰아가는 소리,紘갓끈;觥뿔잔,閎마을문,訇큰 소리,浤용솟음할",
+"교":"校학교,交사귈,敎가르침·가르칠,橋다리,巧공교할·교묘할,較견줄·비교할,郊성 밖·들,矯바로잡을,膠아교,絞목맬,僑높을·붙어살,嬌아리따울,攪어지러울,驕교만할,喬높을,轎가마,狡교활할·간교할,皎달빛·달밝을,蛟교룡·도룡뇽,咬새소리·새지저귀는 소리,嶠뾰족하게 높을·산길험할,翹꼬리 긴 깃털·우뚝우뚝솟은 모양,鮫상어,蕎메밀,餃경단;榷외나무 다리,嘐닭 울,嚙깨물,磽메마른 땅,姣예쁠,窖,鉸,佼예쁠,趫,蹻,撟들,嘄부르짖을,噭부르짖을,憍교만할,晈달 밝을,暞밝을,骹,鵁,齩,教,鄗",
+"구":"九아홉,口입,求찾을·구할,句글귀절,救구원할,究궁리할,久오랠,舊옛,具갖출,苟진실로·풀,俱함께,區감출·지경,丘언덕,拘잡을,球옥경쇠·구슬,構집세울,懼두려워할,驅몰,狗개,龜나라 이름·거북,邱언덕,歐토할,鳩비둘기,購살,鷗갈매기,玖옥 다음가는 돌·옥돌,寇도둑·불한당,仇짝·원수,矩곡척,溝개천,舅외삼촌,衢네거리·갈림길,軀몸,鉤갈고랑쇠·갈구리,廐마구간,柩관,灸지질·구울,謳읊조릴·노래,垢때·더러울,駒망아지,嘔토할·게워내는,臼절구,嶇산험준할,毆때릴·구박할,枸구기자·굽을,咎허물,耉늙을·늙은이,勾글귀절,毬제기,坵언덕,瞿놀라서 볼·놀라서 보는,逑짝,絿급박할·급할,銶끌;搆얽어맬,扣두드릴,裘갓옷,疚오랜 병,詬꾸짖을,媾겹사돈,屨삼으로 짠 신,遘만날,嫗할미,劬수고로울,捄흙파올릴,甌사발,摳치마걷어들,彀활 잔뜩 당길,窶가난하여 예절없을,颶사방풍,傴구부릴,漚물거품,韭부추,鸜구관조,榘곡척,癯여윌,糗마른밥가루,蚯지렁이,覯,韝깍지,匶,姤만날,璆옥경쇠,釦그릇에 금테 두를,鷇새 새끼,俅공손할,佝꼽추,冓재목 어긋매겨 쌓을,厹세모창,叴소리 높일,坸,岣산이름,戵창,昫해돋아 따뜻할,痀곱사등이,篝불덮개,胊포,蒟구장,鬮제비뽑을,廏마구간,耇,玽,耈",
+"국":"國나라,局부분·판,菊국화,鞠기를,鞫문초받을,麴누룩;匊움켜 뜰,跼구부릴,掬두 손으로 움킬,麯,国,趜",
+"군":"軍군사,君임금,郡고을,群무리,窘군색할·급할,裙치마;捃주울,皸얼어터질,桾고욤나무",
+"굴":"屈굽을,窟구멍,掘팔,堀굴뚝;崛산 높을,詘굽을,倔딱딱할,淈흐릴",
+"궁":"弓활,宮굴궐·궁궐,窮다할,躬몸,穹높을,芎궁궁이;躳",
+"권":"權권세,卷굽을·책,勸권할,券엄쪽·문서,拳주먹,圈둥글,眷돌아볼,倦게으를,捲거둘·주먹쥘,淃물돌아 흐를·물도는 모양;惓삼갈,綣정다울,睠,蜷움추러질,棬휘어만든 나무그릇,勌,権",
+"궐":"厥그,闕대궐,蹶우물벌레·쓰러질,蕨고사리,獗도둑 일어날·뛰놀",
+"궤":"軌수레바퀴 사이·바퀴굴데,潰흩어질·무너뜨릴,机느티나무·책상,詭속일·간사할,櫃상자·궤짝,饋먹일;几안석,跪끓어앉을,匱갑,樻가마테나무,簋대제기,憒심란할,餽,劂,繢톱끝,闠저자문,佹포갤,撅,氿물가,麂큰고라니",
+"귀":"貴높을·귀할,歸돌아올,鬼귀신,句글귀,龜거북,晷시각·해그림자;䤥",
+"규":"規그림쇠·법,糾삼합노·살필,叫부를·부르짖을,奎별,圭서옥,揆헤아릴,珪서옥,閨색시·안방,窺엿볼,葵해바라기·아욱,逵구거리·큰길,硅유리만드는 흙·규소,竅구멍·엿볼,赳헌걸찰·위엄스러울,槻물푸레나무;跬한발자국,睽어그러질,虯뿔없는 용,樛나무가지 휘어질,闚갸웃이 볼,巋,楏호미자루,糺거둘,刲찌를,嬀성,暌해질,潙,頍고깔비녀,馗아홉거리,嫢가는 허리,邽고을이름,煃,湀,茥,騤",
+"균":"均고를,菌버섯,龜틀·거북,鈞서른 근,筠대껍질·속빈 대,勻고를,畇밭개간할;囷둥근곳집,麏고라니,匀,覠",
+"귤":"橘귤나무",
+"극":"極가운데·지극할,克이길,劇심할,隙틈,棘가시나무,戟갈래진 창,剋깍일·이길;亟빠를,屐나막신,郄,尅",
+"근":"近가까울,根뿌리,勤부지런할,謹삼갈,斤근,僅겨우,筋힘줄,饉주릴·푸성귀흉년드는,瑾붉은옥,槿무궁화,覲뵈울,懃은근할,芹미나리,菫오랑캐 꽃·쓴나물,劤힘많을·힘셀;跟발두꿈치,靳아낄,觔,墐진흙,巹받들,廑작은집,漌맑을,釿대패,堇,嫤",
+"글":"契부족 이름·계약할;㔕",
+"금":"金성·쇠,今이제,禁금할,錦비단,禽날짐승·새,琴거문고,襟옷깃·옷섶,衾이불,擒사로잡을,衿옷깃·옷고름,芩풀 이름·금풀,檎능금나무,昑밝을,妗외숙모·싱글벙글;噤입 다물,嶔높고 험할,唫입 다물,笒첨대,黅누른 빛",
+"급":"給넉넉할·줄,急급할,及미칠,級등급,汲길을·물길을,扱미칠·취급할,伋속일·생각할;岌높을,皀고소할,笈책상자,礏산 높은 모양,圾위태할,芨말오줌나무",
+"긍":"肯옳이 여길·즐기어할,兢삼갈·조심할,矜불쌍히 여길·자랑할,亘뻗칠;亙뻗칠,殑까무라칠",
+"기":"己자기·몸,記기록할,氣기운,技재주,起일어날,期기약할,基터,其그,旣이미,幾기미·몇,豈어찌·일찍,器그릇,奇기이할,機틀·베틀,旗기,紀벼리,棄버릴,忌꺼릴,企꾀할·계획할,欺속일,飢주릴,祈빌·기도할,騎말탈,寄부칠·붙여살,畿경기,冀바랄,箕키,耆늙은이,岐갈림길·높을,沂물 이름,驥천리마,琦옥 이름,麒기린,璣구슬·작은구슬,琪옥·옥이름,騏털총이·천리마,淇강 이름·물이름,汽김·물끓는김,譏나무랄,妓기생,羈굴레·말 굴레,嗜즐길,綺비단·무늬놓은 비단,杞나무 이름·구기자,畸뙈기 밭·기이할,朞돌,肌살,棋바둑,伎재주,崎험할·산길험할,圻경기·지경,饑주릴·흉년들,祇토지의 신·편안할,夔조심할·외발짐승,祁성할·성하게,磯물가·물속자갈,祺복·길할,碁바둑,錡솥·세발가마,玘패옥,璂피변 꾸미개·고깔꾸미개,埼언덕머리,耭갈·밭갈,錤호미;覬바랄,歧,弃,曁및,旂기,頎헌걸찰,墍맥질할,棊,剞새김칼,掎끌,蟣서캐,跂육발,鬐갈기,蘄풀 이름,屺민둥산,忮해칠,攲기울기,猉,綦연두빛 비단,芰세발 마름,愭공손할,芪단너삼,僛취하여 춤추는 모양,庋시렁,暣볕기운,炁기운,禨조짐,綥비단 쑥색,羇나그네,肵적대,蜝방계,隑,鰭지느러미,榿,㠌,㼄,忯,稘",
+"긴":"緊굳게 얽힐·요긴할",
+"길":"吉길할,拮일할·열심히일할,佶건장할·바를,桔도라지;姞성,蛣장구벌레",
+"김":"金사람의 성·쇠",
+"끽":"喫마실",
+"나":"那어찌,羅새 그물,奈어찌,拿붙잡을,裸벌거벗을·털 없는 벌레,懶게으를,儺역귀 쫓을·법도있는,懦나약할·부드러울,螺소라,拏붙잡을,邏돌,癩약물 중독,蘿소나무겨우살이,柰능금나무·어찌,喇나팔·라마교,娜아리따울·휘청거릴;挐붙잡을,挪옮길,糯찰벼,梛나무 이름,䏧,䛔,橠",
+"낙":"諾대답할·허락할,落떨어질,樂즐길,洛강 이름,駱낙타,烙지질,酪타락,珞구슬 목걸이",
+"난":"難어려울,暖따뜻할,卵알,亂어지러울,蘭난초,欄난간,爛문드러질,鸞난새,煖따뜻할·더울;赧얼굴 붉힐,偄언약할,餪풀보기 잔치,愞",
+"날":"捺누를·도장찍을,捏이길·찍을",
+"남":"南남녘,男사내,濫퍼질,藍쪽,嵐남기,楠녹나무·들메나무,枏녹나무·매화나무,湳강 이름·물이름,襤누더기;喃재잘거릴",
+"납":"納바칠·들일,拉꺽을·꺾을,臘납향,蠟밀,衲기울·장삼",
+"낭":"娘아가씨·젊은계집,郞사나이·사내,浪물결,廊복도,狼이리,囊주머니,朗밝을;曩접때",
+"내":"內안,乃이에,耐견딜,奈어찌,來올,柰능금나무·어찌;迺이에,鼐가마솥,嬭젖,奶젖",
+"냉":"冷차가울·찰",
+"녀":"女계집",
+"녁":";惄마음 졸일",
+"년":"年해,撚비틀·잡을,秊해;碾맷돌",
+"념":"念생각,恬편안할,拈집을,捻비틀·찍을",
+"녑":";惗",
+"녕":"寧편안할,獰영악할,寗편안할·차라리;佞재주,濘진흙,嚀정녕할,儜고달플",
+"노":"怒성낼,奴종,努힘쓸,老늙을·늙은이,路길,勞수고할·일할,露이슬,盧밥그릇,魯미련할·노둔할,爐화로·화초,駑둔할·노둔한 말,蘆갈대,鷺해오라기,虜포로,擄사로잡을,弩쇠뇌,櫓큰 방패,瑙마노·옥돌;孥자식,呶들랠,猱못할,笯새장,峱산이름,臑팔마디,䛝",
+"녹":"綠초록빛,錄기록할,祿행복,鹿사슴,碌푸른 빛·돌모양,菉조개풀",
+"논":"論말할",
+"농":"農농사,弄희롱할,籠대그릇,濃짙을,膿고름,聾귀머거리,壟밭두둑·언덕;儂나,穠후한 제사,醲텁텁한 술,噥달게 먹을",
+"뇌":"腦머리·머릿골,惱괴로워할·번뇌할,雷우뢰·우리,賂뇌물·뇌물줄,牢가축우리,磊돌무더기;餒굶길",
+"뇨":"尿오줌,撓긁을,鬧시끄러울;嫋날릴,淖진흙,鐃작은 징,嬲샘낼",
+"누":"樓다락,漏샐,淚눈물,累포갤·묶을,屢창,陋줍을·좁을,壘진,縷자세할·실;耨김맬,啂,檽",
+"눈":"嫩언약할·연약할",
+"눌":"訥말 더듬거릴·말을 더듬는;吶말 더듬을,肭물개",
+"뉴":"紐잡색비단·단추,杻옷 부드러울·싸리;忸익을,鈕",
+"뉵":";衄코피",
+"늑":"勒굴레,肋갈비대",
+"늠":"凜찰",
+"능":"能능할,陵능·큰언덕,凌얼음·능가할,綾무늬 놓은 비단,菱마름,稜모질",
+"니":"泥막힐·진흙,尼여승·여자중;禰,怩부끄러워할,膩살찔,呢소근거릴,柅얼레자루,祢,濔,㦐,妮,馜",
+"닉":"溺빠질,匿숨쉴·숨을",
+"닐":";昵가깝게 할,暱칠근할",
+"다":"多많을,茶차풀,鄲조나라 서울·땅이름;爹아비,夛,奲,茤,觰",
+"단":"單홀로,短짧을,端끝,但다만,丹붉을,斷끊을,段층계,團둥글,壇제터,檀향나무·박달나무,旦밝을·아침,湍여울,鍛쇠불릴,緞비단,簞소쿠리,蛋오랑캐 이름·새알,亶믿을,袒웃옷 벗을·옷벗어멜,彖결단할·결단내릴,鄲조나라 서울·땅이름;担원숭이 같은 짐승,胆침비깨,慱근심할,椴자작나무,漙이슬방울 맺을,癉황달,蜑오랑캐 이름,耑시초,腶약포,煓,㫜",
+"달":"達통달할,撻매질할·빠를,疸황달,獺수달,澾미끄러울;怛깜짝 놀랄,闥대문,韃칠,靼다룬가죽,妲계집의 이름",
+"담":"談말씀,擔질,淡물모양·묽을,炎불꽃·임금의 호,潭깊을·못,膽쓸개,譚클·말씀할,痰가래,澹맑을·싱거울,曇날 흐릴·구름낀,憺고요할,湛즐거울,聃노자이름·귀바퀴없는,覃미칠·고요할,啖씹을,蕁말·지모,坍물이 언덕 찰,錟긴 창;墰목긴 술병,禫담제,啗씹을,噉씹을,毯담자리,郯나라이름,儋기운차고 날쌜해집,薝치자나무,黮검을,壜술병,罎,黵문신할,惔,倓,埮,啿,緂",
+"답":"答젖을·대답,踏떨어지는 소리·밟을,畓논,遝가다가설·뒤섞일,沓거듭·물넘칠",
+"당":"堂집,當마땅할,唐당나라,黨무리,糖엿,塘연못,撞두드릴·칠,棠아가위·사당나무,螳버마 재비,幢기,戇어리석을·놀랄;倘혹시,儻빼어날,讜곧은 말,搪당동할,璫귀고리,瑭옥이름,瞠바로볼,鐺죄인 자물쇠,襠잠방이,鏜북방축소,檔책상,溏진수렁,礑밑바닥,蟷사마귀,餳엿,餹엿",
+"대":"大클·큰,代대신할,待기다릴,對마주볼·대답할,帶띠,隊군대·떼,貸빌릴,臺능,戴받들·머리에일,垈터·집터,袋자루·주머니,擡들,岱태산·산이름,黛눈썹 그릴·새파랄,玳대모,坮들·집대;懟원망할,儓하인,碓방아,抬칠,旲햇빛,汏씻을,鐓창고달,㬃,㬣",
+"댁":"宅집",
+"덕":"德큰,悳덕;徳",
+"도":"刀칼,道길,度법도,圖그림,島섬,都도읍,到이를,徒무리,逃달아날,導이끌·인도할,渡건널,盜도둑,途길,倒넘어질·거꾸러질,桃복숭아 나무,跳뛸·미끄러질,陶질 그도·질그릇,塗바를·진흙,稻벼,挑돋을·돋울,禱빌,悼슬퍼할·애도할,燾비칠·덮일,濤물결·큰물결,蹈밟을,屠잡을·죽일,滔물 넘칠·도도히 흐르는,睹볼,鍍도금할,掉흔들·흔들릴,堵담,搗찧을,萄들머루,賭노름·내기,淘일·물흐를,覩볼,棹노 저을,韜활집·감출,嶋섬,櫂상앗대·노;叨탐할,菟,鼗땡땡이,擣찧을,饕탐할,涂길,闍성문 층대,忉근심할,弢활집,稌찰벼,鞱너그러울,搯두드릴,檮그루터기,壔작은 성,慆기뻐할,掏가릴할,洮,酴두번 빚은 술,鞀소고,夲,噵,祹,鋾,馟",
+"독":"讀읽을,獨홀로,督감독할,毒독·독할,篤도타울·두터울,瀆도랑·개천,禿대머리·벗어진,牘편지,犢송아지,纛깃일산;黷더러울,櫝함",
+"돈":"敦도타울,豚돼지,頓조아릴,惇두터울·도타울,沌기름 덩어리·혼탁할,燉불 성할,旽늘 돋을·먼동틀,暾아침해,墩돈대,焞귀갑 지지는 불;潡큰 물,弴그림 그린 활,躉거룻배",
+"돌":"突부딪칠,乭이름·사람이름;咄꾸짖을,堗굴똑",
+"동":"同같을·한가지,東동녘,冬겨울,動움직일,洞마을·고을,童아이,銅구리,凍얼,董바로잡을·바를,桐오동나무,棟용마루·동자기둥,憧동경할·흐리멍덩할,疼아플,瞳눈동자,胴큰 창자,仝같을,潼물 이름·물결높을;僮아이,蕫황모,彤붉은 칠,侗무지할,峒산이름,蝀무지개,垌항아리,涷마룻대,朣달 뜰,哃클말할,橦나무이름,艟배,苳겨울살이,茼쏙갓,曈,烔,勭",
+"두":"頭머리,斗말,豆콩,讀구절·읽을,杜막을,兜투구·둘러쌀,痘마마,竇구멍,逗머무를,荳콩,枓두공·주두;斁섞을,蠹좀,肚밥통,陡절벽,蚪올챙이,抖퍼주거릴,脰목,阧",
+"둔":"鈍무딜·둔할,屯진칠,遁달아날,臀볼기,芚채소 이름·나무싹,遯달아날·숨을;窀광중,迍머뭇거릴",
+"둘":";乧음역자",
+"득":"得얻을",
+"등":"等가지런할·무리,登오를,燈등잔,騰오를,藤등나무,鄧나라 이름·등나라,嶝고개·비탈,謄베낄,橙등자나무·궤;滕물 솟을,鐙등자,磴돌 비탈길·돌다리,縢봉할,螣등사,墱자드락길,凳걸상,籐대 기구",
+"라":"羅새그물,裸벌거벗을·벌거숭이,懶게으를,螺소라,拏붙잡을,邏순행할·돌,癩약물 중독,蘿무·소나무겨우살이,喇나팔;騾노새,囉소리 읽힐,鑼징,瘰연주창,臝벌거벗을,倮알몸,曪날 흐릴,砢,驘옹 솥,覶,纙,儸,剆,摞,蓏",
+"락":"落떨어질,樂즐거울·즐길,絡헌솜·연락할,諾대답할·허락할,洛강이름,駱낙타,烙지질,酪진한 유즙·타락,珞구슬 목걸이;犖얼룩소,嗠",
+"란":"卵알,亂어지러울,蘭난초,欄난간,丹붉을,爛문드러질,鸞난새,瀾물결·큰물결,欒나무 이름·난나무;闌가막을,鑾방울,攔막을,襴난삼,嬾게으를,幱내리다지,灓적실,斕,欗,瓓",
+"랄":"剌어그러질,辣매울;埒바자울,辢",
+"람":"覽볼,濫퍼질,藍쪽,籃바구니,攬잡을,嵐남기,纜닻줄,欖감람나무,擥잡아다릴,襤누더기;婪탐할,惏떨릴,漤,㛦,灆,爁,璼",
+"랍":"拉꺽을·꺾을,臘납향,蠟밀;鑞땜납",
+"랑":"郞사나이·사내,浪물결,廊복도,狼이리,朗밝을,琅옥 이름·옥같은돌,螂버마재비,瑯고을 이름·옥같은돌;郎사나이,閬솟을 대문,稂강아지 풀,蜋사마귀,榔나무 이름,硠돌 부딪는 소라,莨수크령,烺,㫰,㢃,駺",
+"래":"來올,萊명아주,崍산 이름,徠올;来,淶강 이름,騋큰 말,唻",
+"랭":"冷찰",
+"략":"略다스릴·간략할,掠노략질할;畧",
+"량":"兩두·둘,良좋을·어질,量헤아릴,梁푸조나무·들보,糧양식·곡식,諒믿을,涼서늘할,凉서늘할,亮밝을,樑서늘할·들보,輛수레·수레 한채,粱기장,倆재주·공교할,粮양식;魎도깨비,踉뛸,悢슬퍼할,喨소리 맑을,俍,駺",
+"려":"旅군사·나그네,慮생각할,麗고울,勵힘쓸,呂음률·풍류,廬오두막집·원두막,礪거친 숫돌,驪가라말·검은 말,閭이문,戾여그러질·어그러질,黎검을·무리,侶짝,濾겨를·씻을,驢나귀,藜나라 이름·아름다운 옥,儷짝,蠣굴,櫚종려나무;厲갈,臚살갗,癘창질,膂등골 뼈,蠡좀먹을,糲현미,唳울,梠평고대,儢맘에 하기 싫을,邌천천히 걸을,鑢줄,曞",
+"력":"力힘,歷지낼·지날,曆책력,瀝거를·스밀,礫조약돌,轢삐걱거릴·수레바퀴에 치는,靂벼락;櫟상수리나무,櫪말구유,攊,癧연주창,轣갈,酈땅 이름",
+"련":"連잇닿을·연할,練익힐,鍊불릴·쇠불릴,憐불쌍히 여길·가련할,戀사모할,聯잇달·연할,蓮연밥·연꽃,漣물놀이·물놀이칠,輦손수레·당길,煉불릴·쇠불릴,璉호련·종묘제기,攣걸릴;臠저민고기,孌아름다울,鰱연어,楝멀구슬나무,湅누일,鏈쇠사슬,鰊고기 이름,奱",
+"렬":"列줄·벌일,烈세찰·매울,劣못할·용렬할,裂찢을,冽찰·찬바람,洌맑을;捩비틀,挒,颲사나운 바람",
+"렴":"廉청렴할,濂내 이름·엷을,斂거둘,簾발,殮염할;瀲넘칠,磏거친 숫돌",
+"렵":"獵사냥·사냥할;鬣갈기,躐밟을",
+"령":"令명령·시킬,領옷깃·거느릴,靈신령,嶺재·산고개,零조용히 오는 비·떨어질,寧편안할,鈴방울,玲옥이름·금옥소리,囹옥·감옥,齡나이,逞굳셀·통할,聆들을,怜영리할,伶영리할·악공,翎깃·날개,羚영양,岺재·깊은산,笭도꼬마리·작은 통;另나눌·다를,岭산 이름,泠깨우칠,苓도꼬마리,鴒할미새,蛉장자리,欞격자창,呤속삭일,姈계집 슬기로울,昤날 빛 영롱할,秢벼 처음 익을,軨사냥 수레,鹷나이,朎,澪",
+"례":"禮예도,例법식,隷붙을,醴단술,澧강 이름;隸붙을,鱧가물치,礼",
+"로":"老늙은이,路길,勞일할,露이슬,爐화로·화초,怒성냉·성낼,盧밥그릇,魯노둔할,蘆갈대,鷺해오라기,虜포로,擄사로잡을,撈잡을·건져낼,輅수레,鹵소금·개펄,潞강 이름·물이름,櫓방패,瀘강 이름;潦큰 비,鑪화로,鱸농어,壚흑토,艪,艫뱃머리,顱머리뼈,鸕가마우지,轤고패,滷소금밭,玈검을,癆종독,窂우리,鐪부레,髗해골,澇,鏴,璐,櫨,㯝,嚧,瓐,蕗",
+"록":"綠초록빛,錄기록할,祿복,鹿사슴,麓신기슭·산기슭,碌돌 모양,菉조개풀;淥밭을,漉거를,彔나무 깍을,簏대 상자,轆도르래,鵦",
+"론":"論말할",
+"롱":"弄희롱할,籠대그릇,聾귀머거리,壟언덕,瓏환할,朧흐릿할·침침할,瀧적실;隴고개 이름,曨어스레할,礱갈,蘢개여뀌,儱건목칠,攏누를",
+"뢰":"雷우뢰·우리,賴힘 입을,賂뇌물 줄,儡영락할·무너질,牢우리,磊돌무더기,賚줄,瀨여울·물결;罍술독,耒쟁기,籟,酹부을,誄뇌사,礧바위너설,纇실 마디,攂,礌돌 굴러내릴,蕾꽃봉오리,頼",
+"료":"料되질할·헤아릴,了마칠,僚동료·동관,遼멀,療병고칠,聊귀 울·애오라지,寮벼슬아쳐·동관,燎화톳불·햇불,瞭밝을·멀리보는,廖공허할·성,鬧시끄러울,蓼여뀌;潦큰 비,醪막걸리,繚감길,膋발기름,撩다스릴,暸밝을,獠밤사냥,嘹울,嫽외조모,鐐은,飂높이 부는 바람,飉바람",
+"룡":"龍용;龒,竜",
+"루":"樓다락,漏샐,淚눈물,累묶을,屢창,陋줍을·좁을,壘진,縷실,婁별 이름·어리석은,鏤새길·강철,褸남루할,蔞쑥·물쑥,瘻부스럼·헌곳;螻땅강아지,僂구부릴,髏해굴,嘍시끄러울,嶁봉우리,慺정성스러울,耬씨 뿌리는 기구,漯,漊,熡,謱",
+"류":"流흐를,留머무를,柳버들,類무리,劉죽일·성,謬그릇될,溜방울져 떨어질·증류수,琉유리·유리돌,瘤혹,瑠구슬이름,旒깃발·깃술,榴석류나무,硫유황,瀏맑을;纍갇힐,鶹올빼미,縲포승,遛머무를,橊",
+"륙":"六여섯,陸뭍,戮죽일;勠협력할",
+"륜":"倫인륜,輪바퀴·수레바퀴,崙산 이름,綸낚싯줄·푸른인끈,淪물놀이·빠질,侖둥글·뭉치;掄가릴,錀,崘,圇",
+"률":"律법,率헤아릴,栗밤나무,慄두려워할·두려울;嵂가파를,溧강 이름,瑮",
+"륭":"隆클·높을;癃느른할,窿활꼴,㦕",
+"륵":"勒굴레,肋갈비;泐돌 갈라질",
+"름":"凜찰;廩곳집,凛찰,澟서늘할,菻",
+"릉":"陵큰 언덕,楞모·네모질,凌능가할,綾비단,菱마름,稜모;倰속일,蔆마름",
+"리":"里마을,利날카로울·이로울,理다스릴·이치,李오얏,吏벼슬아치·관리,離떼 놓을·떠날,履신·밟을,裏속,梨태나무·배,異다를,罹근심·만날,裡옷속,籬울타리,厘티끌,俚속될,痢설사·이질,悧영리할·똑똑할,羸여윌·파리할,釐다스릴·털끝,狸이리,犁얼룩소,璃유리,鯉잉어,唎가는 소리,莉말리·사과꽃,浬해리·바다잇수;漓스며들,莅다다를,离산신,螭교륭,俐똑똑할,嫠과부,貍삵,邐이어질,魑도깨비,涖다다를,哩어조사,剺벗길,蜊참조개,黐끈끈이,摛,灕,犂",
+"린":"鄰이웃,隣이웃,麟기린,鱗비늘,吝아낄·인색할,躪짓밟을·짖밟을,燐도깨비불·반딧불,璘옥빛,藺골풀·뇌양이,潾맑을·물맑을;獜튼튼할,磷,粼물 맑을,嶙가파를,驎워라말,轔수레 소리,繗이을,悋아낄,粦도깨비 불,躙짓밟을,鏻굳셀,瞵,䗲,撛,斴,暽,橉,焛",
+"림":"林수풀,臨임할,淋물뿌릴·물댈,琳아름다운 옥,霖장마;痳임질,晽,棽,玪,碄",
+"립":"立설,笠우리·삿갓,粒알·쌀알,砬돌 소리;岦산 우뚝할",
+"마":"馬말,麻삼,磨갈,摩갈,魔마귀,痲저릴·홍역,瑪마노·옥돌이름,碼마노·옥돌;麽잘,劘깍을,媽어미,螞말거머리,蟇개구리",
+"막":"莫없을·말,幕막·장막,漠사막·아득할,膜막·살속의 가죽,寞쓸쓸할,邈멀·아득할;鏌칼 이름,瞙눈 흐릴",
+"만":"萬일만,滿찰,慢게으를·거만할,漫질펀할·물질펀한,晚,晩저물·늦을,蠻오랑캐,灣물굽이,娩해산할,挽당길,蔓덩굴,瞞속일·거슴츠레한,輓끌·수레끌,彎굽을·활당길,饅만두,鰻뱀장어,卍만자·범자의만,万일만,曼끌·길,巒뫼·산봉우리;謾속일,幔막,嫚업신여길,蹣비틀거릴,墁흙손,縵무늬 없는 비단,鏋금,鏝흙손,鬘머리장식",
+"말":"末끝,靺버선·붉은 끈,抹바랄·바를,襪버선,沫거품·물방울,唜,茉말리;帕머리 동이수건,秣꼴",
+"망":"亡망할,望바랄,忘잊을,忙바쁠,妄허망할·망령될,罔그물·없을,茫아득할,網그물,芒까끄라기·싹,莽우거질·풀이 우거진,邙산 이름·북망산,輞바퀴테;惘멍할,魍도깨비,漭넓을,汒황급할,朢",
+"매":"賣팔,買살,每매양,妹누이·손아랫누이,梅매화나무,媒중매,埋묻을,枚줄기,魅도깨비,昧새벽·먼동틀,寐잠잘·잔다,罵욕할,邁갈·멀리갈,煤그을음;呆어리석을,楳,眛어두울,莓나무딸기,玫매괴,沬,苺딸기,酶술밑,霉매우",
+"맥":"麥보리,脈맥,貊북방 종족·큰곰,陌두렁·밭둑길,驀말탈;貃오랑캐,貘짐승 이름",
+"맹":"孟맏,盟맹세할,猛사나울,盲소경·눈어두울,萌싹,氓백성;甍,甿,虻",
+"멱":"覓찾을·구할,冪덮을;幎덮을",
+"면":"面낯,免면할,勉힘쓸,眠잠잘,綿이어질·솜,冕면류관,沔물 흐를,緬가는 실·아득할,眄애꾸눈·곁눈질할,麵밀가루,棉목화;俛힘쓸,緜햇솜,麪밀가루,湎빠질",
+"멸":"滅멸망할·멸할,蔑업신여길·없을;衊모독할,篾대 껍질",
+"명":"明밝을,命목숨,名이름,鳴울·새소리,銘새길,冥어두울,溟어두울·바다,暝어두울,皿그릇,螟마디충·며루,酩술 취할·취한 모양,瞑눈 감을,蓂명협·담벽풀,茗차 싹·차의 싹,椧홈 통;洺강 이름,眀,䳟,慏",
+"몌":"袂소매·옷소매",
+"모":"母어미,毛털·터럭,暮저물,慕그리워할·사모할,募모을·뽑을,模법,某아무,謀꾀할,冒가릴·무릅쓸,侮업신여길,貌얼굴·모양,謨꾀,牟소 우는 소리·클,帽모자,茅띠,矛창·세모진창,耗줄·없을,摸찾을·본뜰,牡수컷,眸눈동자,摹베낄,瑁서옥·대모,芼풀 우거질·나물,姆여스승;耄늙은이,侔가지런 할,旄깃대 장식,髦다팔머리,媢강새암 할,蟊,嫫예쁠,眊눈 흐릴,皃,姥할미,恈탐할,蝥해충,橅,慔,軞",
+"목":"目눈,木나무,牧칠·기를,睦화목할,穆화목할·화할,沐머리감을,鶩집오리;苜거여목",
+"몰":"沒가라 앉을·빠질,歿죽을",
+"몽":"夢꿈,蒙입을·어릴,朦풍부할·풍부한;矇소경,濛가랑비 올,曚어두울,瞢어두울,幪덮을,懞어두울,溕,艨싸움배,雺안개,鸏비둘기",
+"묘":"卯토끼,妙묘할,廟사당·종묘,墓무덤,苗모·싹,猫고양이,昴별자리 이름·별이름,描그릴,畝밭이랑,渺아득할,杳어두울·아득할,竗땅 이름,錨닻;眇애꾸눈,藐작을,淼물 아득할,貓",
+"무":"無없을,武굳셀·자만할,務일·힘쓸,戊다섯째 천간·무성할,茂우거질·무성할,舞춤출,貿바꿀·물건 살,霧안개·어두울,誣무고할·깔볼,巫무당·산 이름,毋말,撫어루만질·누를,畝밭이랑,蕪거칠어질·거친풀,憮어루만질·애무할,拇엄지손가락,无없을,懋힘쓸·노력할,繆묶을·얽을,鵡앵무새,珷옥돌·옥돌이름,楙무성할·아름다울;廡집·처마,騖달릴·질주할,膴포·크게 저민 고기,儛,嘸분명하지 않을·모호한 모양,橅,堥",
+"묵":"墨먹·형벌 이름,默묵묵할·고요할;嘿고요할·말 아니할",
+"문":"門문,問물을·알릴,文무늬·얼룩,聞들을,紊어지러울·얽힐,汶내 이름·수치,紋무늬·주름,蚊모기,吻입술·입가,刎목 벨·자를,們들·무리,玧귀막이 구슬,雯구름 무늬;捫어루만질·쓰다듬을,懣번거로울,抆닦을·문지를,悗잊어버릴,炆따뜻할,璊붉은 옥",
+"물":"物만물·무리,勿말·아닐,沕아득할·숨길",
+"미":"美아름다울·맛이 좋을,米쌀,未아닐,味맛·뜻,尾꼬리·등,微작을·자질구레할,迷미혹할·전념할,眉눈썹·노인,彌두루·널리,靡쓰러질·쏠릴,媚아첨할·풍치가 아름다울,薇고삐·고비,楣문미·처마,湄물 가·더운 물,嵋산이름,渼물놀이·내 이름,謎수수께끼,黴곰팡이·검을,梶나무 끝;弥,弭활고자·그칠,糜죽·싸라기,縻고삐·얽어맬,亹힘쓸·문채가 있는 모양,瀰물 넓을,麋큰사슴·부서질,敉어루만질,媺착하고 아름다울,獼원숭이,娓장황할·힘쓸,媄빛 고울,苿,蘼장미·천궁,冞,洣,濔,㵟,侎,嵄,煝,瑂,蘪,躾",
+"민":"民백성,敏민첩할,憫불쌍히 여길,眠잠잘,閔위문할·성,悶번민할,旻하늘·가을하늘,旼온화할,珉아름다운돌·옥돌,玟옥돌,愍근심할·불쌍한,泯망할·빠질,岷산이름,緡낚시줄·입힐;黽힘쓸·맹꽁이,閩종족이름,忞강인할,忟강인할,暋굳셀,緍낚시줄,罠그물,苠속대,鰵대구,脗,慜,潣,敃,砇,䃉,䪸,琘,琝,瑉,盿,鈱,鍲",
+"밀":"密빽빽할,蜜꿀,謐고요할;樒침향,滵물 흐르는 모양",
+"박":"朴나무껍질·질박할,迫닥칠·핍박할,博넓을,泊머무를·배댈,拍칠,薄숲·엷을,駁얼룩말,舶배·큰배,剝벗길·찢을,縛묶을,撲업어질·부딪칠,搏칠·두드릴,樸통나무·순박할,珀호박,箔발,粕지게미,膊포·어깨,雹누리·우박,璞옥덩어리;亳땅이름,駮짐승이름,鎛종,欂주두,牔박공,髆어깨쭉지,鉑",
+"반":"半반,反돌이킬,飯밥,班나눌·벌려설,般옮길·되돌아올,返돌이킬·돌아올,伴짝,盤소반,叛배반할,頒나눌·반포할,槃쟁반,斑얼룩·아롱질,潘뜨물·물이름,搬옮길,磻강이름·반계,攀더위잡을·끌어당길,畔지경·밭두둑,蟠서릴·쥐며느리,絆줄·얽을,礬백반,拌버릴,泮학교·얼음풀릴,盼곁눈질 할·눈자위,磐넓을·반석,瘢흉터·부스럼자국;胖희생,豳나라 이름,扳끌,媻비틀거릴,搫덜,攽나눌,朌구실,螌가뢰,頖풀릴",
+"발":"發쏠·일어날,髮터럭,拔뺄,跋밟을,鉢바리때,潑뿌릴·활발할,渤바다이름,撥다스릴,勃갑작스러울·발끈할,魃가물 귀신,醱술 괼;浡일어날,鈸방울,鵓집비둘기,哱어지러울,脖배꼽,炦",
+"방":"方모·방위,放놓을,防둑·막을,房방,訪찾을·찾아볼,邦나라,妨방해할·거리낄,芳꽃다울·향기,傍곁,倣본뜰·본받을,旁두루·넓을,彷거닐·방황할,紡자을·길쌈,龐어지러울·흑백의 잡색,坊동네·고을이름,榜매·게시판,昉마침·밝을,謗헐뜯을·나무랄,枋다목·박달,幇도울,肪기름·비계,尨삽살개,膀쌍배·방광,滂비 퍼부을·기름질,蚌방합·금조개,磅돌 떨어지는 소리,舫배·사공,蒡인동 덩굴·우엉;仿헤멜,牓패,髣비슷할,厖클,魴방어,幫도울,徬시중들,搒배저을,旊옹기장,梆목어,舽배,螃방게,鎊깎을",
+"배":"拜절,杯잔,輩무리,背등,配아내·짝,倍곱·갑절,培북돋을·북돋울,排밀칠·물리칠,北달아날,貝조개·재물,裵,俳광대,賠물어줄,陪쌓아올릴·모실,徘노닐·배회할,胚아이 밸,湃물결 이는 모양·물소리,裴옷 치렁치렁할,盃잔,褙속적삼,焙불에 쬘·말릴;坏언덕,扒뺄,琲구슬 꿰미,蓓꽃봉오리,䔒,俖",
+"백":"百일백,白흰,伯맏,栢잣나무,帛비단,魄넋,珀호박,柏나무 이름·잣나무,佰백사람의어른;苩,䞟",
+"번":"番갈마들·번수,煩괴로워할·번거로울,繁많을·성할,飜뒤칠·날,磻강이름,蕃우거질·불,藩덮을·울타리,燔구울,幡기·수건,樊울·어수선할;翻날,蘩산흰쑥,繙되풀이 풀이할,膰제사 고기,袢속옷",
+"벌":"伐칠,罰죄·벌줄,閥공훈·가문,筏떼;橃떼,罸",
+"범":"凡무릇,犯범할,範법,范풀 이름·벌,汎뜰,泛뜰,帆돛,梵범어·웅얼거릴,氾넘칠·물넘칠;颿돛,笵법,訉말 많을,渢,杋,滼,釩",
+"법":"法법,琺법랑·유약",
+"벽":"壁벽,碧푸를,僻후미질,闢열,璧동근 옥·둥근옥,癖적취·버릇,劈쪼갤,擘엄지손가락·나눌,霹벼락,蘗황경나무,檗황벽나무·황백나무;辟임금,擗가슴칠,甓벽돌,襞주름,疈가를,鷿농병아리,鼊거북",
+"변":"變변할,邊가,辯말잘할,辨분별할,便똥오줌·문득,卞조급할·성,弁고깔;籩제기 이름,抃손뼉칠,忭기뻐할,辮,駢,腁살갗 틀,賆,骿통갈비,鴘매,釆분별하다",
+"별":"別나눌·분별,瞥언뜻 볼·눈을 깜짝하는,鱉자라,鼈자라;彆활 뒤틀릴,鷩금계,莂,㔡,䭱,炦,襒",
+"병":"兵군사,病병·병들,丙남녘,竝아우를,屛병풍,秉잡을,炳밝을,柄자루,倂아우를·나란할,昺밝을,昞밝을,甁병,餠떡·밀가루떡,幷아우를,騈나란히 할·두말이 한멍에 멘,輧거마 소리,棅자루;並,迸달아날,缾두레박,絣무늬없는 비단·이을,鈵,鉼판금,并,抦",
+"보":"步걸을·걸음,保지킬·도울,報갚을,寶보배,補기울·도울,普널리·넓을,譜계보·족보,輔덧방나무·도울,甫클,堡작은 성,潽물이름,菩보살·보리나무,洑보·보마기,溥펼·클,褓포대기,珤보배,湺;靌,簠제기 이름,俌도울,黼수,葆풀 더부룩할,盙,鴇능에,宝,歩,㻄,䀯,烳",
+"복":"福복,服옷·입을,復돌아올,伏엎드릴,卜점·점칠,腹배,覆뒤집힐·도리어,複겹옷,馥향기,僕종·시중꾼,輻바퀴살,匐길·엉금엉금길,鰒전복,宓성·편안할,茯복령,蔔무우·치자꽃,輹복토·바퀴통;扑칠,幞건,濮강 이름,鵩새 이름,蝮살무사,墣흙덩이,箙전동,菔무,蝠박쥐,鍑",
+"본":"本밑·근본",
+"볼":"乶땅이름",
+"봉":"奉받들,逢만날,封봉할,鳳봉새,峯봉우리·산봉우리,蜂벌,蓬쑥,俸녹,縫꿰맬,捧받들,鋒칼끝·칼날,烽봉화,棒몽둥이,峰봉우리,熢연기 자욱할·불기운,琫칼집 장식·칼집장식옥;丰예쁠,綘,篷뜸,夆끌,菶풀 무성할,鴌,芃,浲,漨",
+"부":"父아비,夫지아비,部거느릴·나눌,富가멸·부자,否아닐,婦며느리,浮뜰,扶도울·붙들,府곳집·마을,副버금,付줄·부탁할,負질·짐질,賦구실,赴나아갈·달릴,附붙을·의탁할,簿장부·문서,符부신·병부,腐썩을,不아닐,復다시·돌아올,釜가마,傅스승,敷펼·베풀,訃부고·통부,阜언덕,膚살갗·피부,俯구푸릴·구부릴,賻부의,斧도끼,剖쪼갤,芙부용·연꽃,駙곁마·가까울,腑장부,埠선창·부두,咐분부할,孵알 깔,孚미쁠·믿을,溥펼·클,鳧오리·물오리,缶장군,莩풀 이름·갈대청,趺책상다리할·도사리어 앉을,艀작은 배;祔합사할,俘사로잡을,拊어루만질,鈇도끼,裒모을,桴마룻대,蔀빈지문,掊그러모을,榑부상,苻귀목풀,鮒붕어,蜉하루살이,袝,抔움킬,頫머리 숙일,涪물거품,麩밀기울,玞옥돌,跗발등,媍,筟대청,罘그물,罦그물,胕장부,芣질경이,蚨파랑강충이,荴",
+"북":"北북녘·달아날",
+"분":"分나눌,憤결낼·분할,奮떨칠·성낼,粉가루,紛어지러워질·어지러울,奔달릴·달아날,墳무덤,芬향기로울,焚불사를,盆동이,忿성낼·분할,糞똥,噴뿜을·뿜어낼,雰안개,扮꾸밀·잡을,吩뿜을,賁클,汾클·물이름,昐햇빛;体용렬할,氛기운,棼마룻대,坌먼지,犇달아날,濆뿜을,蕡들깨,枌나무 이름,帉걸레·행주,棻,湓용솟음할,畚삼태기,砏큰 소리,笨거칠,肦머리 클,膹고기 삶은 국,轒병거,黺옷에 오색 수 놓을,鼢두더지",
+"불":"不아닐,佛부처,拂떨·떨칠,弗아닐·말,彿비슷할;紱인끈,黻수,髴비슷할,祓푸닥거리할,茀풀 우거질,岪산길,艴발끈할,韍폐슬",
+"붕":"朋벗,崩무너질·산무너질,鵬대붕새,棚시렁·사다리,硼붕산·약이름,繃묶을;堋,漰,鬅",
+"비":"非아닐,鼻코,悲슬플,備깆출·갖출,比견줄,飛날,費쓸·허비할,妃왕비,卑낮을,碑돌기둥·비석,肥살찔,批칠·비평할,婢여자종·여종,祕귀신·비밀,秘숨길·비밀할,匪대상자,丕클·으뜸,毖삼갈,泌샘물 흐르는 모양·졸졸흐르는 모양,毘밝을,鄙다라울·더러울,扉문짝·사립문,譬비유할,庇덮을,臂팔,裨도울,沸끓을,憊고달플,緋붉은 빛·붉은 비단,脾지라·비위,誹헐뜯을·그르다할,痺암메추라기·새이름,蜚바퀴·풍뎅이,琵비파,匕비수,砒비상,翡물총새·비취새,秕쭉정이,毗도울·밝을,菲엷을·나물이름,斐오락가락할·아롱질,粃쭉정이,榧비자나무,枇비파나무·참빗;妣죽은 어미,俾더할,閟문 닫을,霏눈 펄펄 내릴,轡고삐,圮무너질,沘강 이름,羆큰 곰,騑곁마,髀넓적다리,棐도지개,睥흘겨볼,痞뱃속 결릴,鼙마상북,紕가선,貔비휴,贔힘쓸,邳클,仳떠날,庳,悱표현 못할,椑술통,腓장딴지,陴성가퀴,芘풀 이름,淝강 이름,篦빗치개,芾작은 모양,濞물 소리,蚍왕개미,剕발 벨,埤더할,屁방귀,淠강 이름,狉삵의 새끼,狒비비,痹저릴,萆비해,蓖아주까리,郫고을 이름,鞴풀무,騛빠른 말,庀,伾,馡,奜",
+"빈":"貧가난할,賓손,頻자주,彬빛날,嬪아내·귀녀,殯염할,濱물가,嚬찡그릴,瀕물가,贇예블,牝암컷,斌빛날·문채날,浜물가·갯고랑,玭구슬 이름,檳빈랑나무;鬢살쩍,擯물리칠,儐인도할,蘋네가래,邠나라 이름,繽어지러울,顰찡그릴,豳나라 이름,鑌강철,霦옥 광채,矉찡그릴,臏종지뼈,份,馪,璸,蠙,穦",
+"빙":"氷얼음,聘찾아가다·청할,憑기대다·의지할,騁달리다·달릴;凭기대다,娉장가들다",
+"사":"四넉·넷,事일,士선비·벼슬,死죽을,思생각할,使하여금,史역사·사기,私사사,寺절,師스승,仕벼슬할,絲실,舍집,謝사례할,巳여섯째 지지·뱀,射궁술·쏠,司맡을,辭말·말씀,似같을,賜줄,社토지의 신·모일,斯이,祀제사,査사실할·캐물을,沙모래,詞말씀,寫베낄,捨버릴,邪간사할,詐속일,斜비낄·비뚤어질,蛇뱀,赦용서할,祠사당·봄제사,泗물 이름,獅사자,飼먹일,唆부추길·가르칠,嗣이을·대이을,徙옮길,紗깁,些적을,奢사치할,瀉토할·쏟을,娑춤출·춤추는모양,麝사향노루,肆방자할,俟기다릴,乍잠깐,伺엿볼,蓑도롱이,砂모래,莎향부자·귀뚜라미,駟사마,裟가사,梭북,篩체·왕대,柶수저·숟가락,渣찌끼,僿잘게 부슬·정성없는;竢기다릴,蜡납향,糸가는 실,榭정자,笥상자,姒동서,卸풀,楂떼,駛달릴,剚찌를,咋잠간,汜지류,傞취하여 춤추는 모양,痧쥐통,皶,覗엿볼,魦,鯊문절망둑,鰤새우,涘,禠",
+"삭":"削깎을·깍을,朔초하루,數자주,索동아줄;鑠녹일,槊창,爍빛날,蒴말오줌대,搠",
+"산":"山뫼,産낳을,散흩을·흩어질,算셀·셈놓을,酸초·초.실,傘우산,刪깎을·깍을,珊산호,疝산증·산중,霰싸라기눈·싸락눈,蒜달래,汕오구·통발;繖일산,訕헐뜯을,潸눈물흐를,狻사자,鏟대패,剷깎을,姍헐뜯을,孿쌍둥이,橵산자,澘,產,㦃,祘,簅",
+"살":"殺죽일,薩보살,撒뿌릴,煞죽일,乷음역자",
+"삼":"三석,參석,蔘인삼,森나무빽빽할,渗거를,衫적삼·옷,芟벨·풀벨,杉삼나무;滲,糝나물죽,鬖헝클어질,釤낫",
+"삽":"揷꽂을,澁떫을·깔깔할,颯바람소리,鈒창·새길;歃마실,翣운삽,鍤가래,卅서른,霎가랑비,霅비올,唼쪼아먹을,插",
+"상":"上위,相서로,想생각할,常항상,賞상줄,商헤아릴·장사,尙오히려,喪죽을·상사,傷상처·상할,霜서리,狀형상,嘗맛볼,詳자세할,祥상서로울,象코끼리,床평상,桑뽕나무,像형상,償갚을,裳치마,樣모양·모범,庠학교·우나라태학,箱상자,爽시원할,觴잔,翔빙빙돌아날,孀과부,廂행랑,湘강이름·물이름,牀평상,橡상수리나무·도토리,峠고개;甞맛볼,殤일찍죽을,顙이마,徜노닐,緗담황색,晌정오,塽높고밝은땅,鎟방울소리,鬺삶을,慡,潒",
+"새":"塞변방·변망,璽도장·옥새,賽굿할·국할;鰓뿔심,㘔,愢",
+"색":"色빛,索찾을·동아줄,塞막힐·변망,嗇아낄·인색할,穡거둘;槭단풍나무,濇껄끄러울,瀒",
+"생":"生날,省덜·살필,牲희생,甥생질·사위,笙생황;眚눈에백태낄,鉎녹",
+"서":"西서녘,書쓸·글,序차례,暑더울,庶여러·뭇,徐천천할,署관청·마을,恕용서할,緖실마리,誓맹세할,敍차례·베풀,逝갈,豫기쁠·편안할,瑞상서,舒펼,曙새벽,棲살·쉴,胥서로,黍기장,鼠쥐,犀무소·뿔난소,薯참마·감자,嶼섬,抒풀·끄어낼,壻사위,栖깃들일·깃드릴,筮점대·산가지,鋤호미,絮솜·헌솜,墅농막,捿깃들일·깃드릴;婿사위,叙,紓느슨할,噬씹을,撕,鉏호미,湑거를,澨물가,芧상수리,揟나무이름,耡구실이름,敘,遾,諝,㥠,偦,㠘,㣽,㷂,嫬,悆,稰,縃,藇",
+"석":"石돌,夕저녁,席자리,昔옛,惜아낄,釋풀,析가를·쪼갤,錫주석,奭클,碩클,晳밝을·분석할,潟개펄,汐조수·저녁조수,淅쌀일,蓆자리·클;腊포,舃신,蜥도마뱀,晰밝을,鉐놋쇠,矽석비레,鼫석서,䄷,磶,褯",
+"선":"先먼저,仙신선,善착할,線실·기울,船배,選가릴,鮮고울,宣베풀,旋돌,禪봉선·전위할,洗조촐할·율이름,膳반찬,繕기울,扇사립문·부채,煽부칠·부추킬,璿아름다운옥,璇아름다운옥·구슬,瑄도리옥·둥근옥,癬옴·버짐,腺샘·멍울,亘구할,羨부러워할·부끄러워할,銑끌·윤택할금,蟬매미,詵많을·말전할,饍반찬,嬋고울,僊춤출,蘚이끼,跣맨발·발벗을,鐥복자,渲바림·물적실,琁옥·구슬,敾글잘쓸;洒씻을·설치할,譔가르칠,綫,鏇갈이틀,騸불깔,愃쾌할,墡백토,嫙예쁠,尟,屳날,歚고을,筅솔,譱,鱓두렁허리,鱻생선,㻽,䁢,暶,烍,珗,秈",
+"설":"雪눈,說말씀,設베풀,舌혀,契맺을·계약할,泄샐·발설할,薛맑은대쑥·풀이름,卨사람이름,屑가루·구차할,洩샐·물이샐,渫칠·더러울,褻더러울·평복,楔문설주·기둥,齧물·씹을;偰맑을,揲셀,爇불사를,稧,紲고삐,媟깔볼,碟가죽다룰,暬설만할,枻,㨹,禼,蔎",
+"섬":"暹해돋을·햇살오를,纖가늘,蟾두꺼비,陝고을이름,殲다죽일·멸할,閃번쩍할·피할,贍넉넉할·도울,剡날카로울;憸간사할,摻섬섬할,銛가래,譫헛소리,睒번개빛,孅가늘,韱산부추",
+"섭":"涉물 건널·지나칠,攝몰아 잡을·끌,葉고을이름·성,燮불에 익힐·불꽃;躡밟을·신 신을,懾무서울·두려울,囁말하려다 멈출·중얼거릴,聶소곤거릴·낄,鑷쪽집게,灄흠치르르할·물이름,顳귀밑 뼈,躞,㰔",
+"성":"成이룰·거듭,星별·희뜩희뜩할,省살필,性성품·마음,姓일가·아이 낳을,城보루·재,誠미쁠·공경할,聖성인·착할,聲소리·풍류,盛담을·이룰,晟밝을·햇살 퍼질,醒술 깰·꿈 깰,宬사고·도서실,惺깨달을·똑똑할,腥비린내·더러울,珹옥이름,猩성성이,筬바디·대나무이름;騂붉은 소·누른말,瑆,晠,胜,娍,貹",
+"세":"世세상·평생,歲해·곡식 익을,細가늘·작을,洗씻을·세수 그릇,勢권세·위엄,稅구실·거둘,說달랠·쉴,貰빌릴·세 바칠,彗비·꼬리별,笹가는 대;洒씻을·설치할,帨차는 수건·손수건,繐가늘고 성긴 베,蛻매미 허물,忕,涗,銴",
+"소":"小작을·좁을,少적을·조금,所바·곳,笑웃음,消다할·꺼질,素흴·생초,召부를·청할,昭소명할·소목,訴하소연할·송사할,掃쓸·상투,蘇차조기·나무할,燒불 붙을·들불,騷근심스러울·흔들릴,蔬나물,疏뚫릴·나눌,疎성길·드물,巢새집·집 지을,紹이을·얽을,邵땅이름·성씨,沼못·늪,蕭쑥·쓸쓸할,宵밤·작을,逍노닐·거닐,簫퉁소·활고지,搔긁을·휘저을,遡거스를·맞이할,梳얼레빗·머리빗을,塑허수아비,甦깨어날·숨 쉴,瘙옴·종기,嘯휘파람·세게 뿜을,銷녹을·사라질,韶아름다울·이을,瀟물 맑을·비바람 몰아칠,炤밝을,溯거슬러 올라갈,釗,篠가는 대·조릿대;艘배,霄하늘·진눈깨비,泝거슬러 올라갈·흘러갈,埽쓸·그릴,翛날개치는 소리·모지라질,愬고할·참소할,卲높을·성씨,繅고치 실 뽑을,酥타락죽,劭,蛸거미알·연가시 알집,捎덜·흔들거릴,佋소개할·사신,嗉멀떠구니,塐,樔풀막·너스레,筱가는 대,箾,膆살찔·멀떠구니,魈산도깨비,鮹문어·낙지,咲,穌,焇,傃,玿,璅,愫,䘘,䨭,䴛,柖",
+"속":"速빠를·부를,俗익을·버릇,續이을,束묶을·단나무,屬무리·좇을,粟좁쌀·겉곡식,贖속바칠·무역할,涑,謖일어날;洬,遬공손할·줄어들",
+"손":"孫손자·움 돋을,損덜·잃을,遜순할·겸손할,巽사양할·낮은체 할,飡삼킬,蓀난초;飧저녁밥·물에 만 밥",
+"솔":"率거느릴·좇을,帥주장할·장수;蟀귀뚜라미,窣느릿느릿 걸을·우지직거릴,乺,䢦",
+"송":"送보낼·가질,松소나무·향풀,訟송사할·시비할,誦풍유할·읽을,頌기릴·칭송할,宋송나라·성씨,悚두려울·송구할,淞강이름;竦공경할·두려울,鬆터럭 더부룩할,憽",
+"쇄":"刷긁을·고칠,鎖자물쇠·쇠사슬,殺내릴·감할,灑뿌릴·깜짝 놀랄,碎부술·잘;瑣옥가루·가늘,曬,鎻",
+"쇠":"衰쇠할·모손할,釗",
+"수":"水물·고를,手손·잡을,數헤아릴·수죄할,守지킬·보살필,首머리·먼저,樹나무·막을,受이을·얻을,授줄·부칠,收모을·거둘,雖비록·벌레이름,修닦을·옳게할,壽목숨·장수할,須수염·기다릴,誰누구·무엇,秀빼어날·이삭,愁근심·염려할,遂사무칠·나아갈,隨따를·괘 이름,囚가둘·갇힐,殊죽을·베일,輸떨어뜨릴·쏟을,需음식·머뭇거릴,獸짐승,垂드리울·변방,帥주장할·장수,睡졸음·잠,搜찾을·더듬을,宿잘·지킬,洙물가·물읾,隋수나라,髓뼛속 기름·마음속,銖저울눈,蒐꼭두서니·모을,酬술 권할·갚을,羞부끄러울·음식,繡수놓을·성씨,粹정할·순수할,袖소매,瘦파리할·가늘,讐원수,竪세울·서있을,狩겨울사냥·순행할,嫂형수,穗이삭·벼이삭,脩포·길,戍수자리·막을,綏편안할·수레고삐,藪큰 늪·덤불,綬인끈,邃깊숙할,鬚턱수염·아랫수염,岫바위구멍·바위굴,燧봉화·불,隧무덤길·구멍,嗽기침할·입가실,漱양치질할·빨래할,琇귀막이·옥돌,峀바위굴,茱수유,璲서옥·패옥,蓚기쁠,銹동록·녹슬;叟어른·쌀 씻는 소리,讎짝·원수,售팔·갚을,豎세울·내시,晬돐·첫 생일,睟똑바로 볼·윤택할,陲변방·위태할,睢,祟빌미,瞍소경·장님,颼바람소리,殳치다,廋숨길,溲오줌·반족할,膄파리할,泅,濉,籔조리·곡식 세는 단위 휘,脺얼굴 윤택할·머리덜미,膸,饈드릴·반찬,綉,穂,寿,㻽,䳠,汓,瓍,賥",
+"숙":"宿잘·지킬,叔아재비·주울,淑맑을·착할,孰누구·어느,熟익힐·삶을,肅공손할·공경할,夙이를·이미,菽,塾사랑방·기숙사,璹옥그릇,潚빠를,琡옥이름;倏잠간·홀연,俶비롯할·처음,橚길고 꼿꼿할,儵잿빛·남해 임금,鷫숙상새,婌궁녀 벼슬이름,驌좋은말·숙상말",
+"순":"順좇을·부드러울,純실·순수할,脣입술,巡돌·순행할,循좇을·의지할,旬열흘·두루할,殉구할·좇을,瞬눈 깜작일·잠깐,舜순임금·무궁화,淳맑을·순박할,珣옥그릇·옥 이름,盾방패·벼슬이름,洵웅덩이물·소리없이 눈물흘릴,筍죽순·대싹,醇전국술·두터울,馴길들일·착할,荀풀 이름·성씨,詢꾀할·물을,諄거듭 일러줄·지극할,徇조리 돌릴·따라 죽을,恂진실할·믿을,蓴순나물·순마룰,楯난간·방패,錞사발종,焞귀갑 지지는 불,蕣무궁화,栒경쇠걸이·순나무,橓무궁화나무;肫광대뼈·정성스러울,鶉메추라기·옷 해질,紃신에 실선 두를·실 띠,侚좇을·빠를,盹눈 감을·졸,眴눈짓할,駨,鬊머리 풀어헤칠,峋,姰,畃",
+"술":"戌개·열한째 지지,述이을·좇을,術재주·심술부릴,鉥돗바늘·인도할;絉",
+"숭":"崇높을·공경할,嵩높을·산이름,崧산 불끈 솟을·산 웅장할;菘배추",
+"쉬":";倅버금·원님,淬칼 담글·물들일,焠물들일·칼날 물에 담글",
+"슬":"瑟비파·거문고,膝무릎·종지뼈,蝨이;虱,㻭,璱",
+"습":"習익힐·거듭,拾주울·거둘,襲옷 덧입을·벼슬 대물릴,濕젖을·소 귀 벌룩거릴,褶슬갑;隰진펄,慴두려울·겁낼,槢",
+"승":"勝이길·경치가 좋을,承받들·이을,乘오를·곱할,僧중,昇해 돋을·풍년들,升되·오를,繩노끈·법,丞이을·도울,陞오를·올릴,蠅파리;塍,鬙터럭 더부룩할,氶,㞼,㴍,榺,阩,陹",
+"시":"時때·끼니,始비로소·처음,示보일·바칠,市저자·흥정할,視볼·견줄,詩귀글·풍류가락,試시험할·더듬을,是이·바를,施베풀·쓸,侍모실·가까울,矢살·소리살,柴섶·불 땔 나무,屍주검·송장,諡행장·시호,弑윗사람 죽일,匙숟가락·열쇠,猜의심낼·시기할,豺승냥이·늑대,媤시집,尸시동·주검,恃믿을·의지할,蓍뺑대쑥·시초,豕돼지·돝,翅날개·깃,屎똥·변,嘶말 울·목 쉴,蒔소회향·모종낼,枾감;柿감나무,啻뿐·쯤,厮부릴·마부,緦보름새베·시마복,澌물 잦을·다할,廝부릴·천할,柹감,偲간절히 책망할·살피고 힘쓸,禔복·편안할,兕외뿔난 소,諟이·살필,豉메주·콩자반,塒홰,顋뺨·볼,枲수삼·도꼬마리,諰눈 휘둥글할·곧은말,翤,釃술 거를,鍉숟가락·열쇠,絁,弒,眎,毸,漦,媞,愢,旹,沶,眂",
+"식":"食밥·먹을,式법·쓸,植심을·세울,識알,息숨쉴·그칠,飾꾸밀·문채날,湜물 맑을·엄숙할,殖날·심을,軾수레 안에서 절할,蝕벌레먹을·일식,拭닦을·다듬을,熄불 꺼질·없어질,寔이·참,埴찰진흙·흙 이길,篒대밥통;栻점판,媳며느리",
+"신":"身몸·아이 밸,信믿을·밝힐,臣신하·두려울,新새·처음,神천신·영검할,申펼·기지개켤,辛매울·고생,愼삼갈·정성스러울,伸펼·다스릴,晨샛별·아침을 아뢸,辰날,紳큰 띠·벼슬아치,訊물을·다스릴,迅빠를·억셀,腎콩팥·불알,燼깜부기불·불똥,宸집·처마,薪섶·땔나무,呻읊조릴·끙끙거릴,蜃큰 조개·이무기,娠아이밸·마부,藎갈골·나아갈,莘약 이름·많은 모양,侁떼지어 갈·여럿이 행함;矧하물며·잇속 드러날,贐노자·노수,哂빙그레 웃을·비웃을,汛물뿌릴,頣눈들고 볼,脤사직제 지낸 고기,囟숨구멍·정수리,姺나라이름,駪말 우물거릴·빨리 걸을,璶",
+"실":"室집·아내,失잃을·그르칠,實열매,悉모두·알;蟋귀뚜라미,実",
+"심":"心마음,甚심할·무엇,深깊을,尋찾을,審살필,沈성·가라앉을,瀋즙낼,沁스며들·물이름,諶참·믿을,芯등심초;潯물가,燖삶을,葚뽕나무 열매,鐔칼날 아래 코등이,鱏칼철갑상어",
+"십":"十열·전부,拾주울,什열 사람",
+"쌍":"雙짝;双",
+"씨":"氏성",
+"아":"兒아이,我자기·나,雅아담할,亞버금,餓주릴·굶을,芽싹,牙어금니·대장 기,阿언덕·아름다울,衙마을,俄갑자기,訝맞아들일·의심할,啞벙어리·놀랄,鴉갈가마귀·검을,峨산 높을,娥예쁠,鵝거위,莪지칭개·새발쑥,蛾누에나방·누에나비;猗불 깐 개·탄식할,疴앓을,迓마중할,哦놀람의 어조사,婀,丫가장귀,峩,娿아리따울,砑갈,笌대싹,錏투구의 목가림,鵞,児,婭,亜,枒,椏,妸,啊,妿,皒,硪",
+"악":"惡나쁠·악할,岳큰 산,樂풍류·즐길,握잡을·손아귀,愕놀랄·억지부릴,堊흰 흙,顎턱·턱뼈,嶽높은 산·큰산,幄장막,渥두터울·비젖을,鰐악어,鄂나라이름·고을이름,鍔칼날끝,齷악착할·악착같을;萼꽃받침,諤직언할,鶚물수리,咢놀랄,喔닭 우는 소리·아첨해 웃는 소리,噩놀랄,偓거리낄,腭잇몸,覨오래 볼,齶잇몸",
+"안":"安편안할·어찌,案책상·생각할,眼눈,顔얼굴,岸물가 언덕,雁기러기,鞍안장,按살필·어루만질,晏늦을·편안할,鮟아귀·천징어;鴈기러기,犴들개,桉,䭓,侒,妟,姲,婩,矸,錌",
+"알":"謁아뢸·뵈올,閼막을,軋수레 삐걱거릴·빼앗을,斡돌릴·주선할;遏막을,訐들추어 낼,頞콧마루,揠뽑을,嘎새소리,穵구멍,鴶뻐꾸기",
+"암":"暗어두울·몰래,巖바위·험할,癌종양,庵초막·암자,闇어두울·어리석을,岩바위,菴암자·쑥,唵머금을;諳욀,黯어두울,嵓바위·가파를,頷,晻어두울,馣향기로울,媕머뭇거릴,啽잠꼬대,腤고기 삶을,葊풀이름,蓭암자",
+"압":"壓누를,押수결 둘·누를,鴨오리·집오리,狎친근할·업신여길",
+"앙":"仰우러를·우러러볼,殃재앙,央가운데,怏원망할,昻오를·밝을,鴦암원앙새,秧모;盎동이,鞅가슴걸이·소고삐,泱끝없을,卬자기,坱티끌,昂밝을·높을",
+"애":"愛사랑,哀슬플·가여울,涯물가,碍그칠,埃티끌·속세,艾쑥,崖낭떠러지,隘좁을,靄아지랭이·아지랑이,曖희미할·흐릴,厓언덕·물가;礙막을,藹화기로울,欸한숨쉴,騃어리석을·말달릴,睚눈흘길,皚흴,挨밀칠,瞹흐릿할,僾어렴풋할,薆숨겨질,靉구름낄,捱막을,獃어리석을,唉대답하는 소리,啀물어뜯을,噯트림할,娭계집종,崕,漄물가,磑맷돌,㶼,䝽",
+"액":"額이마·수량,厄재앙,液즙·진액,腋겨드랑이,扼움켜쥘·움겨질,縊목 맬,掖겨드랑이에 낄;阨막힐,搤움켜쥘,呝울,戹좁을",
+"앵":"鶯꾀꼬리,櫻앵두나무,鸚앵무새,罌술병;嚶새 소리,嫈예쁠,罃술병",
+"야":"夜밤,野들판,也단정의 어조사,耶의문의 어조야·아비,若땅이름·지혜,惹끌릴·어지러울,倻땅이름,椰야자나무,爺아비·노인,冶단련할·대장장이,揶희롱할;埜들판,捓",
+"약":"弱약할·어릴,藥약·약할,約대략·맹세할,若같을·자네,躍뛸,略간략할·노략질할,掠노략질할,葯꽃밥·부들풀싹,蒻구약나물·부들속;鑰자물쇠,籥피리·잠글,禴종묘의 여름제사,爚스러질,篛죽순,鶸댓닭·투계,龠피리",
+"양":"羊양,陽볕·드러낼,洋큰 바다·넘칠,養기를·다스릴,讓사양할,揚드높일·칭찬할,樣모양·모범,楊갯버들,壤흙·풍년들,兩두·둘,良어질·좋을,量헤아릴·용량,凉서늘할,梁들보·다리,糧양식·곡식,諒헤아릴·믿을,亮밝을·임금의 상중,襄오를·장사지낼,孃계집아이·아씨,瘍머리헐·종기,攘물리칠·빼앗을,釀술 빚을,恙근심,禳푸닥거리할·기도할,痒가려울·옴,佯거짓·어정거릴,暘해 돋을·해돋이,穰풍년들·볏짚,瀁물결 일렁일·내이름,敭오를·칭찬할,煬구울·녹일;癢가려울,驤날뛰는 말,漾물결 출렁거릴,颺날릴·높일,徉배회할,鑲거푸집 속,椋들보,瀼이슬 많은 모양·강이름,烊구울·녹일,眻눈 아름다울,蘘양하,輰상여수레,昜",
+"어":"魚물고기,語말씀,漁물고기 잡을,於방향의 어조사·대신할,御거느릴·모실,禦막을·그칠,圄가둘·옥,瘀어혈질,馭말 부릴,齬이 어긋날;圉마부·변방,飫먹기 싫을·배부를,敔금할·풍류그칠,淤앙금·진흙,䘘,唹",
+"억":"億억·편안할,憶생각·기억할,抑누를·억울할,臆가슴·가득할,檍참죽나무·박달나무;繶땋은 노",
+"언":"言말씀·자기,焉어찌·의심쩍을,彦선비,諺상말,堰방죽,偃자빠질·누울;讞죄 의논할,嫣생긋생긋 웃을,傿,匽숨길·길 곁,鄢땅이름,鼴두더쥐·소 같은 큰 쥐,鼹,彥,嘕,鶠",
+"얼":"蘖그루터기·싹,孼첩자식·요물;臬법·문지방,糱,乻,糵",
+"엄":"嚴굳셀·공경할,掩거둘·가릴,奄문득·가릴,儼공경할·머리쳐들,俺자기·클,淹담글·오래머물;广바윗집,閹고자·내시,崦해 지는 산 이름,曮해 다니는 길,罨그물,醃절일·김치,厳,龑",
+"업":"業일·위태할,嶪산이 높고 웅장할·산높은모양;鄴땅이름·성씨,嶫",
+"에":";恚성낼·원망할,曀음산할·가리울",
+"엔":"円일본화폐단위",
+"여":"如같을·만약,餘남을·나라이름,與너울너울할·더불어,余자기·남을,汝물 이름·물에 젖을,予자기·나,輿수레바탕·짐질,女계집·시집보낼,旅나그네·베풀,麗고울·빛날,勵힘쓸·가다듬을,呂풍류·등골뼈,廬초가·움막,礪돌 단단할·숫돌,驪가라말·나라이름,閭마을·이문,黎무리·동틀,濾씻을·맑을,歟그런가할 어조사,轝가마,茹띠 뿌리·받을,璵보배옥,艅나룻배·나뭇배,礖여돌·섞인돌;舁마주들,伃,妤,侞,悆",
+"역":"亦또·모두,易바꿀,逆거스를,役부릴·국경 지킬,驛잇닿을·쌀 뾰족뾰족할,譯통변할·번역할,域경계·범위,疫염병,力힘·부지런할,歷지낼·겪을,曆셀·세월,繹삭일·베풀,轢수레바퀴에 치일·서로 부닥칠;嶧연달아 있는 산,懌기꺼울,閾문지방,淢빨리 흐를,晹",
+"연":"然불사를·그러할,煙연기,硏연마할·갈,宴잔치할·편안할,延미칠·닿을,緣인연·서두를,演펼칠·긴 물줄기,燃불사를·연등절,軟부드러울·연할,燕제비·편안할,沿물 따라 내려갈·좇을,鉛납·분,年해·나이,連이을·끌릴,練이길·익힐,均고를,鍊불린 쇠·단련할,憐불쌍할·사랑할,戀생각할·사모할,聯잇닿을·관계할,蓮연밥·연꽃,淵못·깊을,衍성할·넓을,捐버릴·병들어 죽을,硯벼루·돌,漣물 놀이칠·눈물 줄줄 흘릴,姸고을·사랑스러울,筵대자리,輦당길·궁중의 길,椽서까래,鳶솔개,撚잡을·닦을,煉쇠 불릴·반죽할,烟연기,涓물방울 떨어질·조촐할,璉종묘 제기,沇물 졸졸 흐를·물흐르는모양,娟어여쁠·춤추는 모양,涎침·물 졸졸 흐를,堧빈 땅·변두리땅,嚥침 삼킬·목구멍,挻당길·달아날,秊해,縯길·늘일;讌잔치·모여 말할,臙목구멍·연지,莚만연할·풀 이름,悁분할·근심할,掾아전·기인할,兗고을이름·믿을,埏땅 가장자리,渷물 이름,囦물 깊을,嬿아름다울,曣더울·청명할,櫞연나무,蜵우렁찰·벌레 이름,蠕,兖,輭,戭,妍,䂩,瑌,瓀,醼,渊,㜣,姢,娫",
+"열":"熱뜨거울·쏠릴,悅즐거울·복종할,閱겪을·군대 점호할,說기꺼울·말씀,列벌릴·무리에 들어갈,烈불 활활 붙을·빛날,劣용렬할·못날,裂찢어질·비단 자투리,咽목 멜·막힐,涅극락갈;噎목 멜,潱",
+"염":"炎불꽃·임금의 호,鹽소금·절일,染꼭두서니·물들일,念생각할·읽을,廉맑을·조촐할,厭넉넉할·아름다울,閻마을·항간,焰불당길,簾발,艶고울·얼굴 탐스러울,殮염할,苒풀 우거질·덧없을,髥구레나룻,琰아름다운 옥·비취옥,捻손가락으로 찍을;冉가는 털 늘어질·남생이 등 언저리,饜싫을·물릴,魘잠꼬대할,灩물 그득할·물결 출렁거릴,黶검은 사마귀,懕편안할,扊문 빗장,檿산뽕나무,艷",
+"엽":"葉잎·세대,獵사냥할·진동할,燁불 이글글할·번쩍번쩍할,曄빛날·번개 번쩍거릴;爗불 이글글할·번쩍번쩍할,熀불빛 이글이글할,靨얼굴의 검은 사마귀,曅,枼",
+"영":"永길·오랠,英꽃부리·영웅,榮영화로울·오동나무,迎맞을,營지을·헤아릴,影그림자·형상,詠읊을,映비칠·빛날,泳헤엄칠,令하여금·시킬,領옷깃·고개,寧편안할·차라리,靈신령·혼백,嶺고개·봉우리,零부서질·비뚝비뚝 떨어질,盈가득할·넘칠,塋무덤·산소,鈴방울,瑛옥빛·수정,玲옥소리 쟁그렁거릴·아롱아롱할,囹감옥,暎비칠,穎이삭·송곳 끝,纓갓끈·말 가슴걸이,瑩귀막이 옥·밝을,聆들을·깨달을,怜영리할,楹기둥·하관들,瀛큰 바다·신선 사는 산,潁물 이름·성씨,嶸산 높을·산이험한,霙눈꽃·구름 피어오를,獰영악할,濚물 돌아나갈·물도는 모양,渶물 맑을,瀯물소리·물 돌아나갈,羚영양·큰 뿔 양,煐빛날,瓔옥돌·구슬 목걸이,鍈방울소리;嬰어릴·더할,咏노래할·읊을,贏이문 남길·멜,縈얽힐·맬,嬴성씨·풀어낼,郢땅이름,癭목 혹,韺풍류이름,旲햇빛,浧잠길·앙금,濴물 졸졸 흐를,碤물 속 돌,蠑도마뱀,荣,栐,栄,䀴,朠",
+"예":"藝재주·글,豫기쁠·편안할,譽칭찬할·이름날,銳날카로울·까끄라기,禮예도·인사,例본보기·견줄,兒아이,隷붙을,預미리·참여할,睿슬기로울·밝을,芸향풀·궁궁이,艾쑥,醴단술·고을이름,濊흐릴·물 넘칠,芮풀 뾰족뾰족할·물가,詣이를·나아갈,曳끌·당길,裔옷 뒷자락·변방,穢더러울·거칠,刈풀 벨·죽일,乂풀 벨·다스릴,倪어릴·도울,霓암무지개,猊사자,汭물 이름·물 굽이,蘂꽃술,叡밝을·임금;翳어조사·깃 일산,睨,繄검푸른 비단·탄식하는 소리,蕊꽃술·꽃,鯢암고래,獩민족이름,枘자루,拽당길,蜺말매미·암무지개,薉더러울,鷖갈매기·봉황,囈잠꼬대할·헛소리할,嫛유순할·갓난아이,掜부칠·비길,瞖눈에 백태 낄,蚋모기,麑아기사슴·사자,医,羿,枻,蓺,埶,堄,㙯,䜭,䢃,壡,嫕,帠,橤,淣,玴,瘱,郳",
+"오":"五다섯,午낮·남쪽,吾자기·아들,誤그릇할,烏까마귀·검을,悟깨우칠·깨달을,嗚탄식할,汚더러울·웅덩이,娛즐거울,傲업신여길·즐길,惡미워할·부끄러울,吳오나라·큰소리 지를,奧속·비밀,梧머귀나무·버틸,墺방 구들·물가 언덕,伍다섯 사람·무리,寤잠 깨어날·깨달을,懊원망할·번뇌할,澳깊을·물 이름,鰲큰 자라,鼇매우 큰 자라,晤밝을·만날,敖희롱할·거만할,塢산 언덕·마을,熬볶을·애 끓는 소리,獒사나운 개·호박개,筽버들 고리,蜈지네,俉맞이할,旿밝을·대낮;忤거스릴·미워할,嗷여럿이 걱정할,燠더울,汙,遨노닐,鏖무찌를·구리동이,襖도포,迃,驁준마·깔볼,窹아궁이,迕만날·어길,鼯날다람쥐,聱못 들은채 할·말 더듬거릴,唔글 읽는 소리,慠거만할,捂부닥칠·거스릴,謷중얼거릴·거만할,鏊번철,隩감출·물가 언덕,仵짝·같을,俣갈래질,噁성낼,圬흙손,嫯업신여길,茣차조기,䫨,浯,珸",
+"옥":"玉구슬·사랑할,屋집·지붕,獄감옥,沃기름질·부드러울,鈺보배",
+"온":"溫따뜻할·부드러울,穩편안할·곡식 걷어 모을,蘊마름·쌓일,縕모시·묵은 솜,瘟염병·온역,瑥사람이름;醞술 빚을,慍성낼·병,媪할미·땅귀신,氳기운 어릴·기운 성할,韞감출·붉은 빛,媼,昷어질,熅,薀마름·쌓일,轀온량차,稳,馧,榲,㒚,䭓",
+"올":"兀우뚝할·움직이지 않을;膃해구·살찔,嗢목 멜,杌",
+"옹":"翁늙은이·새 목털 아래,擁안을·품을,雍조화로울·학교,壅막을·북돋울,甕항아리·물장군,邕막힐·사람이름,瓮항아리·독,饔아침밥,癰헌곳;顒우러를,喁물고기 입 오물거릴,蓊옹풀·우거질,滃구름 피어 오를·안개 자욱할,罋,雝조화로울·학교,禺땅 이름,廱벽옹,癕등창",
+"와":"臥누울·쉴,瓦질그릇·기와,訛거짓말·어긋날,蝸달팽이,渦소용돌이·시끄러울,蛙개구리,窩굴·움집,窪도랑·깊을,娃어여쁜 계집·얼굴 아름다울;洼물 이름,哇음란한 소리·게울,譌거짓·와전될,萵상추·부루,囮새 후릴,婐정숙할·단정할,枙옹이,猧와개,窊웅덩이",
+"완":"完완전할·끝날,緩느즈러질·더딜,莞빙그레 웃는 모양·빙그레웃을,頑완고할·완악할,宛어슴푸레할·언덕 위 언덕,婉순할·예쁠,阮성씨·관이름,琓구슬,玩희롱할·보배,浣옷 빨·씻을,腕팔뚝,翫익숙할·싫을,椀주발·사발,琬보석·아름다운 옥,碗그릇·주발,梡네 발 도마·토막나무,脘중완,豌동부·완두;惋한탄할·놀라 탄식할,岏산 뾰족할,刓깎을,盌은 바리,涴물 굽이쳐 흐를·진흙 묻을,垸회 섞어 바를,妧좋을·고울,忨탐할·사랑할,杬몸 주무를·나무이름,鋺저울 바탕,抏,輐,婠",
+"왈":"曰가로되",
+"왕":"王임금·할아버지,往갈·옛,旺고울·해무리,汪물 출렁출렁할·연못,枉굽을·원통할;迬,瀇아득할·넓을",
+"왜":"倭나라이름·일본,矮난장이,娃어여쁜 계집·얼굴 아름다울,歪비뚤;媧여자이름",
+"외":"外바깥·다를,畏두려울·겁낼,猥더러울·굽을,巍높을·높고 튼 모양,嵬산 뾰족할·산 울뚝질뚝할;煨불에 묻어 구울·그슬릴,聵배냇귀머거리,隗높을·성씨,磈돌 사닥다리,偎사랑할·가물거릴,崴평평치 아니할,嵔산이름·산 높을,渨더러울,碨돌 자갈 땅·바위 옹두라지",
+"요":"要구할·살필,謠노래·소문,遙멀·노닐,搖흔들·회오리 바람,腰허리,樂좋아할·즐길,約대략·맹세할,料말질할·헤아릴,了마칠·깨달을,僚벗·어여쁠,遼멀·강이름,堯높을·요임금,妖요괴로울·생긋생긋 웃는 모양,耀빛날,療병 나을·병 고칠,曜해 비칠·요일,姚어여쁠·날랠,尿오줌,擾길들일·번거로울,撓긁을,饒용서할·배부를,邀맞을·구할,夭어여쁠·무성할,寮동관·관리,僥거짓·난장이,燎뜰에 세운 횃불·풀 태울,窈고요할·깊을,凹오목할,拗고집스러울·꺾을,窯기와가마·오지그릇,寥잠잠할,繞얽힐·둘릴,瑤아름다운 옥·못 이름,蓼병 나을·여뀌,嶢높을·산이높은,繇따를·성할,橈노·돛대,燿비칠·빛날,蟯촌백충;幺작을·어릴,徭부릴,澆걸찰·물 끌어올,徼돌아다닐·순라,殀단명할,蕘나무할·거칠,遶둘릴,坳,窅움펑눈·까마득할,鷂장끼·새매,祅재앙,穾깊숙할·골방,偠허리 가늘,喓벌레소리,墝메마른 밭·자갈 땅,嬈예쁜체 할,暚",
+"욕":"欲욕심낼·하고자할,浴깨끗이할·못 이름,辱욕될·굽힐,慾욕심낼·하고자할,褥,縟꾸밀;溽유월 더위·무더울,蓐새싹·가을 맡은 귀신",
+"용":"用쓸·재물,容얼굴·감쌀,勇날랠·용맹할,庸쓸·떳떳할,龍용·임금,踊,鏞큰 쇠북,茸풀 뾰죽뾰죽 날·못생길,鎔불릴·녹일,傭머슴·지을,溶물 질펀히 흐를·녹일,瑢패옥소리,熔거푸집,聳솟을·귀먹을,湧물솟을,蓉연꽃·약 이름,涌물 넘칠·날칠,冗한산할,墉작은 성·담벽,俑,甬물 솟아 오를·골목길,慂권할·거들어 말할,榕용나무·나무이름,埇골목길·길 돋울;舂방아 찧을·쇠북소리,慵게으를,宂번잡할·바쁠,踴뛸,憃천치,嵱봉우리 쭝굿쭝굿할,傛혁혁할·몸 굽힐,槦병기 얹는 시렁,硧,蛹번데기,㦶",
+"우":"右오른쪽·높일,牛소·별 이름,雨비,友벗·합할,又또·용서할,宇집·처마 기슭,于갈·여기,尤가장·더욱,憂근심·상제될,遇만날·대접할,愚어리석을·어두울,優넉넉할·부드러울,羽깃·오음의 하나,郵역말·지날,偶짝지울·무리,佑도울,祐도울·다행할,禹하우씨·성씨,迂굽을·피할,虞염려할·즐거울,寓살·부탁할,隅모퉁이·기슭,禑,雩기우제·무지개,紆얽힐·굽을,瑀옥돌·옥다음가는 돌,盂바리·사냥하는 진,旴해 돋을·새벽,芋토란,藕연뿌리,玗옥돌·우기나무,釪요령·바리때;嵎산모퉁이,吁,堣,燠더울,耦쟁기·겨리,踽타달거릴,盱,竽큰 생황,俁,疣,耰고무래·곰방메,麀암사슴,亴,偊,庽,杅,謣망령되게 말할,鍝귀고리,麌숫사슴,齲충치,訏,圩,㝢,訧,扜,优,㥥,㲾,䨒,慪,盓,邘",
+"욱":"旭빛날·햇살 치밀,郁문채날·자욱할,煜비칠·불꽃,頊머리 굽실거릴·별이름,昱햇빛 밝을,勖힘쓸,彧빛날·문채날,栯산앵두,稶서직 무성할·서속이 우거진 모양;燠더울,稢",
+"운":"雲구름·팔대손,運움직일·운수,云이를·움직일,韻울림·소리 맞을,員관원·둥글,芸향풀·궁궁이,暈무리·어지러울,隕떨어질·곤란할,殞죽을·떨어질,耘길 맬·김맬,蕓운풀·평지,澐큰 물결,橒나무 무늬,熉누른 빛;紜얼크러질,韵,惲의논할·혼후할,沄물 콸콸 흐를·끓을,霣떨어질·천둥에 비 몰아올,篔왕대나무,鄖,夽,䆬,䉙,䫟,妘,賱",
+"울":"鬱향기로운 풀·무성할,蔚고을이름,亐땅이름;菀,䵥",
+"웅":"雄수컷·영웅,熊곰·빛날",
+"원":"元으뜸·착하고 어질,原근본·거듭,遠멀·심오할,園동산·능,願하고자할·바랄,圓둥글·원만할,怨원망할·원수,院원집·공해,員관원·둥글,源근원·샘,援당길·사다리,苑나랏동산·큰 바람,瑗도리옥·구멍 큰 둥근 옥,袁옷 치렁거릴·성씨,媛아리따운 여자·여자 벼슬이름,寃원통할·굽힐,猿원숭이·잔나비,婉순할·예쁠,鴛숫원앙새·수원앙새,阮원나라·성씨,轅진문·멍에,垣낮은 담·보호하는 사람,爰당길·이끌,愿정성·착할,湲물소리·물 졸졸 흐를,沅물 이름,嫄여자이름,洹흐를·물 이름;冤원통할·원한,鵷원추새,蜿굼틀거릴,黿큰 자라,謜천천히 말할·기꺼울,杬몸 주무를·나무이름,楥떡갈나무·실감개,猨,芫고기 잡는 풀·여뀌,薗,鋺저울 바탕,騵,貟,溒,邍,倇,朊,笎,褑",
+"월":"月달,越넘을·뛸,鉞도끼;粤말 내킬·곰곰히 생각할,刖발꿈치 자를",
+"위":"位벼슬·임금의 신분,危위태할·무너질,爲할·다스릴,威위엄·두려울,偉클·넉넉할,謂고할·이를,衛호위할,委맡길·버릴,慰위로할,圍둘레·에워 쌀,僞거짓·속일,胃밥통·별 이름,違어길·미적거릴,緯씨줄·별 오른편으로 돌,尉벼슬이름·눌릴,魏위나라·대궐,渭물 이름·속 끓일,韋다룬 가죽·훌부들할,萎마를·풀 이름,瑋위옥·노리개,葦갈대·작은 배,蝟고슴도치,暐햇빛·빛 환할,褘휘장·아름다울,蔿풀·성씨;諉핑계할·버릴,闈대궐안의 문,衞막을·지킬,喟한숨쉴,逶비틀거릴,痿습병·잘름거릴,葳초목 성할·위유풀,韙옳을,幃향낭·홑휘장,煒벌그레할·환할,熨다리미·고약 붙일,韡꽃 환히 필,餧먹일,骪",
+"유":"有있을·얻을,由말미암을·쓸,油기름·구름 피어오를,猶어미 원숭이·같을,遺잃어버릴·남을,遊놀·벗 사귈,酉별·열째 지지,唯오직·허락할,幼어릴·사랑할,柔부드러울·순할,惟꾀할·오직,裕넉넉할·너그러울,悠멀·생각할,誘꾀일·가르칠,乳젖·종유석,儒선비·나장이,維벼리·이을,愈나을·어질,幽숨을·그윽할,流흐를·번져나갈,留머무를·그칠,柳버들·별 이름,類같을·나눌,需음식·머뭇거릴,劉이길·죽일,兪그럴·대답할,踰넘을,庾노적,楡느름나무·서쪽,紐단추·맺을,癒병 나을·병들,諭고할·비유할,游헤엄칠·노닐,宥너그러울·죄 사할,喩깨우쳐 줄·알릴,溜처마물·낙수물,諛아첨할,鍮놋쇠,琉유리돌·나라이름,愉기뻐할·즐거울,柚유자,蹂밟을·쌀 씻을,揄당길·칭찬할,攸곳·휙 달아날,猷꾀·그릴,逾갈·지날,濡적실·막힐,孺젖먹이·사모할,臾잠간·착할,瑜아름다운 옥,侑도울·권할,硫석류황·유황,杻싸리,萸수유·약이름,洧물이름,楢부드러운 나무·홰,釉물건 빛날;籲부르짖을,帷휘장,壝토담·단 둘러쌓은 담,牖엇살창·들창,囿엔담·고루할,腴아랫배 살찔,逌빙그레할,莠가라지·추할,糅섞일·얽힐,揉풀·부드럽게 할,蕕냄새나는 풀·유풀,蕤더북할,瘐죄인 주려 죽을,窬판장문,黝검푸를·검은칠할,緌,窳이지러질·약할,呦사슴 우는 소리·새짐승 우는 소리,讉성낼,鮪상어,冘머뭇거릴·갈,泑물빛이 검을·물이름,瘉,蚰노래기·땅지네,蚴굼틀거릴,蝤하루살이,褕쾌자,鞣다룬 가죽·마른 가죽,鼬청서·족제비,龥부르짖을,俞,曘,婑,甤,秞,㴗,姷,湵,瀢,燸,琟,瑈,聈",
+"육":"肉고기·몸,育기를·날,六여섯·나라이름,陸뭍·길,戮죽일·육시할,堉기름진 땅,毓기를·어릴;儥팔·길",
+"윤":"潤불을,閏윤달,倫인륜·무리,輪바퀴·땅 길이,尹다스릴·바를,允미쁠·마땅할,崙곤륜산·나라이름,胤맏아들·익힐,鈗창,淪빠질·물놀이칠,贇예블,沇물 졸졸 흐를·물흐르는모양,奫물 깊을·물이 충충할,玧귀막이 구슬;昀,鋆,匀,閠,㣧,阭,䦞,橍,荺",
+"율":"律법·풍률,率헤아릴·과녁,栗밤·신주 재목,慄두려울·쭈그릴,聿마침내·지을;潏물 흐를,矞송곳질할·상서구름,霱,汩,䢖,鴥,䫻,燏",
+"융":"隆성할·높을,融부드러울·밝을,戎병장기·싸움수레,絨삶은 실·가는 베,瀜물 깊을·물깊은 모양;狨원숭이",
+"은":"銀은·돈,恩은혜·신세,隱숨을·아낄,殷많을·무리,誾화평할,垠언덕·하늘 가장자리,圻언덕,慇은근할·공손할;訔시비할,听벙긋거릴·들을,訢기뻐할,憖물을·공근할,嚚어리석을·말다툼할,狺뭇 개 짖는 소리,溵물소리·물이름,檼집 마룻대·대공,癮두드러기,圁물이름,垽해감·찌끼,珢옥돌,鄞땅이름,齗잇몸·말다툼할,檃,泿,濦,蒑,㒚,嶾,蒽,蘟",
+"을":"乙새·천간 이름;鳦제비,圪",
+"음":"音소리·편지,飮마실,陰음기·부인에게 예 가르칠,吟읊을·끙끙거릴,淫방탕할·간음할,蔭덮을·가릴;喑소리지를·안간힘 쓸,愔조용할·화평할,霪장마,崟멧부리·산 높을,廕덮을,噾,韾",
+"읍":"邑고을·답답할,泣눈물 줄줄 흘릴·부글부글 끓는 소리,揖읍할·나아갈;挹잡아당길·잔질할,悒답답할·근심할,浥젖을·흠치르르할",
+"응":"應응당·꼭,凝엉길·이룰,鷹매,膺가슴·친할",
+"의":"衣옷·입을,意뜻·생각,義옳을·의리,依의지할·기댈,醫의원·병 고칠,矣말 그칠·어조사,議말할·의논할,宜옳을·마땅할,儀꼴·모양,疑의심할·두려워할,誼옳을·다스릴,擬의논할·헤아릴,毅굳셀·발끈 성낼,椅가래나무·교의,倚기댈·의지할,懿아름다울·클,蟻왕개미·검을,薏연밥·율무,艤배 닿을·배언덕에 댈;猗불 깐 개·탄식할,嶷산이름,欹아름답다할·거룩하다할,漪물놀이칠,儗서로 못믿을·참람할,劓코 베일·베일,螘목 매어 죽는 벌레,凒눈서리 쌓일,礒바위,饐밥 쉴,医,㛄",
+"이":"二두·풍신,耳귀·조자리,異다를·괴이할,以써·쓸,而순접의 어조사·너,已이미·그칠,移옮길·모낼,夷동쪽 오랑캐·평평할,里마을·근심할,利날카로울·이로울,理다스릴·바를,李오얏·선비 천거리할,易쉬울·다스릴,吏아전·관리,離떠날·베풀,履가죽신·신을,裏옷 안·속,梨배·벌레이름,伊저·이,泥진흙·물이 더러워질,珥귀막이 옥·귀고리,弛늦출·활 부릴,貳버금·의심낼,怡기쁠·즐거울,罹만날·근심할,餌미끼·이깝,裡옷속,痍상할·다칠,爾너·가까울,痢이질·곱똥,姨이모·처이모,貽끼칠·줄,邇가까울,彛떳떳할,肄익힐·수고할,苡율무·질경이,飴엿·맛,荑흰 비름·베일;彝떳떳할·법,迤든든할,訑자랑할,洟콧물·눈물,咿선웃음칠·책 읽는 소리,尔,栮버섯·느타리,珆,隶밑·미치다,頤,羡,薾,杝,貤,㛅,䏪,佴,媐,巸,廙,聏,鴯",
+"익":"益더할,翼날개,翊도울,溺빠질·약할,翌다음날,匿숨을·숨길,謚웃을·웃는모양,瀷강이름·스며흐를;弋주살·취할,鷁익새·돛대 끝 바람개비,熤빛날·사람이름",
+"인":"人사람,仁어질,因인할,引끌·이끌,印도장,寅세째지지·범,忍참을,認알,姻혼인·혼인할,隣이웃,咽목구멍·목멜,麟기린,刃칼날,湮잠길·없어질,鱗비늘,吝아낄·인색할,燐도깨비불·반딧불,蚓지렁이,靭질긴 고기,璘옥빛,茵자리·사철쑥,絪기운·수삼,靷가슴걸이,藺골풀·뇌양이;堙막을,仞길,禋제사지낼,夤조심할,氤기운성할,裀요,婣,洇,芢씨,儿어진사람,戭,牣,諲,韌,䄄,璌,㲽,忈,忎,朄,濥,秵",
+"일":"一한,日날,逸달아날·편안할,壹한·하나,鎰중량·스물넉냥쭝,佾춤·줄춤,溢넘칠,佚편안할·편할,馹역말·역마;軼앞지를,泆끊을,欥,劮",
+"임":"壬아홉째천간,任맡길·맡을,賃품팔이·빌릴,林수풀·더북더북 날,臨임할·군림할,姙아이밸,淋지적지적할·축일,稔곡식익을,荏들깨·콩,恁생각할·믿을,妊아이밸;衽옷깃,飪익힐,絍짤·길쌈할,銋젖을,䚾,䛘",
+"입":"入들,立설,笠우리·삿갓,粒알·쌀알,卄스물;廿스물",
+"잉":"剩남을,孕아이밸,仍인할·이전의,芿새풀싹;媵보낼",
+"자":"子아들,自스스로,者놈,字글자,慈사랑할,資재물,姿맵시,紫자주빛·검붉을,恣방자할,刺찌를,茲무성할,姊,姉손윗누이,玆이,滋불을,疵흠·죽은깨,雌암컷,磁자석,炙고기구을·고기구이,諮물을·꾀,藉깔개,煮삶을·지질,仔자세할,蔗사탕수수,瓷오지그릇,咨물을·원망할,孜힘쓸·부지런할,茨가시나무·납가새;貲재물,眦,孶부지런할,訾헐뜯을,赭붉은흙,泚맑을,粢피,觜털뿔,髭코밑수염,柘산뽕나무,眥흘길,耔복돋을,鷓자고,牸암컷,鶿가마우지,呰주차할,胾고깃점,嬨계집성품너그러고순할,孖쌍둥이,茈지치,莿풀가시,虸,鎡호미,頿코밑수염,鮓젓,秄,褯",
+"작":"作지을,昨어제,爵벼슬,酌따를·참작할,灼사를·구을,雀참새,鵲까치,綽너그러울,勺구기·잔질할,嚼씹을,芍작약,炸터질·기름에 지질,斫벨·쪼갤;怍부끄러울,舃신,焯밝을,碏삼갈,柞나무이름,岝산 높을,斱쪼갤,汋삶을,犳아롱 짐승",
+"잔":"殘해칠·나머지,盞작은 술잔,棧잔교·사다리,孱잔약할,潺물졸졸흐르는 모양;剗깍을,驏안장 얹지 않은 말",
+"잠":"潛잠길,暫잠시,蠶누에,箴바늘·경계할,簪비녀,岑봉우리·높을;潜,涔괸물",
+"잡":"雜섞일·잡될;襍,磼산 높을,卡관,囃장단 잡을,眨눈 깜작일",
+"장":"長길,場마당,將장차·장수,章문채·글,壯씩씩할·장할,張베풀,掌손바닥,丈어른·길,腸창자,帳휘장 장막,障막을·막힐,葬장사 지낼,藏감출,莊엄할·씩씩할,墻담,裝차려 입을·행장,粧단장할,臟오장,奬도울·클,狀모양 형상,匠장인·바치,庄장중할·농막,璋서옥,蔣줄·과장풀,樟녹나무·노나무,杖지팡이,仗병장기·의지할,獐노루,醬장·간장,漿미음·초,檣돛대,薔물여뀌·장미꽃,臧착할·거둘,贓장물,牆담,欌장농·장롱,暲햇발이 돋아올·밝을;獎권면할,将,戕죽일,瘴장기,嶂높고 가파른 산,糚,鏘금옥 소리,漳강이름,萇나무 이름,奘클,麞노루,牂암양,妝꾸밀,傽놀랄,嬙궁녀,廧담,羘수양,鄣나라이름,餦산자,壮",
+"재":"在있을·살,才재주·능할,材재목·늘미,再두 번·거듭,財재물·뇌물,哉비로소·답다,栽심을,載실을·이길,災재앙·천벌,裁마름질할·헤아릴,宰주관할·다스릴,滓앙금·찌끼,齋재계할·집,梓가래나무·목수,縡일·실을,渽맑을,齎탄식할·쌀;灾,纔겨우·비롯할,榟,夈,崽,扗,㦳,捚,賳,㘽,溨",
+"쟁":"爭다툴·다스릴,錚쇳소리 쟁그렁거릴·징,諍간할,箏쟁·풍경;崢가파를·산 높을,鎗금석소리·창,琤옥소리,猙밉살스럴·짐승이름",
+"저":"低낮을·값 쌀,貯쌓을·감출,著나타날·널리 알려질,底밑·그칠,抵밀칠·당할,沮그칠·막을,躇머뭇거릴,猪돼지,邸사처·주막,咀씹을·깨달을,箸젓가락,詛저주할,狙원숭이·엿볼,苧모시,儲쌓을·버금,楮닥나무·종이돈,佇오래 설·기다릴,這맞을·이것,渚물가·물 갈라질,紵모시,杵공이·방망이,疽등창,雎저구·증경이,樗가죽나무,菹김치·푸서리,姐맏누이·아가씨,藷마·감자,齟이 어긋날;觝찌를·받을,詆꾸짖을·알소할,氐낮을·오랑캐 이름,宁조회 받는 곳·멈출,柢뿌리,瀦물 괼·못,苴암삼·꾸러미,杼북·도토리,袛속적삼,潴,牴찌를·대강,蛆구더기·지네,羝숫양,褚주머니·쌓을,岨돌산에 흙 덮일,罝짐승 그물,陼모래섬·둔덕",
+"적":"赤붉을·금치,的과녁·꼭 그러할,敵대적할·원수,適맞갖을·편안할,賊도적·해칠,積포갤·모을,籍문서·왁자할,跡자취,績길쌈·공,摘딸·돋구어낼,寂고요할·쓸쓸할,滴물방울·물 댈,蹟행적·자취,笛피리·날라리,炙고기구이·김 쏘일,迹발자국·자취,嫡정실·맏아들,謫귀양갈·꾸짖을,狄북방 오랑캐·꿩 그린 옷,吊슬퍼할,迪나아갈·순할,勣공적·사업,翟꿩의 깃·황후의 옷,鏑화살촉,荻갈대·쑥;糴쌀 사들일·빠를,覿볼,逖멀,磧돌무더기·모래벌,樀추녀·도토마리,菂연밥,馰별배기·소태성",
+"전":"田밭·사냥할,前앞·옛,全온전할·갖출,電번개·전기,戰싸움·경쟁할,展펼칠·열릴,傳전할·펼,典책·법,錢돈·가래,專오로지·전일할,轉구를·변할,殿대궐,顚이마·엎드러질,甸경기,悛고칠·차례,奠정할,箭화살·약이름,銓사람 가릴·저울질할,箋기록할·글,塡메일·북소리,餞전별잔치·보낼,篆문체이름·전자,纏둘릴·묶을,剪가위,煎달일·불에 말릴,廛전방·터전,氈단자리·전방석,輾돌아 누울,顫사지 떨릴·머리 비뚤이,澱찌끼·물 고일,癲미칠·지랄병,栓말뚝·나무못,鐫새길,詮평론할·갖출,雋새살찔,佺신선이름,佃밭 맬·머슴꾼,鈿비녀·보배로 꾸민 그릇,琠옥이름,筌통발,塼벽돌,畑화전·밭;靦무안할·물끄러미 볼,牋글·표,畋사냥할,腆두터울·지극할,顓어리석을·오로지,翦베어 없앨·멸할,湔빨·씻을,痊병 나을,旃기·말 그칠,躔햇길·별자리,巓산 꼭대기,羶노린내날,荃향풀·전풀,吮빨,戩,甎벽돌·기와,磚벽돌·기와,鸇구진매,邅머뭇거릴,囀새 지저귈·후렴,飦범벅·된죽,澶물이름,揃가를·자를,栴향나무,屇구멍,餰된죽,鱣전어,嫥아름다울,癜어루러기,籛성씨,膞썰·질그릇 만드는 틀,輇달·잴,鄽가게,鋑,錪솥·쇠,靛푸른 대,鬋수염 깎을·귀밑 털 드릴,賟",
+"절":"節마디·절개,切끊을·저밀,折꺾을·자를,竊좀도둑·얕을,絕,絶끊을,截끊을·말 잘할,浙쌀 씻을·물이름,癤멍울·부스럼;晢밝을·비칠,岊",
+"점":"店가게·주막,點더러울·뭉갤,占점칠·날씨 볼,漸번질·물 흘러 들어갈,粘붙일·끈끈할,霑젖을·비 지정거릴,点검은 점,岾고개·절이름,鮎메기;玷옥의 티·흠각,覘,佔엿볼·숙일,簟삿자리·대 이름,苫이엉·거적자리,墊빠질·축축할,黏붙일·풀,颭펄렁거릴,蔪풀 벨·보리 팰,笘,蛅,奌",
+"접":"接사귈·잇닿을,蝶들나비,摺접을·패할;楪널평상,鰈가자미·넙치,蹀저벅저벅 걸을,跕미끄러질,椄나무 접붙일·형벌틀,蜨나비",
+"정":"正바를·과녁,定정할·편안할,丁장정·네째 천간,政정사·바르게 할,情뜻·마음속,庭뜰·곧을,停머무를·늦어질,精정교할·세밀할,靜고요할·조용할,貞곧을·굳을,井우물·단정할,淨맑을·조촐할,頂이마·꼭대기,廷조정·바를,征칠·갈,程법·한정,亭정자·여관,整가지런할·정돈할,訂바로잡을·의논할,鄭나라이름·성씨,晶수정·맑을,呈보일·드러낼,鼎솥·바야흐로,旌장목기·표시할,挺빼어날·너그러울,禎상서로울,偵엿볼·정탐할,汀물가·수렁,楨담틀 마구리대·단단한 나무,艇거룻배·작은 배,珽옥 이름·뺄,靖다스릴·편안할,釘창·못,幀그림족자,錠촛대·덩이,碇닻돌·배 멈출,穽구덩이·함정,町밭 두덕·정보,酊비틀거릴·술취한 모양,睛눈 검은자위·눈동자,炡데칠·불 번쩍거릴,霆벼락·번개,渟물 고일·도랑,淀배댈,晸해돋는모양,綎띠술·인끈,鉦징,瀞맑을·정결할,玎옥소리,諪고를,檉능수버들·수양버들,姃계집단정할,柾나무결 바를·나무바를,湞물이름,鋌화살촉·달음박질할;証간할,灯,筳대쪽,靚단장할·밝을,梃외줄기·막대,酲술병·술 깰,怔황겁할·가슴 두근두근할,叮단단히 부탁할·정성스러울,棖문설주·막대,莛풀 줄거리·들보,婷아리따울·쌀쌀할,珵노리개·패옥,佂두려워할,婧,掟둘러칠,桯서안·걸상,疔헌데,遉순라군·염탐할,鋥,静,頲,侹,涏,胜,埩,妌,朾,眐,靘",
+"제":"弟아우,第집·차례,題이마·제목,諸모든·모두,祭제사,除섬돌·덜,帝임금,製만들·지을,制억제할·제도,濟나루·건널,提끌·들,際사이·모을,齊가지런할,堤둑·방축,劑약 지을,悌공경할,蹄굽,梯사다리,啼울·새지저귀는 소리,霽갤·비갤,臍배꼽,薺냉이,醍맑은 술;儕동배,躋오를,擠물리칠,娣여동생,晢밝을·비칠,隄,禔복,睇흘끗 볼,稊강아지풀,瑅제당,緹붉은 비단,踶찰,鯷메기,猘미친개,蹏,鍗큰 가마,韲양념할,鮧복,隮,偙,済,姼,媞",
+"조":"朝아침,祖조상·할아버지,助도울,鳥새,調고를,造지을,早새벽·이를,兆조짐,條가지·조목,照비출·비칠,操잡을,租구실·부세,弔위문할·조상할,潮조수,組끈·짤,燥마를·불에말릴,昭소명할·소목,趙조나라,曺성,祚복,措둘,遭만날,釣낚시,彫새길,曹무리,詔고할·조서,阻험할·막힐,粗거칠·간략할,漕배로 실어 나를·배로실어올,凋시들,稠빽빽할·조밀할,藻조류·글,肇비롯할·비로소,嘲조롱할·희롱할,爪손톱,眺바라볼·멀리볼,躁떠들·움직일,棗대추나무,糟지게미,繰야청 통견·아청통견,雕독수리,俎도마,炤밝을,窕정숙할·안존할,蚤벼룩,槽구유·마구,晁아침,璪면루관 드림 옥·면류관드림옥;噪떠들썩할,皁하인,祧조묘,徂갈,胙복,糶쌀 내어 팔,厝,竈부엌,刁바라,絛,譟시끄러울,鵰수리,澡씻을,蜩매미,殂죽을,臊누릴,鼂,嘈지껄일,佻방정맞을,琱,蔦담쟁이,銚쟁개비,傮마칠,嬥날씬할,懆근심할,找채울,笊조리,糙매조미쌀,絩견직물 날실 수,艚거룻배,誂꾈,鈟낚시,鋽불리지 않은 쇠,鯛도미,嶆",
+"족":"足발,族겨레,簇모일·가는대,鏃화살촉;瘯피부병 이름",
+"존":"存있을,尊존귀할·높을;拵꽂을",
+"졸":"卒군사,拙서툴·졸할,猝갑자기",
+"종":"終끝낼·마칠,宗마루,種씨·종류,從좇을,鐘쇠북,縱늘어질·세로,腫부스럼,琮옥홀·서옥이름,綜모을,踵발꿈치,踪자취,慫권할·놀랄,鍾술병·술잔,淙물 소리,悰즐길·즐거울,棕종려나무,倧상고 신인·옛적신인;蹤자취,瘇수종,螽누리,椶,伀두려워할,慒생각할,柊방망이,樅전나무,瑽패옥소리",
+"좌":"左왼·왼쪽,坐앉을,佐도울,座자리,挫꺽을·꺾을;髽북상투,剉꺽을,痤뾰루지,莝여물",
+"죄":"罪허물",
+"주":"主주인,住살·머무를,走달릴,注물댈,晝낮,朱붉을,宙집,酒술,州고을,周두루,舟배,柱기둥,洲섬·물가,珠구슬·진주,株그루,奏아뢸,鑄쇠 부어 만들·쇠불릴,調고를,駐머무를·말머무를,疇밭두둑,週돌·주일,躊머뭇거릴·주저할,誅벨,註주낼,紬명주,做지을·만들,廚부엌,紂껑거리끈·말고삐,嗾시킬,呪빌·저주,輳모일·몰려들,胄후사·투구,籌투호 살·셈대,湊모일·물모일,綢얽힐·빽빽할,澍단비,炷심지,蛛거미,姝예쁠,酎세 번 빚은 술,侏난쟁이·난장이;冑,霔장마,儔무리,拄떠받칠,裯홑이불,賙진휼할,遒다가설,輈끌채,侜속일,幬휘장,腠살결,霌운우 모양,硃주사,丟갈,尌세울,籒주문,胕장부,蔟태주,蛀나무좀,詋,趎사람이름,鉒쇳돌,鼄거미,邾,紸,晭,椆,珘,妵예쁠·사람 이름,絑,凑,㫶,䎻,䝬,燽,皗,逎",
+"죽":"竹대,粥죽·미음",
+"준":"準수준기·법,俊준걸,遵좇을,純실·순수할,准승인할·법,浚깊을,峻높을,駿준마,埈가파를·높을,濬칠·깊을,晙밝을,樽술그릇·술단지,竣마칠·일마칠,蠢꿈틀거릴·꿈실거리는,儁영특할,雋새살찔,畯농부,逡뒷걸음칠·물러갈,寯모일,焌굽을·불땔;罇,蹲걸터앉을,隼새매,餕대궁,撙누를,惷어수선할,綧피륙의 폭의 넓이,踆그칠,埻과녘,墫,皴주름,鐏창고달,鱒송어,鵔금계,凖,睃,僎,陖,䜭,偆,僔,懏,竴,葰,迿",
+"줄":"茁풀 처음 나는 모양·싹;乼줄",
+"중":"中가운데,重무거울,衆무리,仲버금;眾",
+"즉":"卽곧;即,喞두런거릴",
+"즐":"櫛빗;騭수말",
+"즙":"汁즙·진액,葺기울·지붕일,楫노·돛대;檝,蕺삼백초",
+"증":"曾일찍,增불을·더할,證증거·보증할,贈보낼·줄,症증세·병증세,憎미워할,蒸찔,拯건질,烝김 오를,甑시루,繒비단;嶒산 높고 험할,矰주살,罾어망",
+"지":"地땅,知알,至이를,志뜻,之갈,止발·그칠,紙종이,持가질,指손가락,支가를·지탱할,只다만,枝가지,智슬기·지혜,池못,誌기록할,遲늦을·더딜,實열매,識표할·알,旨맛있을·뜻,址터,芝지초,脂기름·비계,肢사지·팔다리,祉복,咫길이·여덟치,摯잡을·쥘,枳탱자나무,祗공경할,趾발,砥숫돌,贄폐백·패백,漬담글·물거품,沚물가·모래톱,芷구리때·백지,蜘거미;墀계단 위의 공지,秪벼 처음 익을,躓넘어질,禔복·편안할,舐핥을,踟머뭇거릴,篪저 이름,鷙맹금,坻모래섬,榰주춧돌,扺손바닥,軹굴대 머리,泜강 이름,痣사마귀,阯터,鮨젓갈,搘,厎,鋕,劧,吱,坁,忯,汦,洔,潪,觗,馶",
+"직":"直곧을,職벼슬·직분,織짤,稷기장·메기장,稙올벼;禝사람 이름",
+"진":"眞참,進나아갈,盡다할,辰다섯째지지·날,陳늘어놓을·묵을,振떨칠,震벼락·진동할,陣줄·진칠,珍보배,鎭누를·진압할,愼삼갈·정성스러울,晉나아갈,塵띠끌·티끌,津나루,秦벼 이름·진나라,診볼·진맥할,塡메일·북소리,嗔성낼·꾸짖을,疹홍역·마마,賑구휼할·넉넉할,晋나아갈,軫수레 뒤턱 나무·구를,唇놀랄,搢꽂을,臻이를,殄끊어질·다할,縉분홍빛,榛개암나무,袗홑옷·고운 옷,瑨아름다운 돌·옥돌,畛두렁길·밭갈피,璡옥돌,縝삼실·맺을,瞋부릅뜰·눈부릅뜰,溱많을·성할,桭평고대·대청,蔯더워지기·사철쑥;趁좇을,儘,瑱귀막이옥·옥이름,稹떨기로 날,蓁우거질,珒옥 이름,鬒숱 많을,侲동자,槇,螴설렐,鉁보배,真,禛,眹,滇,轃,尽,䑐,抮,敒,昣,枃,誫,靕",
+"질":"質바탕,疾병,秩차례,姪조카,迭갈마들·침노할,跌넘어질·달아날,窒막을,叱꾸짖을,嫉미워할·질투할,帙책갑,桎차꼬·조카,膣새살 날·음도,侄어리석을·굳을,蛭거머리,瓆사람 이름;絰질,垤개밋둑,郅고을 이름,蒺납가새,鑕모루",
+"짐":"朕나,斟술 따를·짐작할;鴆짐새",
+"집":"集모일·모을,執잡을,輯모을,什세간·열사람,緝낳을·길쌈,楫노·돛대,潗샘솟을·물끓을,鏶판금·쇳조각;戢그칠,咠참소할",
+"징":"徵부를,懲혼날·징계할,澄맑을;澂,瀓맑을,癥적취,瞪바로 볼",
+"차":"次버금,此이,且또,借빌·빌릴,差어긋날·어길,車수레,茶차,叉깍지낄·두갈래,遮막을·가릴,嗟탄식할·슬플,蹉넘어질·지날,箚차자·글,嵯우뚝 솟을·험할,磋윤낼·갈,侘실의할·자랑할;槎뗏목,瑳깨끗할,佽도울,岔갈림길,徣빌릴,硨조개 이름,姹,鹺,奲",
+"착":"着붙을·부딪칠,捉잡을,錯섞일,搾짤,鑿뚫을,窄좁을·끼일,齪악착할·악착같을;斲깎을,戳창으로 찌를,擉찌를",
+"찬":"贊도울,讚기릴·칭찬할,餐먹을·삼킬,瓚제기·옥그릇,燦빛날·찬란할,鑽끌·뚫을,璨빛날,撰지을·글지을,饌반찬,纂모을,簒빼앗을,竄숨을·숨길,纘이을,粲정미·정한 쌀밥,澯맑을;攢모일,爨불땔,賛,欑모일,巑높이 솟을,趲놀라 흩어질,儧모일,儹모을,劗끊을,讃,篡,攛,㜺",
+"찰":"察살필,刹절,札패·편지,擦뿌릴·문지를,紮감을·묶을;扎뺄",
+"참":"參간여할·석,慘참혹할·슬플,慙부끄러울,斬벨,站우두커니 설·역마을,讒참소할·간악할,僭참람할·거짓,讖참서·비결,塹구덩이,懺뉘우칠;慚부끄러울,驂곁마,譖참소할,黲검푸르죽죽할,巉가파를,嶄높을,憯슬퍼할,槧판,鑱보습,攙찌를,饞탐할,欃살별,儳어긋날,毚토끼,鏨끌",
+"창":"唱노래·노래부를,窓창,昌창성할,倉곳집,創비롯할·비로소,蒼푸를,暢펼·화창할,彰밝을,滄찰·서늘할,敞높을·열,昶밝을,倡여광대·계집광대,漲불을·넘칠,槍창·나무창,瘡부스럼,愴슬퍼할,脹배부를·배불룩할,娼몸 파는 여자·창녀,猖미쳐 날뛸·놀랄,菖창포,廠헛간,艙선창;悵슬퍼할,搶닿을,刱비롯할,鬯,倀미칠,蹌추창할,閶,氅새털,惝멍할,傖천할,窗창,凔찰,戧다칠,瑲옥 소리,鋹,鶬,淐,晿,淌",
+"채":"採캘,菜나물,彩무늬·채색,債빚·빚질,責꾸짖을,采캘·취할,蔡거북·채나라,埰영지·사패땅,寨울짱·나무우리,綵비단·오색비단,釵비녀,寀녹봉·동관,砦울타리·울타리칠;茝구리때,棌참나무,婇,琗,睬",
+"책":"責꾸짖을,冊책,策채찍·꾀,柵울짱·우리;簀살평상,嘖외칠,磔찢을,幘건,笧책 상자,蚱벼메뚜기,册",
+"처":"處살·곳,妻아내,悽슬퍼할,凄쓸쓸할;萋,淒쓸쓸할,覷엿볼,郪고을 이름,処",
+"척":"尺자,拓주울,斥물리칠·내칠,戚겨레,刺찌를,隻새 한 마리·짝,陟오를·나아갈,滌씻을,擲던질·버릴,瘠파리할,脊등성마루,倜대범할·빼어날,慽근심할,剔바를·없앨,蹠밟을·뛸;惕두려워할,跖발바닥,摭주울,躑머뭇거릴,蜴도마뱀,塉메마른 땅,坧기지,捗,慼,墌",
+"천":"天하늘,千일천,川내,泉샘,淺얕을,遷옮길,賤천할,薦천거할,踐밟을,釧팔찌,擅멋대로·오로지,穿뚫을·통할,喘헐떡거릴·헐떡일,闡열·밝힐,阡두렁·밭둑길,舛어그러질·어수선할,韆그네,仟일천·천사람,玔옥고리;荐거듭할,倩예쁠,濺흩뿌릴,洊이를,蕆경계할,蒨대가 우거질,茜,芊풀 무성할,俴엷을,僢어그러질,儃머뭇거릴,祆하늘,臶거듭,辿천천히 걸을,靝하늘",
+"철":"鐵쇠,哲밝을,徹통할·관철할,撤거둘·걷을,澈물 맑을,喆밝을,轍바퀴 자국·수레자국,綴꿰맬·맺을,凸볼록할·뾰족할,輟그칠;掇주울,銕,啜마실,惙근심할,餮탐할,歠마실,剟깎을,埑밝을,錣물미,飻탐할,鉄,悊,瞮",
+"첨":"添더할,尖뾰족할,瞻볼·쳐다볼,僉다,諂아첨할,籤제비,沾더할·절일,詹이를,簽농,甛달·단;忝더럽힐,簷처마,檐처마,襜행주치마,幨휘장,惉팰,櫼쐐기,瀸적실,甜",
+"첩":"妾첩,諜염탐할·이간할,帖표제·문서,牒글씨판·편지,疊거듭·포갤,貼붙을·붙일,捷이길,輒문득,堞성가퀴·담,睫속눈썹·속눈섭;喋재잘거릴,怗고요할,褺겹옷,倢빠를,呫맛 볼·귀에 대고 소근거릴",
+"청":"靑푸를,淸맑을,請청할,聽들을,晴갤,廳관청,菁부추꽃·초목무성한 모양,鯖청어;凊서늘할,圊뒷간,婧,蜻귀뚜라미,鶄교청새,青,清",
+"체":"體몸,遞갈마들,滯막힐·쌓일,替바꿀·대신할,逮미칠·잡아가둘,切자를·끊을,締맺을,涕눈물,諦살필,剃머리 깎을·머리깍을;砌섬돌,棣산앵두나무,彘돼지,蔕작은 가시,諟이·살필,蒂작은 가시,殢나른할,靆구름 낄,髰,玼",
+"초":"草풀,初처음,招부를,超뛰어넘을,礎주춧돌,抄베낄,肖닮을,秒시간 단위,哨망 볼,楚회초리·초나라,焦그슬릴·탈,礁암초,稍벼 줄기 끝·점점,樵땔나무,貂담비·돈피,梢나무 끝·농기,炒볶을,憔수척할·파리할,硝초석,蕉파초,醋초산,醮초례,椒산초나무·후추,酢초,剿죽일·노략질할,艸풀,苕능소화·능토풀;迢멀,誚꾸짖을,勦수고롭게 할,悄근심할,綃생명주실,鈔노략질할,峭가파를,軺수레,怊슬퍼할,愀정색할,鞘칼집,髫다박머리,譙꾸짖을,噍먹을,杪끝,岧산이 높을,燋홰,鷦뱁새,顦야윌,俏거문고 뒤치는 소리,偢얼이 빠져 있을,僬밝게 살필,嫶수척할,嶕높을,耖밭 거듭 갈,趠멀,鍫가래,鍬가래,齠이를 갈,妱,釥",
+"촉":"觸받을·느낄,燭촛불,促핍박할·촉박할,蜀촉규화벌레·큰 닭,囑부탁할,矗곧을·우뚝 솟을;躅자취·강동강동 뛸,矚볼,髑해골,曯비칠,爥비칠,薥촉규화·자귀밥",
+"촌":"寸치·마디,村마을·밭집,忖헤아릴·짐작할,邨마을;吋인치",
+"총":"總꿰맬·거느릴,聰귀 밝을·민첩할,銃도끼 구멍·총,寵사랑할·임금께 총애받을,叢떨기·모을,塚무덤,摠거느릴·모을,悤바쁠·덤빌,蔥파·파 뿌리,憁바쁠;葱풀 더북할,驄총이말,蓯풀 더북할,鏦창·찌를,冢,総,聡",
+"촬":"撮머리 끄덩이 잡을·당길",
+"최":"最가장·우뚝할,催재촉할·핍박할,崔산 우뚝할·높고 가파를;摧꺾을·망할,榱서까래,漼깊을·고을,璀옥빛 찬란할·구슬 주렁주렁 달릴,縗상복·상옷,嘬물·산적 한 입에 넣을,磪험하고 높을,脧",
+"추":"秋가을·세월,推옮길·가릴,追쫓을·따를,抽뺄·뽑을,醜추할·같을,趨달아날·추창할,鄒추나라·나라이름,楸가래나무·노나무,椎쇠몽둥이·칠,樞밑둥·지두리,墜떨어질·잃을,酋괴수·두목,芻꼴·짐승먹이,錐송곳,錘저울눈·마치,鎚쇠마치·저울,鰍미꾸라지,雛새 새끼·병아리,騶거덜·마부,皺쭈그러질·추할,諏꾀할·물을,湫늪·폭포,萩맑은 대쑥·가래나무;麤성길·클,蒭,瘳병 나을·덜릴,惆실심할·섭섭할,簉버금·가지런히 날,陬벼루·정월,啾두런거릴·찍찍거릴,箠채찍·볼기채,帚비·털,搥북 칠,鞦그네·말고들개,僦임금·고용할,捶종아리 칠·짓찧을,甃우물 벽돌,縋줄에 달릴,魋북상투,娵젊을·물고기,騅청부루말,鰌미꾸라지·빙자할,揫묶을·거둘,縐주름·구길,隹새,鵻아롱비둘기,鶖두루미,鶵,龝",
+"축":"祝빌·끊을,丑소·축시,築다질·쌓을,逐쫓을·물리칠,縮줄어들·물러갈,畜가축·쌓을,蓄쌓을·모을,軸바디집·질책,蹴찰·밟을,蹙찡그릴·쭈그러질,筑비파,竺나라이름;舳고물·배 꼬리,蹜발 끌어 디딜,豖발 얽은 돼지걸음,妯동서,鼀두꺼비",
+"춘":"春봄·남녀의 정,椿참죽나무·대춘나무,瑃옥이름;賰",
+"출":"出날·게울,黜내칠·물리칠,朮삽주뿌리;秫차조",
+"충":"忠충성·곧을,充가득찰·막을,蟲벌레·김 오를,衝충돌할·찌를,衷가운데·정성,沖깊을·온화할;冲깊을·온화할,虫벌레,忡근심할,珫",
+"췌":"悴근심할·파리할,萃모을·괘 이름,贅붙일·데릴사위,膵첩육경·지라;瘁,揣잴·시험할,惴두려워할,顇",
+"취":"取거둘·찾을,就좇을·이룰,吹불·숨쉴,趣추창할·뜻,臭냄새·향기,醉술취할·궤란할,聚모을·고을,炊불 지필·밥 지을,娶장가들·중개인,翠비취·푸를,脆연할·약할,驟몰아갈·달릴,鷲독수리,嘴부리;毳솜털·연하고 부드러울,冣쌓을·모을,橇",
+"측":"測측량할·깊을,側곁·기울어질,惻슬플·감창할,仄기울·성조,厠뒷간·평상 가장자리;廁뒷간·평상 가장자리,昃",
+"층":"層겹·거듭",
+"치":"治다스릴·다듬을,致이를·극진할,齒이·나이,置베풀·버릴,恥부끄럼·욕될,値값·가치있을,雉꿩·폐백,痴어리석을,稚어린 벼·어릴,峙산이 우뚝 솟을·갖출,馳달릴·거동길,侈사치할·넓을,熾불 활활 붙을·불성할,幟깃대·표기,嗤비웃을·냉소,緻톡톡할·빽빽할,痔치질·풍병,癡어리석을·미련할,緇검을·검은비단,蚩치벌레·어리석을,穉어린벼,梔치자,淄물이름·검을,輜짐수레·휘장 친 수레;寘둘·폐할,鴟솔개·수알치,菑따비밭,錙저울눈·조금,褫옷 빼앗을·벗을,豸발 없는 벌레·풀,絺가는 칡베·가는 갈포,薙풀 깎을,哆입 딱 벌일,畤제터,卮술잔·연지,鵄솔개,痓풍병·악할,跱머뭇거릴·주저할,阤떨어질·헐릴,鯔숭어,鴙",
+"칙":"則법칙·본받을,勅신칙할·칙령,飭갖출·닦을;敕경계할·다스릴",
+"친":"親사랑할·친할;襯속옷·접근할,櫬관·무궁화나무",
+"칠":"七일곱·글체이름,漆옻나무·물이름,柒옻칠할",
+"침":"針바늘·침,沈장마물·진펄,侵범할·침노할,寢잠잘·쉴,浸적실·불릴,枕베개·수레뒤 가로댄 나무,鍼바늘·침,砧방칫돌·다듬잇돌,琛보배;忱믿을·정성,駸말 몰아 달릴,鋟새길,寖젖을·점점,椹모탕·도끼바탕,郴땅이름,棽",
+"칩":"蟄벌레 움츠릴·우물거릴",
+"칭":"稱저울질할·일컬을,秤저울·백 근",
+"쾌":"快기분이 좋을·시원할;夬결단할·나누어 정할,噲목구멍·훨할",
+"타":"他다를·저,打때릴·칠,妥편안할·일 없을,墮떨어질·상투,惰게으를·태만할,唾침·버릴,陀비탈·땅이름,駝약대·곱사등이,舵키,楕나무그릇,馱탈·짐 실을,朶나무가지 휘늘어질·떨기,咤꾸짖을·슬플,拖당길;躱피할,沱물이 갈래질·큰 비,詑자랑할,跎미끄러질,佗다를·저,詫자랑할·풍칠,鼉자라,柁키,駞,拕끌·당길,坨,橢둥글길죽할·수레통 가운데그릇,鮀모래무지,鴕타조",
+"탁":"濁흐릴·더러울,托밀칠·떡국,卓높을·뛰어날,濯씻을·빨래할,度꾀할·헤아릴,拓물리칠·헤칠,託맡길·부탁할,琢옥 쪼을·옥 다듬을,擢뽑을·뺄,鐸요령·목탁,坼찢을·터질,啄쪼을·문 두드릴,倬환할·클,柝쪼갤·조두,晫환할·밝을,琸사람이름;拆터질·찢어질,橐전대·자루,涿물방울 떨어질·칠,逴멀·절름거릴,籜대 껍질,踔우뚝 설·앙감질,沰떨어뜨릴·돌 던질,矺나무이름,蘀떨어질·마를,槖",
+"탄":"歎탄식할·아름답다 할,彈쏠·악기부릴,炭숯·불똥,誕기를·클,灘여울·해 이름,綻옷 터질·나타날,憚수고로울·꺼릴,呑삼킬·휩쌀,坦너그러울·평평할,嘆한숨쉴·탄식할;殫다할,癱중풍증·사지 틀릴,憻,攤열·펼칠,驒돈짝무늬총이말,暺",
+"탈":"脫벗어날·간략할,奪빼앗을·잃어버릴;侻간사할·가벼울",
+"탐":"探더듬을·찾을,貪탐할·욕심낼,耽즐길·귀 축 늘어질,眈노려볼·즐길;嗿여럿이 먹는 소리,忐,酖술 즐길",
+"탑":"塔탑,搭모뜰·박을,榻평상·모직;搨비문 박을·베낄,塌낮은 땅·초벌갈,傝답답할·불안할",
+"탕":"湯물 끓일·물이름,糖엿,蕩넓고 클·없어질,宕골집·방탕할,帑나라 곳집·처자식;盪씻을·움직일,碭무늬진 돌·흰 기운,燙씻을·불에 델,蘯",
+"태":"太클·굵을,泰클·통할,態모양·뜻,殆위태할·가까이할,怠게으를·느릴,脫벗어날·간략할,台별·늙을,胎아이 밸·시작,兌기쁠·지름길,跆밟을,颱몹시 부는 바람·태풍,汰미끄러울·넘칠,苔이끼,笞볼기칠,邰태나라;迨미칠,駘,埭보뚝,娧기뻐할·더딜,孡,珆,鮐,鈦",
+"택":"宅집·자리,擇가릴·추릴,澤못·진펄;垞",
+"탱":"撑버틸;撐버틸·취할,牚",
+"터":"攄펼칠·흩을",
+"토":"土흙·뿌리,討다스릴·칠,吐토할·나올,兎토끼;兔",
+"톤":";噋",
+"통":"通뚫릴·사무칠,統거느릴·벼리,痛아플·상할,洞구렁·깊을,慟서러울·애통할,筒사통대·통,桶엿되들이 통;恫슬플·아플,筩대나무통·낚시,樋대 홈·어름나무",
+"퇴":"退물러갈·겸양할,頹기울어질·사나운 바람,堆흙무더기 퇴 놓을·언덕,槌몽둥이·너스레,腿넓적다리,褪옷 벗을·꽃빛 옅어질;隤무너질·미끄러질",
+"투":"投던질·버릴,鬪싸움,透통할·사무칠,套전례·덮게,妬투기할·자식 없는 계집,偸훔칠·엷을;渝빛 변할·더러워질,妒투기할·미워할,骰주사위",
+"퉁":";佟",
+"특":"特우뚝할·숫소,慝간악할·간사할;忒변할·의심할",
+"틈":"闖엿볼",
+"파":"破깨뜨릴·다할,波물결·물 젖을,罷파할·내칠,播심을·펼칠,派물 갈래·보낼,頗비뚤어질·자못,把잡을·헤칠,坡언덕·제방,巴꼬리·뱀,婆할머니·너풀너풀 춤출,跛절뚝발이·절름발이,琶비파,芭파초,爬긁을·기어다닐,擺열·헤칠,杷비파나무·써레;叵못할·드디어,怕두려울,葩꽃봉오리,皤흴·배 불룩할,簸까부를·키,灞물이름,玻파려옥·유리옥,笆가시 대·울타리,妑새앙머리·갈래머리,岥산 비알질,爸아비,耙쇠시랑,菠시금치,鄱땅이름",
+"판":"判판단할·쪼갤,板널조각·널기와,版조각·호적,販장사·팔,阪산비탈·언덕,辦힘들일·갖출,坂언덕·산비탈,瓣외씨·실과씨,鈑불린 금·불린 금덩이",
+"팔":"八여덟,叭나팔·입 벌릴,捌깨뜨릴·나눌;朳,汃",
+"패":"貝조개·재물,敗헐어질·무너질,牌방 붙일·호패,悖거스를·어지러울,覇두목,佩패옥·찰,沛둥둥 뜰·비 쏟아질,稗돌피·조그마할,唄염불소리·노래부를,狽이리,浿물이름·물가;霈비 쏟아질,霸으뜸·패왕,孛혜성,旆기·깃발 날릴,珮노리개·찰",
+"팽":"彭성씨·땅이름,膨배 불룩할·큰배,澎물소리·물결 부딛는 형세,烹삶을·요리;祊사당문 제사,砰여울 물소리,蟚,蟛방게",
+"퍅":"愎사나울·고집할",
+"편":"便편할·소식,篇책·편차할,片조각·쪼갤,遍두루,偏치우칠·무리,編책편·기록할,扁특별할·거룻배,鞭채찍·볼기채,騙속일·말에 뛰어 오를,翩훌쩍 날·오락가락할;徧,褊좁을·급할,匾,惼조급할·편협할,緶꿰맬,艑거룻배,萹,蝙박쥐,諞공교한 말",
+"폄":"貶떨어질·덜릴;窆하관할·광중,砭돌침",
+"평":"平평탄할·바를,評평론할·헤아릴,坪벌판·평평할,萍마름·머구리밥,枰장기판·바둑판;苹맑은 대쑥·사과,抨탄핵할,怦맘 급할·칼칼할,泙물소리·물결 셀,蓱마름·머구리밥,鮃가자미",
+"폐":"閉닫을·마칠,廢폐할·내칠,肺허파·부아,弊해질·폐단,蔽가리울·다할,幣폐백·예물,陛대궐 섬돌,斃죽을·엎드러질,吠짖을·땅이름,嬖사랑할·벼슬이름;獘곤할·폐단,敝옷 해질·버릴,癈고질병,狴짐승이름·옥",
+"포":"布베·피륙,抱안을·품을,捕사로잡을,浦물가·갯가,胞태보·한 배,包꾸릴·용납할,飽배부를·물릴,暴사나울·급할,砲큰 대포·돌쇠뇌,抛버릴,鋪전방·베풀,逋달아날·포흠할,怖두려울·놀래킬,鮑절인 생선·성씨,泡물거품·물이 솟아날,葡포도·들머리,褒포장할·옷 뒤길,袍도포·관디,蒲부들풀·창포,圃채마밭·밭 갈,脯포·말린 과실,哺씹어 먹을·먹일,匍엉금엉금 길·엎드러질,咆고함지를·짐승소리,疱부풀·부르틀,苞그령풀·밑둥,佈펼칠·널리알릴,匏박·바가지;庖푸줏간·부엌,炮그슬릴·싸서 구울,晡신시·해질,餔저녁 곁두리·먹을,炰그슬·까불거릴,誧꾀할·클,儤,曓급할·창졸,鉋대패,鞄가방·가죽 다로는 장인,鯆매가리·물아지,拋",
+"폭":"暴햇빛 쪼일·나타날,爆불터질·폭발할,幅폭·겉치레할,瀑폭포수·소나기,曝햇볕에 말릴,輻바퀴살통",
+"표":"表겉·윗옷,標표시할·높은 가지,票쪽지·문서,漂뜰·움직일,杓북두자루·북두자리,豹표범·아롱범,飄회오리바람·나부낄,剽표독할·긁을,慓급할,瓢표주박,俵나누어 줄·흩어질,彪칡범·문채,驃날쌜·누런 말,飇회오리바람;縹옥빛·훌쩍 날,摽칠·두를,殍굶어 죽을,鑣말 재갈·성할,裱목수건,僄몸이 가벼울·진중치 못할,勡겁탈할·겁박할,嘌휙 불·몰아갈,嫖가벼울·날랠,熛불똥 튈·성낼,鏢칼날·비수,髟머리털 희뜩희뜩할·깃발 날릴,鰾부레,飆,䏇",
+"품":"品뭇·품수,稟여쭐·줄",
+"풍":"風바람·흘레할,豐,豊풍년,楓단풍나무·신나무,諷비유로 간할·외울,馮벼슬이름·성씨;瘋두풍·미치광이",
+"피":"皮가죽·껍질,彼저,被이불·덥힐,避숨을·어길,疲피곤할·나른할,披헤칠·흩어질,陂기울어질·치우칠;詖말 잘할·간사할,鞁말 가슴걸이·안갑,髲머리쓰개·첩지",
+"픽":";腷뜩 막힐·답답할",
+"필":"必반드시·오로지,筆붓·오랑캐 이름,匹짝·둘,畢마칠·토끼그물,弼도울·도지개,泌졸졸흐르는 모양,疋짝·끝,苾향기날,珌칼 장식 옥,馝향내날;蹕길 치울,蓽휘추리·약이름,韠슬갑,篳대 사립문·나무 실은 수레,觱바람이 쌀쌀할·대평수,佖점잔피울·가득할,咇향기날,滭샘 끓어 솟을,罼토끼그물,鞸슬갑,駜살찐 말,鵯갈가마귀,㪤,㳼,鉍",
+"핍":"乏없을·옹색할,逼가까울·궁핍할;偪핍박할·가까울",
+"하":"下아래,夏여름,河물,何어찌,賀축하할·하례할,荷연·연꽃,瑕티·옥의 티,遐멀,霞놀·노을,蝦새우·개구리,厦큰 집,廈큰 집,鰕새우·암고래,昰여름;嚇놀라게 할,罅틈,呀입 벌릴,鍜목투구,岈휑뎅그렁할,懗속일,煆불사를,瘕이질,嘏,抲,㗿,㦆,㰤,碬,蕸,赮,閜",
+"학":"學배울,鶴두루미,虐사나울·혹독할,壑골짜기,謔희롱할;瘧학질,确확실할,郝고을 이름,狢오소리,皬흴,鷽메까치,学,嗃",
+"한":"韓나라 이름·한나라,漢한수,寒찰,限한정할,閑한가할,恨한탄할·한될,旱가물,汗땀,翰날개·벼슬이름,邯고을 이름,罕드물,悍사나울·모질,澣빨·빨래할,閒한가할·겨를,瀚넓고 큰·넓고클;捍막을,閈마을 문,暵말릴,鼾코골,僩노할,嫺우아할,嫻우아할,駻사나운 말,鷳소리개,扞,邗,橌,䦥,忓,澖,雗",
+"할":"割벨,轄다스릴·맡아볼;瞎애꾸눈",
+"함":"咸모두·다,陷빠질,含머금을,函상자,艦싸움배,喊소리·고함칠,涵젖을,銜재갈,緘봉할,檻우리·난간,鹹짤,啣재갈·머금을;諴화할,菡연봉오리,闞범 소리,莟꽃봉오리,轞함거",
+"합":"合합할·같을,陜고을이름,蛤조개·두꺼비,盒소반 뚜껑·합,閤도장·침방,哈한 모금·마실,闔문짝·닫을;盍덮을·합할,溘문득·이를,榼술그릇·물통,郃땅이름,柙우리·향나무,匌기운 답답할,嗑잔말할·웃는 소리",
+"항":"恒늘·옛,項목덜미·클,抗막을·들,巷거리·마을,港물 갈라질·항구,航쌍배·배질할,行시장·항렬,降항복할·떨어질,沆큰 물·진펀할,亢목·높을,缸항아리,肛똥구멍·배 뚱뚱할,杭건널·거루,伉강직할·우뚝할,姮항아·달에 사는 미녀,嫦항아,桁수갑·배다리;恆,頏목·오르락 내리락할,夯멜·다질,炕마를·구울,缿항통·문서함",
+"해":"海바다·많을,害해할·시기할,解쪼갤·꺠우칠,亥열 둘째 지지·음력 시월,該갖출·모두,奚어찌·종,偕함께할·굳셀,駭놀랄·북 울릴,骸뼈,諧조화할·글,楷해나무·본뜰,懈게으를,咳기침·침 뱉을,邂우연히 만날,孩어린아이·방글방글 웃을,垓땅 가장자리·햇수,瀣찬이슬·이슬 기운,蟹게;醢젓·젓 담글,廨관청·공해,薤염교·부추,獬신통한 양·해갓,欬기침할·크게 부를,瑎,咍비웃을,嶰골짝 사이·골 이름,痎학질·하루거리,頦턱,鮭어채·복,澥,晐,陔,䀭,姟,祄,絯",
+"핵":"核실과·자세할,劾캐물을·핵실할;覈핵실할·겨무거리,翮깃촉·쭉지",
+"행":"行다닐·길귀신,幸다행할·바랄,杏살구·은행,倖요행·괴일,荇마름풀·조아기;悻발끈 성낼,涬",
+"향":"向향할·나아갈,鄕시골·고향,香향내·약이름,享드릴·제사지낼,響소리 울릴·소리 마주칠,饗잔치할·흠향할,嚮향할·누릴,餉먹일·군량,珦옥이름;薌곡기·향기,晑,麘",
+"허":"許허락할·나아갈,虛빌·헛될,墟옛 터·장,噓불·뿜을;歔한숨 쉴·흑흑 느껴 울",
+"헌":"憲법·표준될,獻바칠·음식,軒초헌·껄껄 웃을,櫶나무이름;巚봉우리·시루봉,幰수레 안장·휘장,攇비길·물건 맬,㦥,䡣,昍",
+"헐":"歇쉴·나른할",
+"험":"險험할·험난할,驗시험할·중험할;嶮산 가파를,玁,獫험윤 오랑캐",
+"혁":"革가죽·고칠,赫불 이글이글할·빛날,爀불빛·빛날,奕아름다울·클;嚇노할·꾸짖을,洫넘칠·빌,鬩송사할·싸울,弈바둑둘,焱,侐,焃",
+"현":"現나타날·지금,賢어질·좋을,顯나타날·밝을,玄검을·검붉을,縣매달릴·끊어질,懸매달·멀,絃줄풍류,見나타날·드러날,弦시위·반달,鉉솥귀,峴고개·산이름,炫밝을·불빛,眩아찔할·현혹할,衒자랑할·팔릴,絢채색무늬·수놓을,晛햇발·볕기운,俔연탐할·풍세보는 깃,玹옥돌,泫물 깊을·이슬 맺힐,睍물끄러미 볼·고울,舷뱃전;儇영리할·빠를,嬛산뜻할,昡햇빛,誢,琄,痃힘줄 당기는 병·적병,繯얽힐·둘릴,翾파뜩파뜩 날·경박할,蜆가막조개·호수이름,鋗노구솥·퉁노구,駽돗총이·철총이,顕,灦,鋧,㢺,㭹,䝮,䧋,呟,妶,娊,怰,譞,讂",
+"혈":"血피·피붙이,穴굴·움,孑외로울·나머지,頁머리·마리;絜헤아릴·묶을,趐새가 떼로 날·나아갈",
+"혐":"嫌싫어할·의심할",
+"협":"協조화할·맞을,脅갈빗대·위협할,狹좁을,峽물 낀 두메·산이름,挾낄·도울,俠의기·사이에 낄,頰뺨·천천히 말할,夾곁·낄,浹사무칠·둘릴,脇갈비,鋏칼 손잡이·집개,莢콩 꼬투리·명협;叶화합할,恊겁낼·위협할,愜쾌할·뜻에 맞을,篋상자·행담,悏,匧옷상자·꿰맬,埉,冾",
+"형":"兄맏이,形모양·몸,刑형벌·죽일,亨형통할·제사,螢개똥벌레·반딧불,衡저울대,炯빛날·밝을,馨향기·향기로울,邢나라 이름·땅 이름,瀅맑을·개천,型거푸집·본보기,荊모형나무·곤장,熒등불·밝을,瑩밝을,泂멀·깊고 넓은 모양,珩노리개·갓끈,逈멀·빛날,滎실개천·물결 일,鎣줄·꾸밀,灐물 이름;迥막을·차단할,詗염탐할·구할,夐멀·바라보는 모양,陘지레목·비탈,娙여관 이름·예쁠,侀",
+"혜":"惠은혜·사랑할,慧슬기로울·총명할,兮어조사,彗비·꼬리별,醯초·위대로울,鞋신·가죽신,蹊지름길·건널,蕙혜초·난초,暳잔별;徯기다릴·사잇길,盻흘겨볼·돌아볼,槥널·작은 관,傒묶을,嘒가냘플,寭밝힐·깨달을,謑창피줄,譿슬기로울,恵,潓,橞,譓,䚷,憓,匸감추다,鏸",
+"호":"好좋을·옳을,戶지게,號울부짖을·부르짖을,湖호수,乎인가·어조사,呼부를·숨 내쉴,虎범,胡턱밑살·오랑캐,護보호할·감쌀,毫가는 털,浩클,豪호걸·귀인,互서로·함께,扈뒤따를·호위할,鎬호경,皓흴·깨끗할,糊풀·끈끈할,昊하늘·큰 모양,濠해자·강 이름,祜복,晧밝을·빛날,澔채색빛날,壕해자·성밑해자,狐여우,瑚산호,弧활·나무활,琥호박,壺병·단지,蒿쑥·향기날,濩퍼질,芦갈대,灝넓을·콩 삶은 물,瓠표주박·단지,縞명주·흴,顥클·빛나는 모양,岵산·산초목,蝴나비,滸물가,頀구할·지킬,淏맑을,葫마늘·조롱박;犒호궤할,怙믿을,沍,杲밝을,餬기식할,皞밝을·흴,醐제호,嘷짖을·외칠,滈장마,儫영웅,冱찰·얼,嫭,嫮아름다울·시기할,滬강 이름,猢원숭이,皜흴·흰 모양,聕들릴·긴 귀,鬍수염,号,昈,鄗,婋,熩,瓳,芐,蔰,虍",
+"혹":"或혹,惑미혹할,酷독할·혹독할;熇불김",
+"혼":"混섞을·섞일,婚혼인할,昏어두울,魂넋,渾흐릴,琿아름다운옥;溷어지러울,閽문지기,焜빛날,圂뒷간,湣낚시줄,俒,䫟",
+"홀":"忽소흘히 할·홀연,笏홀,惚황홀할;囫온전할",
+"홍":"紅붉을,洪큰물·넓을,弘넓을·클,鴻큰 기러기,泓깊을·물깊을,訌무너질·무너뜨릴,虹무지개,哄떠들썩할,烘횃불,汞수은;鬨싸울,澒수은,晎날 밝으려 할,篊홈통,鉷돌쇠뇌",
+"화":"火불,花꽃,化될,話말할·이야기,和화할,華꽃·빛날,貨재화·재물,禍재화,禾벼,畫그림,畵그림,靴신,樺자작나무·벗나무,嬅여자 이름·탐스러울,譁시끄러울·떠들썩할;嘩,驊준마,俰화할,龢풍류 조화될,澕",
+"확":"確굳을·확실할,擴넓힐,穫벼 벨·곡식거둘,廓둘레·클,攫붙잡을·움킬,碻굳을·확실할;鑊가마,矍두리번거릴,礭,矡",
+"환":"患근심,歡기뻐할,還돌아올,換바꿀,丸알·둥글,環고리·옥고리,喚부를,煥불꽃·빛날,桓푯말·굳셀,幻변할·허깨비,宦벼슬·환관,鰥환어·홀아비,驩기뻐할·환말,渙흩어질·물성할,紈흰 비단,奐빛날·클,晥환할,洹흐를·물 이름;懽기뻐할,圜두를,寰기내,豢기를,鬟쪽찐 머리,擐입을,轘환형,瓛옥홀,睆가득 차 있는 모양,鍰무게 단위,絙끈목,鐶고리,皖샛별,瑍",
+"활":"活살,闊트일·넓을,滑미끄러울·어지러울,猾교활할,豁뚫린 골·골짜기;蛞괄태충,濶",
+"황":"黃누를,皇임금,況하물며,荒거칠,滉물 깊고 넓을,慌어렴풋할·어리둥절할,徨노닐·방황할,晃밝을·햇빛,惶두려워할·두려울,遑허둥거릴·급할,煌빛날·환히밝을,凰봉황새·암봉황새,潢웅덩이,璜서옥·반둥근패옥,蝗누리·메뚜기,榥책상,隍해자·산골짜기,篁대숲·대밭,愰밝을·마음밝을,簧혀·생황,恍황홀할,幌휘장,湟해자,晄밝을;怳멍할,貺줄,肓명치 끝,喤어린아이 울음,鎤종소리,熀불빛 이글이글할,媓어머니,瑝옥 소리,堭,楻",
+"회":"回돌·돌아올,會모일·모을,悔뉘우칠,懷품을,淮강 이름·물이름,恢넓을·클,灰재,廻돌·돌아올,檜노송나무,膾회·회칠,晦그믐,徊노닐·배회할,誨가르칠,賄뇌물·재물,繪그림,蛔거위,澮봇도랑·우물도랑,匯물돌·물이돌아가는,獪교활할·간교할,茴회향풀;迴,洄거슬러 올라 갈,詼조롱할,鱠회,佪어정거릴,頮세수할,盔바리,会,絵",
+"획":"獲얻을,劃쪼갤·그을;嚄외칠,画",
+"횡":"橫가로,宖집 울릴·평안할,鐄종·큰 종;黌글방,澋물이 빙 돌,鈜쇳소리",
+"효":"孝효도·효도할,效본받을,曉새벽,烋경사로울·아름다울,酵삭일·술괼,爻효·괘이름,嚆울릴·부르짖을,哮으르렁거릴·성낼,梟올배미·올빼미,肴안주,淆뒤섞일·흙탕칠,驍날랠,斅가르칠·깨우칠,涍성·물가;囂시끄럽다,傚본받을,殽섞일,崤산 이름,熇불김,皛나타날,虓울부짖을,餚반찬,効,歊,恔,謼,侾,婋,庨,洨,窙",
+"후":"後뒤,厚두터울,侯과녁·벼슬이름,候물을·기후,后임금,喉목구멍,吼울·우는소리,朽섞을·썩을,逅만날,嗅맡을·냄새맡을,煦따뜻하게 할·뜨거울,帿과녁,芋토란,珝옥 이름;垕,猴원숭이,詡자랑할,酗주정할,堠봉화대,喣불,餱건량,篌공후,吽개 싸울·개 짖는 소리,譃망녕된 말,姁,矦,㰭",
+"훈":"訓가르칠,薰향불·향풀,熏연기 낄·불기운,勳공,壎진나팔·질나팔,暈무리,煇빛날,塤질나팔,勛공적,焄연기에 그을릴·향내,燻연기 낄·불기운성할;曛삭양 빛,纁분홍빛,葷매운 채소,獯오랑캐 이름,鑂금빛 투색할,勲,薫",
+"훌":";欻문득",
+"훙":"薨죽을",
+"훤":"喧의젓할·지껄일,萱원추리,暄따뜻할·날따뜻할,煊따뜻할;諼속일,諠잊을,烜마를,愃쾌할,昍",
+"훼":"毁헐,喙부리·주둥이,卉풀;燬불,虺살무사,芔풀,毀",
+"휘":"揮휘두를,輝빛날,徽아름다울,諱꺼릴·피할,麾대장기,彙무리·모을,暉빛·햇빛,煇빛날;撝찣을,煒벌그레할·환할,翬훨훨날",
+"휴":"休쉴,携끌·가질,烋경사로울·아름다울,虧이지러질,畦밭두둑;隳무너뜨릴,鵂수리부엉이,咻떠들,髹옻칠할,庥",
+"휼":"恤구휼할·근심할,譎속일·간사할,鷸황새;卹,霱,遹,鐍",
+"흉":"凶흉할,胸가슴,匈가슴,兇흉악할·나쁜,洶물살세찰·물소리;胷,恟두려워할",
+"흑":"黑검을",
+"흔":"痕흉터,欣기뻐할·기쁠,昕아침·해돋을,炘화끈거릴;釁피바를,忻기뻐할,掀치켜들,很패려궂을,惞",
+"흘":"訖이를,吃말더듬을·말더듬는,屹산 우뚝솟을·산모양,紇질 낮은 명주실·실밑;迄이를,汔거의,仡날랠,疙쥐부스럼,齕깨물",
+"흠":"欽공경할,欠하품·하품할,歆받을·흠향할;廞진열할,鑫",
+"흡":"吸숨 들이쉴,洽윤태하게 할·화할,恰마치·흡족할,翕합할;潝빨리 흐르는 소리,歙줄일,噏숨 들이쉴,翖",
+"흥":"興일·일어날",
+"희":"希바랄,喜기뻐할·기쁠,稀드물,戲탄식할·희롱할,戱희롱할,嬉즐길·아름다울,熙빛날,噫탄식할·슬플,羲숨·복희,禧복,犧희생,姬성·계집,熹성할·밝을,憙성할·기뻐할,僖기쁠·즐거울,曦햇빛,凞빛날·화할,晞마를,憘기쁠,熺밝을,囍쌍희;嘻웃을,欷흐느낄,燹,餼꾸밀,唏슬퍼할,咥허허 웃을,暿웃을,悕슬퍼할,爔불,豨멧돼지,煕,俙,姫,橲,熈,㜯,巸,烯,譆",
+"히":"屎똥·변",
+"힐":"詰물을·힐문할;黠약을,纈홀치기염색,頡곧은목,犵오랑캐이름,襭옷자락 꽂을"
+}</script>
 </body>
 </html>

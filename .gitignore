@@ -1,2 +1,5 @@
 .DS_Store
 *.swp
+node_modules/
+# 한자 사전 원자료 (tools/build-hanja-data.cjs 입력) — 내려받아 쓰고 커밋하지 않는다
+tools/data/
