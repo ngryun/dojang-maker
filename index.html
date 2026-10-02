@@ -8,7 +8,10 @@
 <title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet" media="print" id="fontCss" onload="this.media='all'">
+<!-- 글씨체 24종의 CSS(압축해도 500KB 남짓)가 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다.
+     글꼴 파일은 어차피 글자를 쓸 때만 받는다. 스크립트 쪽(ensureFont)은 이 CSS 가 적용될 때까지 기다린다. -->
+<noscript><link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet"></noscript>
 <!--
   글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
   전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
@@ -111,6 +114,7 @@
   .btns{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:10px}
   .btns .btn{padding-left:4px; padding-right:4px; line-height:1.5}
   .btns .btn span{display:block; white-space:nowrap}
+  .btns .btn.wide{grid-column:1/-1}   /* 공유 버튼이 숨겨진 기기에서는 SVG 버튼이 한 줄을 다 쓴다 */
 
   footer{
     border-top:1px solid var(--line); background:var(--panel);
@@ -563,8 +567,11 @@
       <div class="btns">
         <button class="btn" id="copy"><span>투명 배경</span><span>클립보드 복사</span></button>
         <button class="btn" id="copyWhite" title="한글에서 클립보드의 투명 배경 이미지를 붙여넣으면 배경이 검게 나오는 호환 문제가 발생할 수 있습니다. 흰 배경으로 복사하면 이 문제를 피할 수 있습니다."><span>흰 배경 (한글용)</span><span>클립보드 복사</span></button>
+        <button class="btn" id="saveSvg" title="잉크 번짐 없이 테두리와 글자를 벡터로 저장합니다. 크게 인쇄해도 선명합니다."><span>SVG 저장</span><span>벡터 · 인쇄용</span></button>
+        <button class="btn" id="share" hidden title="사진 앱이나 메신저로 바로 보냅니다"><span>공유</span><span>사진 · 메신저로</span></button>
       </div>
-      <p class="hint">한글에서 배경이 검게 나오면 흰 배경으로 복사하세요. 투명 배경이 필요하면 PNG를 저장한 뒤 한글의 그림 넣기로 삽입하세요.</p>
+      <p class="hint">한글에서 배경이 검게 나오면 흰 배경으로 복사하세요. 투명 배경이 필요하면 PNG를 저장한 뒤 한글의 그림 넣기로 삽입하세요.
+        SVG는 잉크 번짐 없이 벡터로 저장되어 크게 인쇄해도 선명합니다. 글꼴이 함께 들어 있어 브라우저에서는 그대로 보이지만, 일러스트레이터 같은 프로그램에서는 글꼴을 따로 설치해야 할 수 있습니다.</p>
       <div class="status" id="status"></div>
     </fieldset>
 
@@ -717,16 +724,38 @@ function makeNoise(seed){
     return sum/norm;
   };
 }
-/* 큰 이미지에서 픽셀마다 fBm을 부르면 느리므로, 절반 해상도 필드를 만들어 두고 보간해 쓴다 */
+/* 노이즈 함수는 seed 마다 격자 난수 65,536개를 만들어야 하므로 최근 것 몇 개를 재사용한다 */
+const NOISE_CACHE=new Map(), NOISE_CACHE_MAX=8;
+function noiseFor(seed){
+  let n=NOISE_CACHE.get(seed);
+  if(!n){
+    n=makeNoise(seed); NOISE_CACHE.set(seed, n);
+    if(NOISE_CACHE.size>NOISE_CACHE_MAX) NOISE_CACHE.delete(NOISE_CACHE.keys().next().value);
+  }
+  return n;
+}
+/* 큰 이미지에서 픽셀마다 fBm을 부르면 느리므로, 절반 해상도 필드를 만들어 두고 보간해 쓴다.
+   필드는 크기·seed·주파수에만 달려 있어 색·테두리·기울기 슬라이더를 움직일 때마다 다시 만들 필요가 없다.
+   미리보기(700px)와 글씨체 타일(200px × 24개)이 같은 필드를 다시 쓰도록 최근 것을 캐시한다.
+   내보내기용 큰 필드(2048px 이면 4MB)는 한 번 쓰고 버린다. */
+const FIELD_CACHE=new Map(), FIELD_CACHE_MAX=8, FIELD_CACHE_SIZE=1024;
 function buildField(size, seed, freq){
+  const key=size+'|'+seed+'|'+freq;
+  const hit=FIELD_CACHE.get(key);
+  if(hit){ FIELD_CACHE.delete(key); FIELD_CACHE.set(key, hit); return hit; }   // 최근에 쓴 것이 뒤로 가게
   const q=2;
   const W=Math.ceil(size/q)+2;
   const f=new Float32Array(W*W);
-  const fbm=makeNoise(seed);
+  const fbm=noiseFor(seed);
   for(let y=0;y<W;y++){
     for(let x=0;x<W;x++) f[y*W+x]=fbm(x*q*freq, y*q*freq);
   }
-  return {f,W,q};
+  const F={f,W,q};
+  if(size<=FIELD_CACHE_SIZE){
+    FIELD_CACHE.set(key, F);
+    if(FIELD_CACHE.size>FIELD_CACHE_MAX) FIELD_CACHE.delete(FIELD_CACHE.keys().next().value);
+  }
+  return F;
 }
 function sampleField(F,x,y){
   const fx=x/F.q, fy=y/F.q;
@@ -756,10 +785,10 @@ function outlineR(a, rx, ry, n){
   const s=Math.pow(Math.pow(u/m,n)+Math.pow(v/m,n), 1/n);
   return 1/(m*s);
 }
-/* 테두리를 미세하게 떨리게 만든 폴리곤 경로. scale<1 이면 안쪽 윤곽. */
-function outlinePath(ctx, rx, ry, n, rough, fbm, phase, ampBase){
+/* 테두리를 미세하게 떨리게 만든 폴리곤의 꼭짓점 [x0,y0,x1,y1,…]. 캔버스와 SVG 가 같은 윤곽을 쓴다. */
+function outlinePoints(rx, ry, n, rough, fbm, phase, ampBase){
   const N = 1080;
-  ctx.beginPath();
+  const pts=new Float64Array((N+1)*2);
   for(let i=0;i<=N;i++){
     const a = i/N*Math.PI*2;
     const ca=Math.cos(a), sa=Math.sin(a);
@@ -770,8 +799,16 @@ function outlinePath(ctx, rx, ry, n, rough, fbm, phase, ampBase){
       const hi = fbm(ca*8.5+phase*2.3, sa*8.5+phase*2.3) - 0.5;
       r += (lo*1.0 + hi*0.5) * rough * ampBase;
     }
-    const x=ca*r, y=sa*r;
-    if(i) ctx.lineTo(x,y); else ctx.moveTo(x,y);
+    pts[i*2]=ca*r; pts[i*2+1]=sa*r;
+  }
+  return pts;
+}
+/* 위 꼭짓점을 캔버스 경로로 */
+function outlinePath(ctx, rx, ry, n, rough, fbm, phase, ampBase){
+  const p=outlinePoints(rx, ry, n, rough, fbm, phase, ampBase);
+  ctx.beginPath();
+  for(let i=0;i<p.length;i+=2){
+    if(i) ctx.lineTo(p[i],p[i+1]); else ctx.moveTo(p[i],p[i+1]);
   }
   ctx.closePath();
 }
@@ -923,6 +960,15 @@ function buildCells(grid, trad, boxW, boxH){
    ============================================================ */
 const REF = 220; // 글자 측정용 기준 폰트 크기
 
+/* 구글 폰트 CSS 는 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다(<link onload>).
+   그 전에는 @font-face 가 하나도 없어 document.fonts.load 가 아무것도 받지 못하므로, 글꼴을 쓰기 전에 기다린다. */
+const fontCssReady=new Promise(resolve=>{
+  const link=document.getElementById('fontCss');
+  if(!link || link.media==='all'){ resolve(); return; }         // 스크립트보다 먼저 도착해 이미 적용된 경우
+  link.addEventListener('load', ()=>resolve(), {once:true});
+  link.addEventListener('error', ()=>resolve(), {once:true});    // CDN 차단 — 대체 글씨체로 그린다
+  setTimeout(resolve, 8000);                                     // 응답이 아예 없을 때도 영원히 기다리지 않는다
+});
 /* 글꼴에 없는 글자(한자 전용 글씨체의 한글, KR 에 없는 인명용 한자)는 fb 의 대체 글씨체가 차례로 이어 그린다. */
 function fontSpec(f, px){
   const fb=[].concat(f.fb||[]).map(x=>`"${x}", `).join('');
@@ -930,6 +976,7 @@ function fontSpec(f, px){
 }
 
 async function ensureFont(f, sample){
+  await fontCssReady;
   try{
     await document.fonts.load(fontSpec(f, 100), sample || '가');
     await document.fonts.load(fontSpec(f, REF), sample || '가');
@@ -953,71 +1000,41 @@ function stampRadius(size, shape, rotation, rough){
   return size*0.455/(extent+rough/100*0.0675);
 }
 
-function render(ctx, size, st){
+/* 도장 하나의 기하 정보. 캔버스(render)와 SVG(stampSVG)가 같은 계산을 쓰도록 따로 뺐다. ctx 는 글자 측정에만 쓴다.
+   선(outer·inner·double)은 {inset: 윤곽을 안으로 들인 양, lw: 선 두께, amp: 요철 배율}.
+   glyphs 는 글자마다 {ch, cx, cy, sx, sy, gx, gy} — 칸 중심으로 옮기고 (sx,sy) 로 늘린 뒤 (-gx, gy) 에 찍는다. */
+function stampGeometry(ctx, size, st){
   const f = FONTS[st.fontIdx] || FONTS[0];
   const chars = [...st.text.trim()].filter(c=>c!==' ');
   const all = chars.concat([...st.suffix]);
   const n = all.length;
 
-  ctx.clearRect(0,0,size,size);
-  ctx.save();
-  ctx.translate(size/2, size/2);
-  ctx.rotate(st.rot*Math.PI/180);
-
   const R = stampRadius(size, st.shape, st.rot, st.rough);
   const {rx, ry} = shapeRadii(st.shape, R);
   const nExp = shapeExp(st.shape);
-  const rough = st.rough/100;
-  const fbm = makeNoise(st.seed ^ 0x9e37);
-  const roughAmp = R*0.09;
-
   const bw = R * (st.border/1000);          // 테두리 두께 (0 ~ 0.14R)
   const padIn = R * (st.pad/1000);          // 안쪽 여백
+  const eum = st.style==='eum';
+  const g = { f, all, R, rx, ry, nExp, rough:st.rough/100, fbm:noiseFor(st.seed ^ 0x9e37), roughAmp:R*0.09, bw, eum,
+              outer:null, inner:null, double:null, glyphs:[] };
 
   /* ---- 테두리 / 바탕 ---- */
-  ctx.fillStyle = st.color;
-  ctx.strokeStyle = st.color;
-  ctx.lineJoin='round';
-
-  if(st.style==='eum'){
-    // 음각: 도형을 붉게 채우고, 글자는 나중에 파낸다
-    outlinePath(ctx, rx, ry, nExp, rough, fbm, 3.1, roughAmp);
-    ctx.fill();
-    if(bw > R*0.012){
-      // 바탕 안쪽에 테두리 선을 파내 전통 관인 느낌을 준다
-      const inset = bw*1.9;
-      ctx.save();
-      ctx.globalCompositeOperation='destination-out';
-      ctx.lineWidth = bw*0.55;
-      outlinePath(ctx, rx-inset, ry-inset, nExp, rough, fbm, 3.1, roughAmp*0.8);
-      ctx.stroke();
-      ctx.restore();
-    }
+  if(eum){
+    g.outer={inset:0, lw:0, amp:1};                                   // 음각: 도형을 붉게 채우고, 글자는 나중에 파낸다
+    if(bw > R*0.012) g.inner={inset:bw*1.9, lw:bw*0.55, amp:0.8};    // 바탕 안쪽에 테두리 선을 파내 전통 관인 느낌을 준다
   }else if(bw > 0.5){
-    // 양각: 테두리 선만 그린다
-    ctx.lineWidth = bw;
-    outlinePath(ctx, rx-bw/2, ry-bw/2, nExp, rough, fbm, 3.1, roughAmp);
-    ctx.stroke();
-  }
-
-  // 바깥 선보다 가늘게, 선 사이에는 일정한 여백을 둔다.
-  const doubleInset=st.doubleBorder && st.style==='yang' && bw>0.5 ? bw*2.15 : 0;
-  if(doubleInset){
-    ctx.lineWidth=bw*0.38;
-    outlinePath(ctx, rx-doubleInset, ry-doubleInset, nExp, rough, fbm, 3.1, roughAmp*0.8);
-    ctx.stroke();
+    g.outer={inset:bw/2, lw:bw, amp:1};                               // 양각: 테두리 선만 그린다
+    if(st.doubleBorder) g.double={inset:bw*2.15, lw:bw*0.38, amp:0.8};   // 바깥 선보다 가늘게, 선 사이에는 일정한 여백
   }
 
   /* ---- 안쪽 여유 반지름 ---- */
-  const frameInset=doubleInset ? doubleInset+bw*0.19 : bw;
+  const frameInset=g.double ? g.double.inset+bw*0.19 : bw;
   let riX = rx - frameInset - padIn;
   let riY = ry - frameInset - padIn;
-  if(st.style==='eum'){ riX -= bw*1.4; riY -= bw*1.4; }
+  if(eum){ riX -= bw*1.4; riY -= bw*1.4; }
 
   /* ---- 글자 ---- */
   if(n>0 && riX>4 && riY>4){
-    ctx.save();
-    ctx.fillStyle = st.color;
     ctx.font = fontSpec(f, REF);
     ctx.textAlign='center';
     ctx.textBaseline='alphabetic';
@@ -1034,16 +1051,57 @@ function render(ctx, size, st){
     const cells = buildCells(grid, st.trad, boxW, boxH);
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
     const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
-
-    // 테두리와 겹치더라도 글자의 획 전체를 그린다.
-    if(st.style==='eum') ctx.globalCompositeOperation='destination-out';
-
     for(let i=0;i<n && i<cells.length;i++){
-      const cell=cells[i], b=boxes[i], {sx,sy}=scales[i];
+      g.glyphs.push({ ch:all[i], cx:cells[i].cx, cy:cells[i].cy, sx:scales[i].sx, sy:scales[i].sy, gx:boxes[i].gx, gy:boxes[i].gy });
+    }
+  }
+  return g;
+}
+
+function render(ctx, size, st){
+  ctx.clearRect(0,0,size,size);
+  const g = stampGeometry(ctx, size, st);
+  const line = L => outlinePath(ctx, g.rx-L.inset, g.ry-L.inset, g.nExp, g.rough, g.fbm, 3.1, g.roughAmp*L.amp);
+
+  ctx.save();
+  ctx.translate(size/2, size/2);
+  ctx.rotate(st.rot*Math.PI/180);
+  ctx.fillStyle = st.color;
+  ctx.strokeStyle = st.color;
+  ctx.lineJoin='round';
+
+  /* ---- 테두리 / 바탕 ---- */
+  if(g.eum){
+    line(g.outer); ctx.fill();
+    if(g.inner){
       ctx.save();
-      ctx.translate(cell.cx, cell.cy);
-      ctx.scale(sx, sy);
-      ctx.fillText(all[i], -b.gx, b.gy);
+      ctx.globalCompositeOperation='destination-out';
+      ctx.lineWidth = g.inner.lw;
+      line(g.inner); ctx.stroke();
+      ctx.restore();
+    }
+  }else if(g.outer){
+    ctx.lineWidth = g.outer.lw;
+    line(g.outer); ctx.stroke();
+  }
+  if(g.double){
+    ctx.lineWidth = g.double.lw;
+    line(g.double); ctx.stroke();
+  }
+
+  /* ---- 글자 ---- */
+  if(g.glyphs.length){
+    ctx.save();
+    ctx.font = fontSpec(g.f, REF);
+    ctx.textAlign='center';
+    ctx.textBaseline='alphabetic';
+    // 테두리와 겹치더라도 글자의 획 전체를 그린다.
+    if(g.eum) ctx.globalCompositeOperation='destination-out';
+    for(const q of g.glyphs){
+      ctx.save();
+      ctx.translate(q.cx, q.cy);
+      ctx.scale(q.sx, q.sy);
+      ctx.fillText(q.ch, -q.gx, q.gy);
       ctx.restore();
     }
     ctx.restore();
@@ -1708,7 +1766,7 @@ async function renderToBlob(st, size, background=null){
   },'image/png'));
 }
 async function withBusy(msg, fn){
-  const btns=[$('save'),$('copy'),$('copyWhite')];
+  const btns=[$('save'),$('copy'),$('copyWhite'),$('saveSvg'),$('share')];
   btns.forEach(b=>b.disabled=true);
   statusEl.textContent=msg;
   // 복사는 클릭의 사용자 활성화가 유지되는 동안 시작해야 한다.
@@ -1719,12 +1777,7 @@ async function withBusy(msg, fn){
 $('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', async()=>{
   const st={...S}, size=+$('size').value;
   const blob=await renderToBlob(st, size);
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`도장_${sanitize(st.text+st.suffix)}_${size}.png`;
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+  downloadBlob(blob, `도장_${sanitize(st.text+st.suffix)}_${size}.png`);
   statusEl.textContent=`저장했습니다 · ${size}px · 배경 투명`;
 }));
 function copyImage(background=null){
@@ -1750,6 +1803,144 @@ function copyImage(background=null){
 }
 $('copy').addEventListener('click', ()=>copyImage());
 $('copyWhite').addEventListener('click', ()=>copyImage('#ffffff'));
+
+/* 만든 파일을 내려받는다 (PNG·SVG 공용) */
+function downloadBlob(blob, name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+
+/* ---- SVG 내보내기 ----
+   잉크 번짐 없이 테두리와 글자를 벡터로 적는다. 글자는 <text> 로 두고, 다른 컴퓨터에서도 같은 글씨체로 보이도록
+   구글 폰트의 woff2 조각 가운데 쓰인 글자가 든 것만 골라 SVG 안에 넣는다 (브라우저·인쇄에서 그대로 보인다).
+   글꼴을 받지 못하면 글꼴 이름만 적고 구글 폰트 CSS 를 @import 로 가리킨다. */
+const FONT_CSS_URL=($('fontCss')||{}).href||'';
+let fontFacesPromise=null;
+function fontFaces(){                              // 구글 폰트 CSS 의 @font-face 목록. 한 번만 받는다.
+  if(!fontFacesPromise){
+    fontFacesPromise=fetch(FONT_CSS_URL).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+      .then(parseFontFaces).catch(err=>{ fontFacesPromise=null; throw err; });
+  }
+  return fontFacesPromise;
+}
+/* "@font-face{font-family:'X'; font-weight:900; src:url(…woff2) format('woff2'); unicode-range:U+AC00-D7A3,…}" 블록들 */
+function parseFontFaces(css){
+  const faces=[];
+  for(const m of css.matchAll(/@font-face\s*{([^}]*)}/g)){
+    const b=m[1];
+    const fam=(b.match(/font-family:\s*'([^']+)'/)||[])[1];
+    const w=+((b.match(/font-weight:\s*(\d+)/)||[])[1]||400);
+    const url=(b.match(/url\(([^)\s]+)\)\s*format\('woff2'\)/)||[])[1];
+    const rangeText=((b.match(/unicode-range:\s*([^;]+)/)||[])[1]||'').trim();
+    if(!fam||!url||!rangeText) continue;
+    const ranges=rangeText.split(',').map(s=>{
+      const t=s.trim().replace(/^U\+/i,'').split('-');
+      return [parseInt(t[0].replace(/\?/g,'0'),16), parseInt((t[1]||t[0]).replace(/\?/g,'F'),16)];
+    });
+    faces.push({fam, w, url, ranges, rangeText});
+  }
+  return faces;
+}
+/* 글씨체 f 로 chars 를 그리는 데 필요한 조각들. 글씨체와 대체 글씨체 차례로, 굵기는 있는 것 중 가장 가까운 것.
+   조각마다 unicode-range 를 그대로 적으므로 글씨체에 없는 글자는 브라우저가 다음 글씨체로 넘긴다. */
+function facesFor(faces, f, chars){
+  const cps=[...new Set(chars)].map(c=>c.codePointAt(0));
+  const out=[];
+  for(const fam of [f.fam].concat(f.fb||[])){
+    const ws=[...new Set(faces.filter(x=>x.fam===fam).map(x=>x.w))];
+    if(!ws.length) continue;
+    const w=ws.reduce((a,b)=>Math.abs(b-f.w)<Math.abs(a-f.w) ? b : a);
+    for(const x of faces){
+      if(x.fam===fam && x.w===w && cps.some(c=>x.ranges.some(([lo,hi])=>c>=lo && c<=hi))) out.push(x);
+    }
+  }
+  return out;
+}
+async function embedFontCss(f, chars){
+  const faces=facesFor(await fontFaces(), f, chars);
+  const parts=await Promise.all(faces.map(async x=>{
+    const r=await fetch(x.url);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    const buf=new Uint8Array(await r.arrayBuffer());
+    let bin='';
+    for(let i=0;i<buf.length;i+=0x8000) bin+=String.fromCharCode.apply(null, buf.subarray(i, i+0x8000));
+    return `@font-face{font-family:'${x.fam}';font-weight:${x.w};src:url(data:font/woff2;base64,${btoa(bin)}) format('woff2');unicode-range:${x.rangeText}}`;
+  }));
+  return parts.join('\n');
+}
+/* 지금 설정의 도장을 SVG 문자열로. fontCss 가 비어 있으면 글꼴 이름만 적는다. */
+function stampSVG(st, size, fontCss){
+  const ctx=document.createElement('canvas').getContext('2d');   // 글자 측정용
+  const g=stampGeometry(ctx, size, st);
+  const n2=v=>+v.toFixed(2), n4=v=>+v.toFixed(4);
+  const esc=s=>String(s).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const pathD=L=>{
+    const p=outlinePoints(g.rx-L.inset, g.ry-L.inset, g.nExp, g.rough, g.fbm, 3.1, g.roughAmp*L.amp);
+    let d='';
+    for(let i=0;i<p.length;i+=2) d+=(i ? 'L' : 'M')+n2(p[i])+' '+n2(p[i+1]);
+    return d+'Z';
+  };
+  const stroke=(L, color)=>`<path d="${pathD(L)}" fill="none" stroke="${color}" stroke-width="${n2(L.lw)}" stroke-linejoin="round"/>`;
+  const texts=g.glyphs.map(q=>`<text transform="translate(${n2(q.cx)} ${n2(q.cy)}) scale(${n4(q.sx)} ${n4(q.sy)})" x="${n2(-q.gx)}" y="${n2(q.gy)}">${esc(q.ch)}</text>`).join('');
+  const textG=fill=>`<g fill="${fill}" font-family="${esc(fontFamilyList(g.f))}" font-weight="${g.f.w}" font-size="${REF}" text-anchor="middle">${texts}</g>`;
+  const color=esc(st.color);
+  let body;
+  if(g.eum){
+    // 음각: 바탕을 채우고, 마스크(검정 = 지움)로 안쪽 선과 글자를 파낸다
+    const cut=(g.inner ? stroke(g.inner, '#000') : '')+textG('#000');
+    body=`<defs><mask id="cut" maskUnits="userSpaceOnUse" x="${-size}" y="${-size}" width="${2*size}" height="${2*size}">`
+        +`<rect x="${-size}" y="${-size}" width="${2*size}" height="${2*size}" fill="#fff"/>${cut}</mask></defs>`
+        +`<path d="${pathD(g.outer)}" fill="${color}" mask="url(#cut)"/>`;
+  }else{
+    body=(g.outer ? stroke(g.outer, color) : '')+(g.double ? stroke(g.double, color) : '')+textG(color);
+  }
+  const style=fontCss ? `<style>${fontCss}</style>` : `<style>@import url("${esc(FONT_CSS_URL)}");</style>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n`
+    +`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`
+    +style+`<g transform="translate(${size/2} ${size/2}) rotate(${st.rot})">${body}</g></svg>`;
+}
+$('saveSvg').addEventListener('click', ()=>withBusy('SVG를 만들고 있습니다…', async()=>{
+  const st={...S}, size=+$('size').value;
+  await ensureFont(FONTS[st.fontIdx], st.text+st.suffix+'가印');   // 글자 측정은 웹폰트가 뜬 뒤에
+  const chars=[...st.text, ...st.suffix];
+  let fontCss='';
+  try{ fontCss=await embedFontCss(FONTS[st.fontIdx]||FONTS[0], chars); }
+  catch(err){ console.error(err); }                               // 받지 못하면 글꼴 이름만 적는다
+  const svg=stampSVG(st, size, fontCss);
+  downloadBlob(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}), `도장_${sanitize(st.text+st.suffix)}.svg`);
+  statusEl.textContent = fontCss
+    ? `SVG로 저장했습니다 · 벡터 · 글꼴 포함 (${Math.round(svg.length/1024)}KB)`
+    : 'SVG로 저장했습니다. 글꼴을 내려받지 못해 글꼴 이름만 적었으니, 글꼴이 없는 컴퓨터에서는 다른 글씨체로 보일 수 있습니다.';
+}));
+
+/* ---- 공유 (Web Share API) ----
+   휴대폰에서는 내려받기보다 공유 창이 편하다 — iOS 는 사진 앱에 바로 저장할 수 있고, 메신저로 보낼 수도 있다.
+   파일 공유를 지원하는 브라우저에서만 버튼을 보인다. */
+const shareBtn=$('share');
+function canShareFiles(){
+  try{
+    const probe=new File([new Uint8Array([137,80,78,71])], 'probe.png', {type:'image/png'});
+    return !!(navigator.share && navigator.canShare && navigator.canShare({files:[probe]}));
+  }catch(e){ return false; }
+}
+if(canShareFiles()){ shareBtn.hidden=false; }
+else { shareBtn.hidden=true; $('saveSvg').classList.add('wide'); }
+shareBtn.addEventListener('click', ()=>withBusy('공유할 이미지를 만들고 있습니다…', async()=>{
+  const st={...S}, size=+$('size').value;
+  const blob=await renderToBlob(st, size);
+  const file=new File([blob], `도장_${sanitize(st.text+st.suffix)}_${size}.png`, {type:'image/png'});
+  try{
+    await navigator.share({files:[file], title:'도장 이미지'});
+    statusEl.textContent='공유했습니다.';
+  }catch(err){
+    if(err.name==='AbortError'){ statusEl.textContent=''; return; }          // 공유 창을 닫은 것
+    if(err.name==='NotAllowedError'){ statusEl.textContent='공유 창을 열지 못했습니다. 한 번 더 눌러 보세요.'; return; }
+    throw err;
+  }
+}));
 
 /* ---- 시작 ---- */
 (async function init(){
