@@ -12,12 +12,243 @@
 <!-- 글씨체 24종의 CSS(압축해도 500KB 남짓)가 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다.
      글꼴 파일은 어차피 글자를 쓸 때만 받는다. 스크립트 쪽(ensureFont)은 이 CSS 가 적용될 때까지 기다린다. -->
 <noscript><link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet"></noscript>
-<!--
-  글씨체를 직접 추가하고 싶을 때: 폰트 파일을 이 폴더에 넣고 아래 주석을 풀어 쓰세요.
-  전서체(篆書體) 같은 도장 전용 글씨체는 구글 폰트에 없으므로 이 방법으로 넣습니다.
-  @font-face { font-family:'내폰트'; src:url('./myfont.ttf') format('truetype'); }
-  그리고 아래 JS의 FONTS 배열에 { fam:'내폰트', w:400, label:'내 글씨체', group:'직접 추가' } 를 추가.
--->
+<!-- 구글 폰트에 없는 무료 공공 글씨체(강원교육 서체·경기천년체). fonts/ 의 woff2 조각을 글자 범위별로 받는다.
+     아래 블록은 tools/build-local-fonts.cjs 가 만들어 넣으니 손으로 고치지 않는다.
+     다른 무료 글씨체를 넣을 때도 그 스크립트의 FONTS 에 더하고 아래 JS 의 FONTS 배열에 같은 fam 으로 추가한다. -->
+<style id="localFonts">
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A5,U+A7-A8,U+AA-AB,U+AD-AE,U+B0-B4,U+B6-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2013,U+2015,U+2018-2019,U+201C-201D,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gangwon Edu Modu Bold';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-bold/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A5,U+A7-A8,U+AA-AB,U+AD-AE,U+B0-B4,U+B6-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2013,U+2015,U+2018-2019,U+201C-201D,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gangwon Edu Modu Light';font-weight:400;font-display:swap;src:url(fonts/gangwon-modu-light/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A5,U+A7-AB,U+AD-AE,U+B0-B4,U+B6-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CA-25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gangwon Edu Teunteun';font-weight:400;font-display:swap;src:url(fonts/gangwon-teunteun/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-A8,U+AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gangwon Edu Hyeonok';font-weight:400;font-display:swap;src:url(fonts/gangwon-hyeonok/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-A8,U+AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CB,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gangwon Edu Saeeum';font-weight:400;font-display:swap;src:url(fonts/gangwon-saeeum/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24B5,U+24D0-24E9,U+24EB-24F4,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+2776-277F,U+2F00,U+2F04,U+2F06,U+2F08,U+2F0A-2F0B,U+2F11-2F12,U+2F14,U+2F17-2F18,U+2F1C-2F1D,U+2F1F-2F20,U+2F23-2F26,U+2F28-2F29,U+2F2B,U+2F2D,U+2F2F-2F32,U+2F38,U+2F3C-2F40,U+2F42-2F4C,U+2F4F-2F52,U+2F54-2F58,U+2F5A-2F66,U+2F69-2F70,U+2F72-2F76,U+2F78,U+2F7A-2F7D,U+2F7F-2F8B,U+2F8E-2F90,U+2F92-2F97,U+2F99-2FA0,U+2FA2-2FA3,U+2FA5-2FA9,U+2FAC-2FB1,U+2FB3-2FBC,U+2FC1-2FCA,U+2FCD-2FD4,U+3001-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-3163,U+3165-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+F537,U+F53A,U+FB00-FB04,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/25.woff2) format('woff2');unicode-range:U+4E00-5208}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/26.woff2) format('woff2');unicode-range:U+520A-5764}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/27.woff2) format('woff2');unicode-range:U+5766-5C45}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/28.woff2) format('woff2');unicode-range:U+5C46-6115}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/29.woff2) format('woff2');unicode-range:U+611A-65BC}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/30.woff2) format('woff2');unicode-range:U+65BD-69FD}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/31.woff2) format('woff2');unicode-range:U+69FF-6ECB}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/32.woff2) format('woff2');unicode-range:U+6ECC-73F7}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/33.woff2) format('woff2');unicode-range:U+73F9-7947}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/34.woff2) format('woff2');unicode-range:U+7948-7E69}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/35.woff2) format('woff2');unicode-range:U+7E6A-83F9}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/36.woff2) format('woff2');unicode-range:U+83FD-8AAA}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/37.woff2) format('woff2');unicode-range:U+8AB0-9075}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/38.woff2) format('woff2');unicode-range:U+9077-978D}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/39.woff2) format('woff2');unicode-range:U+978F-F948}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/40.woff2) format('woff2');unicode-range:U+F949-FACE}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24B5,U+24D0-24E9,U+24EB-24F4,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+2776-277F,U+2F00,U+2F04,U+2F06,U+2F08,U+2F0A-2F0B,U+2F11-2F12,U+2F14,U+2F17-2F18,U+2F1C-2F1D,U+2F1F-2F20,U+2F23-2F26,U+2F28-2F29,U+2F2B,U+2F2D,U+2F2F-2F32,U+2F38,U+2F3C-2F40,U+2F42-2F4C,U+2F4F-2F52,U+2F54-2F58,U+2F5A-2F66,U+2F69-2F70,U+2F72-2F76,U+2F78,U+2F7A-2F7D,U+2F7F-2F8B,U+2F8E-2F90,U+2F92-2F97,U+2F99-2FA0,U+2FA2-2FA3,U+2FA5-2FA9,U+2FAC-2FB1,U+2FB3-2FBC,U+2FC1-2FCA,U+2FCD-2FD4,U+3001-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-3163,U+3165-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FB00-FB04,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/25.woff2) format('woff2');unicode-range:U+4E00-5208}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/26.woff2) format('woff2');unicode-range:U+520A-5764}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/27.woff2) format('woff2');unicode-range:U+5766-5C45}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/28.woff2) format('woff2');unicode-range:U+5C46-6115}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/29.woff2) format('woff2');unicode-range:U+611A-65BC}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/30.woff2) format('woff2');unicode-range:U+65BD-69FD}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/31.woff2) format('woff2');unicode-range:U+69FF-6ECB}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/32.woff2) format('woff2');unicode-range:U+6ECC-73F7}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/33.woff2) format('woff2');unicode-range:U+73F9-7947}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/34.woff2) format('woff2');unicode-range:U+7948-7E69}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/35.woff2) format('woff2');unicode-range:U+7E6A-83F9}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/36.woff2) format('woff2');unicode-range:U+83FD-8AAA}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/37.woff2) format('woff2');unicode-range:U+8AB0-9075}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/38.woff2) format('woff2');unicode-range:U+9077-978D}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/39.woff2) format('woff2');unicode-range:U+978F-F949}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/40.woff2) format('woff2');unicode-range:U+F94A-FACE}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24B5,U+24D0-24E9,U+24EB-24F4,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+2776-277F,U+3001-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-3163,U+3165-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+F537,U+F53A,U+FB00-FB04,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+</style>
 <style>
   :root{
     --bg:#f6f1e7; --panel:#fffdf8; --line:#e0d7c4; --ink:#2e2a24;
@@ -634,6 +865,8 @@
     만든 도장 이미지는 마음대로 쓰세요.
     글씨체는 <a href="https://fonts.google.com" target="_blank" rel="noopener">구글 폰트</a>에서 불러오며,
     각 글씨체의 저작권은 해당 제작자에게 있습니다.
+    <a href="https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDc3MTU=" target="_blank" rel="noopener">강원교육 서체</a>는 강원특별자치도교육청,
+    <a href="https://www.gg.go.kr/contents/contents.do?ciIdx=679&amp;menuId=2457" target="_blank" rel="noopener">경기천년체</a>는 경기도가 무료로 배포하는 글씨체입니다.
   </p>
 </footer>
 
@@ -670,6 +903,7 @@
    ============================================================ */
 const HANJA_GROUP='한자 전용 · 한글은 노토 세리프로';
 const HANJA_FB=['Noto Serif KR','Noto Serif JP'];   // 한글 → 노토 세리프 KR, KR 에도 없는 한자 → 같은 디자인의 JP
+const LOCAL_GROUP='강원교육 · 경기천년 서체';
 const FONTS = [
   { fam:'Nanum Myeongjo',  w:800, label:'나눔명조 굵게',   group:'도장 느낌' },
   { fam:'Song Myung',      w:400, label:'송명',            group:'도장 느낌' },
@@ -702,6 +936,16 @@ const FONTS = [
   { fam:'LXGW WenKai TC',  w:700, fb:HANJA_FB, label:'LXGW 원카이 · 해서체',          group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
   { fam:'Cactus Classical Serif', w:400, fb:HANJA_FB, label:'캑터스 클래시컬 · 옛 명조', group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
   { fam:'Shippori Mincho B1', w:800, fb:HANJA_FB, label:'싯포리 명조 굵게',           group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
+  // 구글 폰트에 없는 무료 공공 글씨체. 웹 글꼴 조각은 fonts/ 에 직접 두고 <style id="localFonts"> 로 불러온다
+  // (tools/build-local-fonts.cjs). 경기천년바탕은 한자 4,622자가 있고, 없는 한자는 노토 세리프로 채운다.
+  { fam:'Gangwon Edu Modu Bold',   w:400, label:'강원교육모두 굵게',        group:LOCAL_GROUP },
+  { fam:'Gangwon Edu Modu Light',  w:400, label:'강원교육모두 가늘게',      group:LOCAL_GROUP },
+  { fam:'Gangwon Edu Teunteun',    w:400, label:'강원교육튼튼',             group:LOCAL_GROUP },
+  { fam:'Gangwon Edu Hyeonok',     w:400, label:'강원교육현옥샘 · 손글씨',  group:LOCAL_GROUP },
+  { fam:'Gangwon Edu Saeeum',      w:400, label:'강원교육새음 · 손글씨',    group:LOCAL_GROUP },
+  { fam:'Gyeonggi Batang Bold',    w:400, fb:HANJA_FB, label:'경기천년바탕 굵게', group:LOCAL_GROUP, hanja:true, rare:true },
+  { fam:'Gyeonggi Batang Regular', w:400, fb:HANJA_FB, label:'경기천년바탕 보통', group:LOCAL_GROUP, hanja:true, rare:true },
+  { fam:'Gyeonggi Title Bold',     w:400, label:'경기천년제목 굵게',        group:LOCAL_GROUP },
 ];
 const BUILTIN_FONT_COUNT=FONTS.length;   // 이 뒤 번호는 '내 글꼴' — 들어올 때마다 번호가 달라질 수 있다
 
@@ -2166,10 +2410,11 @@ function downloadBlob(blob, name){
    글꼴을 받지 못하면 글꼴 이름만 적고 구글 폰트 CSS 를 @import 로 가리킨다. */
 const FONT_CSS_URL=($('fontCss')||{}).href||'';
 let fontFacesPromise=null;
-function fontFaces(){                              // 구글 폰트 CSS 의 @font-face 목록. 한 번만 받는다.
+function fontFaces(){                              // 구글 폰트 CSS 와 직접 올린 글씨체(localFonts)의 @font-face 목록. 한 번만 받는다.
   if(!fontFacesPromise){
+    const local=($('localFonts')||{}).textContent||'';
     fontFacesPromise=fetch(FONT_CSS_URL).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
-      .then(parseFontFaces).catch(err=>{ fontFacesPromise=null; throw err; });
+      .then(css=>parseFontFaces(css+'\n'+local)).catch(err=>{ fontFacesPromise=null; throw err; });
   }
   return fontFacesPromise;
 }

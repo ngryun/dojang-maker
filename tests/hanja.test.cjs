@@ -99,7 +99,14 @@ test('FONTS entries match the Google Fonts link and have valid fallback chains',
   const {FONTS,fontSpec}=vm.runInContext('({FONTS,fontSpec})',c);
   const link=html.match(/<link href="(https:\/\/fonts\.googleapis\.com\/css2\?[^"]+)"/)[1];
   const linked=new Set([...link.matchAll(/family=([^&:]+)/g)].map(m=>decodeURIComponent(m[1]).replace(/\+/g,' ')));
+  // 구글 폰트에 없는 글씨체는 <style id="localFonts"> 에 @font-face 로 들어 있고, 그 조각 파일이 저장소에 있어야 한다
+  const local=html.match(/<style id="localFonts">([\s\S]*?)<\/style>/)[1];
+  for(const m of local.matchAll(/font-family:'([^']+)'[^}]*url\(([^)]+)\)/g)){
+    linked.add(m[1]);
+    assert.ok(fs.existsSync(require('node:path').join(__dirname,'..',m[2])),'글꼴 조각 파일이 없음: '+m[2]);
+  }
   const seen=new Set(), labels=new Set();
+  assert.ok(linked.has('Gyeonggi Batang Bold')&&linked.has('Gangwon Edu Modu Bold'));
   for(const f of FONTS){
     if(!f.hidden) assert.ok(linked.has(f.fam),'구글 폰트 링크에 없는 글씨체: '+f.fam);
     for(const fb of [].concat(f.fb||[])) assert.ok(linked.has(fb),'링크에 없는 대체 글씨체: '+fb);
