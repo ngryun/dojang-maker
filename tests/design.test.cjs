@@ -37,6 +37,9 @@ const assert=require('node:assert/strict');
       return results;
     });
     for(const result of edges){assert.equal(result.count,0,JSON.stringify(result));assert.ok(result.painted>100)}
+    // 격자는 Z 순서: 윗줄 왼쪽→오른쪽, 다음 줄. 덜 찬 마지막 줄은 가운데 (홍길/동인, 洪吉/童)
+    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'grid'),true,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]]);
+    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(3,'grid'),true,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[0,0.5]]);
     // 한자 변환: 남궁연 → 남궁妍. 妍 은 인명용 추가 한자라 '더 보기' 뒤에 나온다.
     await page.locator('#hanjaBtn').click();
     await page.waitForSelector('#hanjaDlg[open]');
@@ -48,15 +51,27 @@ const assert=require('node:assert/strict');
     await page.locator('#hjApply').click();
     await page.waitForFunction(()=>!document.getElementById('hanjaDlg').open&&!pending);
     assert.equal(await page.locator('#text').inputValue(),'남궁妍');
-    // 妍 은 인명용 추가 한자 → '인명용 한자까지' 글씨체(KR + JP 보완)로 바꿔 준다
-    assert.deepEqual(await page.evaluate(()=>[S.text,S.suffix,!!FONTS[S.fontIdx].hanja,!!FONTS[S.fontIdx].rare]),['남궁妍','印',true,true]);
+    // 妍 은 인명용 추가 한자 → 한글 글씨체는 그대로 두고, 한자 글씨체만 '인명용 한자까지'(KR + JP 보완)로 골라 준다
+    const mainBefore=await page.evaluate(()=>S.fontIdx);
+    assert.deepEqual(await page.evaluate(()=>[S.text,S.suffix,!!FONTS[S.hanjaFontIdx].hanja,!!FONTS[S.hanjaFontIdx].rare]),['남궁妍','印',true,true]);
+    assert.equal(await page.evaluate(()=>S.fontIdx),mainBefore);
+    assert.equal(await page.locator('#hanjaFontRow').isVisible(),true);
+    assert.equal(await page.locator('#fontLabelName').textContent(),'한글 글씨체');
+    // 글자마다 글씨체: 한글은 본 글씨체, 한자(妍·印)는 한자 글씨체
+    assert.deepEqual(await page.evaluate(()=>stampGeometry(vctx,view.width,S).glyphs.map(q=>[q.ch,q.f===hanjaFont(S)])),[['남',false],['궁',false],['妍',true],['印',true]]);
+    // SVG 에서도 한자 <text> 에만 한자 글씨체를 따로 적는다
+    const svg=await page.evaluate(()=>stampSVG(S,512,''));
+    assert.match(svg,/font-family="&quot;Noto Serif KR&quot;, &quot;Noto Serif JP&quot;, serif" font-weight="900">妍</);
+    assert.match(svg,/y="[-\d.]+">남</);
     await page.waitForFunction(()=>/바꾼 글자/.test(document.getElementById('hanjaNote').textContent)&&!/불러오는 중/.test(document.getElementById('hanjaNote').textContent));
     assert.equal(await page.evaluate(()=>document.fonts.check('900 220px "Noto Serif KR"','남궁印')),true);
     assert.equal(await page.evaluate(()=>document.fonts.check('900 220px "Noto Serif JP"','妍')),true);
     assert.equal(await page.locator('#fontNote').textContent(),'');
     // 한자 전용 글씨체: 한자는 그 글꼴로, 한글은 노토 세리프로. 한글이 섞이면 글씨체 아래에 안내가 뜬다.
     // 글씨체 고르기: 타일 격자를 펼치면 글씨체마다 지금 글자(한자 전용은 한자만)가 그 글꼴로 보인다
-    assert.match(await page.locator('#fontCurSample').textContent(),/^남궁妍$/);
+    // 한자 글씨체를 따로 골랐으니 한글 글씨체 버튼에는 한글만, 한자 글씨체 버튼에는 한자만
+    assert.match(await page.locator('#fontCurSample').textContent(),/^남궁$/);
+    assert.match(await page.locator('#hanjaFontCurSample').textContent(),/^妍印$/);
     await page.locator('#fontToggle').click();
     await page.waitForSelector('#fontGrid:not([hidden])');
     const shown=await page.evaluate(()=>FONTS.filter(f=>!f.hidden).length);
@@ -82,6 +97,14 @@ const assert=require('node:assert/strict');
     await page.waitForFunction(()=>!pending);
     assert.equal(await page.locator('#fontNote').textContent(),'');
     await page.fill('#text','남궁妍');
+    // 한자 글씨체 고르기: '한글 글씨체와 같게' + 한자가 있는 글씨체들
+    await page.locator('#hanjaFontToggle').click();
+    await page.waitForSelector('#hanjaFontGrid:not([hidden])');
+    assert.equal(await page.locator('#hanjaFontGrid .fp-tile').count(),await page.evaluate(()=>FONTS.filter(f=>f.hanja&&!f.hidden).length+1));
+    await page.locator('#hanjaFontGrid .fp-tile[data-idx="-1"]').click();
+    await page.waitForFunction(()=>S.hanjaFontIdx===-1);
+    assert.match(await page.locator('#hanjaFontCurName').textContent(),/한글 글씨체와 같게/);
+    await page.locator('#hanjaFontToggle').click();
     await page.locator('#fontGrid .fp-tile[data-idx="3"]').click();   // 노토 세리프 KR — 妍 이 없으니 안내가 뜬다
     await page.waitForFunction(()=>S.fontIdx===3);
     assert.match(await page.locator('#fontCurSample').evaluate(el=>getComputedStyle(el).fontFamily),/Noto Serif KR/);

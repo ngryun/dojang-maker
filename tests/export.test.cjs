@@ -15,7 +15,7 @@ function setup({unsupported=false, denied=false, nullBlob=false}={}){
   const context={S:state,FONTS:[{}],$:id=>nodes[id],statusEl:{textContent:''},console:{error(){}},
     setTimeout:()=>1,clearTimeout(){}, STORE_KEY:'settings',CAN_STORE:true,
     localStorage:{setItem:(k,v)=>saved.push(JSON.parse(v))},
-    ensureFont:()=>fontReady,render:(ctx,size,st)=>renders.push({size,st}),
+    ensureFont:()=>fontReady,ensureStampFonts:()=>fontReady,render:(ctx,size,st)=>renders.push({size,st}),
     URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}},
     window:{addEventListener:(name,fn)=>lifecycle[name]=fn},
     document:{visibilityState:'visible',addEventListener:(name,fn)=>lifecycle[name]=fn,

@@ -318,7 +318,18 @@
     cursor:pointer; font-family:inherit; font-size:12.5px; font-weight:700; color:#6b6357; white-space:nowrap;
   }
   .textline button:hover{border-color:var(--accent); color:var(--accent)}
-  #hanjaNote, #fontNote{margin:5px 0 0; line-height:1.45}
+  #hanjaNote, #fontNote, #myFontNote{margin:5px 0 0; line-height:1.45}
+  .myfonts{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:5px}
+  .myfonts:empty{display:none}
+  .myfonts li{display:flex; align-items:center; gap:8px; padding:5px 8px; border:1px solid var(--line); border-radius:7px; background:#fff}
+  .myfonts .mf-sample{flex:none; font-size:20px; line-height:1.2}
+  .myfonts .mf-name{flex:1; min-width:0; font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .myfonts .mf-name small{color:var(--muted); margin-left:4px}
+  .myfonts button{
+    flex:none; padding:5px 9px; border:1px solid var(--line); border-radius:6px;
+    background:#fff; cursor:pointer; font-family:inherit; font-size:11.5px; color:#6b6357;
+  }
+  .myfonts button:hover{border-color:var(--accent); color:var(--accent)}
   #hanjaNote:empty, #fontNote:empty{display:none}
 
   body.modal-open{overflow:hidden}
@@ -453,7 +464,7 @@
         </select>
       </div>
       <div class="row">
-        <label class="lb" for="fontToggle">글씨체 <span class="hint">글씨체별로 찍힌 도장을 보고 고르세요</span></label>
+        <label class="lb" for="fontToggle"><span id="fontLabelName">글씨체</span> <span class="hint">글씨체별로 찍힌 도장을 보고 고르세요</span></label>
         <div class="fontpick">
           <button type="button" class="fontcur" id="fontToggle" aria-expanded="false" aria-controls="fontGrid">
             <span class="fp-sample" id="fontCurSample"></span>
@@ -463,6 +474,26 @@
           <div class="fontgrid" id="fontGrid" role="group" aria-label="글씨체 고르기" hidden></div>
         </div>
         <p class="hint" id="fontNote"></p>
+      </div>
+      <!-- 글자에 한자가 있을 때만 보인다. 한자(印 포함)만 따로 다른 글씨체로 그린다. -->
+      <div class="row" id="hanjaFontRow" hidden>
+        <label class="lb" for="hanjaFontToggle">한자 글씨체 <span class="hint">한자만 다른 글씨체로 쓸 수 있어요</span></label>
+        <div class="fontpick">
+          <button type="button" class="fontcur" id="hanjaFontToggle" aria-expanded="false" aria-controls="hanjaFontGrid">
+            <span class="fp-sample" id="hanjaFontCurSample"></span>
+            <span class="fp-name" id="hanjaFontCurName"></span>
+            <span class="fp-chev" id="hanjaFontChev">바꾸기 ▾</span>
+          </button>
+          <div class="fontgrid" id="hanjaFontGrid" role="group" aria-label="한자 글씨체 고르기" hidden></div>
+        </div>
+      </div>
+      <!-- 내 글꼴: 사용자가 가진 글꼴 파일을 이 브라우저 안에서만 쓴다. 서버로 보내지 않는다. -->
+      <div class="row">
+        <label class="lb" for="myFontAdd">내 글꼴 <span class="hint">가진 도장 글꼴(고인체·전서체 등)을 불러와 씁니다</span></label>
+        <button type="button" class="btn" id="myFontAdd">글꼴 파일 불러오기 <span class="hint">.ttf · .otf · .woff</span></button>
+        <input type="file" id="myFontFile" accept=".ttf,.otf,.ttc,.woff,.woff2" multiple hidden>
+        <ul class="myfonts" id="myFontList"></ul>
+        <p class="hint" id="myFontNote">글꼴 파일은 이 브라우저에만 저장되고 어디로도 올라가지 않습니다.</p>
       </div>
       <div class="row">
         <label class="lb" for="layout">배치</label>
@@ -474,7 +505,7 @@
         </div>
       </div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="trad" checked> 전통 순서 (오른쪽 줄부터)</label>
+        <label class="chk"><input type="checkbox" id="trad" checked> 전통 순서 (오른쪽 줄부터 · 격자는 늘 Z 순서)</label>
       </div>
       <div class="row">
         <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
@@ -614,7 +645,7 @@
   <div class="hj-foot">
     <div class="hj-preview"><span>결과</span><strong id="hjPreview"></strong></div>
     <label class="chk" id="hjSuffixWrap"><input type="checkbox" id="hjSuffix" checked> 보조 글자 ‘인’도 ‘印’으로 바꾸기</label>
-    <label class="chk" id="hjFontWrap"><input type="checkbox" id="hjFont" checked> <span>한자가 있는 글씨체(<span id="hjFontName">노토 세리프 블랙</span>)로 바꾸기</span></label>
+    <label class="chk" id="hjFontWrap"><input type="checkbox" id="hjFont" checked> <span>한자는 한자가 있는 글씨체(<span id="hjFontName">노토 세리프 블랙</span>)로 쓰기</span></label>
     <div class="hj-btns">
       <button type="button" class="btn" id="hjCancel">취소</button>
       <button type="button" class="btn primary" id="hjApply">적용</button>
@@ -667,6 +698,7 @@ const FONTS = [
   { fam:'Cactus Classical Serif', w:400, fb:HANJA_FB, label:'캑터스 클래시컬 · 옛 명조', group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
   { fam:'Shippori Mincho B1', w:800, fb:HANJA_FB, label:'싯포리 명조 굵게',           group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
 ];
+const BUILTIN_FONT_COUNT=FONTS.length;   // 이 뒤 번호는 '내 글꼴' — 들어올 때마다 번호가 달라질 수 있다
 
 /* ============================================================
    상태
@@ -679,6 +711,7 @@ const DEFAULT_FONT_IDX = fontIdxOf('Yeon Sung');   // 연성 · 부드러운 붓
 const S = {
   text:'남궁연', suffix:'인',
   fontIdx:DEFAULT_FONT_IDX,
+  hanjaFontIdx:-1,          // 한자 글씨체. -1 이면 한글 글씨체(fontIdx)로 함께 그린다
   shape:'circle', style:'yang', layout:'auto',
   trad:true, stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
@@ -831,7 +864,8 @@ function layoutCells(n, mode){
   const base=Math.floor(n/cols), extra=n%cols;
   const counts=[];
   for(let c=0;c<cols;c++) counts.push(base+(c<extra?1:0));
-  return {cols, counts};
+  // 격자는 Z 순서(윗줄 왼쪽→오른쪽, 다음 줄)로 읽는다: 홍길/동인. 칸 수와 줄 수는 세로줄 배치와 같다.
+  return {cols, counts, z:mode==='grid'};
 }
 /* 가로:세로 비율이 A 인 직사각형을 초타원 안에 최대로 넣었을 때의 세로 반크기 */
 function inscribedHalfHeight(A, rx, ry, n){
@@ -843,6 +877,7 @@ function inscribedHalfHeight(A, rx, ry, n){
 /* 글자 하나의 실측 정보. 상자 크기(gw,gh)와 상자 중심이 기준선 원점에서 벗어난 양(gx,gy) */
 function glyphBox(m){
   return {
+    adv: m.width,                       // 글자 폭(advance). SVG 에서 글꼴 윤곽을 직접 놓을 때 쓴다
     gw: Math.max(1, (m.actualBoundingBoxRight||0)+(m.actualBoundingBoxLeft||0) || m.width),
     gh: Math.max(1, (m.actualBoundingBoxAscent||REF*0.72)+(m.actualBoundingBoxDescent||0)),
     gx: ((m.actualBoundingBoxRight||0)-(m.actualBoundingBoxLeft||0))/2,
@@ -905,11 +940,11 @@ function glyphSamples(f, ch, box){
    안쪽 윤곽을 넘는 획도 자르지 않고 테두리와 자연스럽게 겹쳐 그린다. */
 const OVERLAP_FRAC = 0.04;    // 안쪽 윤곽과 겹칠 수 있는 잉크 비율
 const OVERLAP_DEPTH = 0.10;   // 획이 윤곽 밖으로 나가도 되는 최대 깊이 (글자 크기 대비)
-function fitBlockHalfHeight(f, all, boxes, grid, trad, riX, riY, nExp, fill, spacing, stretch){
+function fitBlockHalfHeight(fonts, all, boxes, grid, trad, riX, riY, nExp, fill, spacing, stretch){
   const rowsMax=Math.max(...grid.counts), cols=grid.cols;
   const A=cols/rowsMax;
   const base=inscribedHalfHeight(A, riX, riY, nExp);
-  const samples=all.map((ch,i)=>glyphSamples(f, ch, boxes[i]));
+  const samples=all.map((ch,i)=>glyphSamples(fonts[i], ch, boxes[i]));
   if(samples.some(s=>!s.length)) return base;            // 측정 실패 — 내접 사각형으로
   const fits = halfH => {
     const boxH=2*halfH, boxW=boxH*A;
@@ -943,6 +978,15 @@ function buildCells(grid, trad, boxW, boxH){
   // (열마다 높이를 다르게 하면 글자 크기가 들쭉날쭉해진다)
   const ch=boxH/Math.max(...counts);
   const cells=[];
+  if(grid.z){
+    // Z 순서: 줄마다 왼쪽부터 채우고, 덜 찬 마지막 줄은 가로 가운데로 모은다
+    const n=counts.reduce((a,b)=>a+b, 0), rows=Math.max(...counts);
+    for(let r=0;r<rows;r++){
+      const inRow=Math.min(cols, n-r*cols);
+      for(let c=0;c<inRow;c++) cells.push({ cx:-boxW/2 + cw*(c+0.5) + (cols-inRow)*cw/2, cy:-boxH/2 + ch*(r+0.5), w:cw, h:ch });
+    }
+    return cells;
+  }
   for(let c=0;c<cols;c++){
     const colPos = trad ? (cols-1-c) : c;
     const cx = -boxW/2 + cw*(colPos+0.5);
@@ -982,6 +1026,15 @@ async function ensureFont(f, sample){
     await document.fonts.load(fontSpec(f, REF), sample || '가');
   }catch(e){ /* CDN 차단 등 — 대체 글씨체로 그린다 */ }
 }
+/* 본 글씨체와 한자 글씨체. 한자 글씨체를 따로 고르면 한자(印 포함)만 그것으로, 나머지 글자는 본 글씨체로 그린다. */
+function mainFont(st){ return FONTS[st.fontIdx] || FONTS[0]; }
+function hanjaFont(st){ return (st.hanjaFontIdx>=0 && FONTS[st.hanjaFontIdx]) || mainFont(st); }
+function glyphFont(st, ch){ return isHanja(ch) ? hanjaFont(st) : mainFont(st); }
+/* 도장 하나에 쓰는 글씨체를 모두 받는다 */
+function ensureStampFonts(st){
+  const text=st.text+st.suffix, main=mainFont(st), hj=hanjaFont(st);
+  return Promise.all([ensureFont(main, text+'가印'), hj!==main ? ensureFont(hj, text+'印') : null]);
+}
 /* 이 글자를 그릴 웹폰트 조각이 이미 떠 있는가. 글씨체에 그 글자가 없어 대체 글꼴로 그려질 때와
    CDN 이 막혀 웹폰트 자체가 없을 때도 true — 그때는 지금 보이는 모양이 최종 모양이므로 캐시해도 된다. */
 function fontReadyFor(f, ch){
@@ -1002,11 +1055,12 @@ function stampRadius(size, shape, rotation, rough){
 
 /* 도장 하나의 기하 정보. 캔버스(render)와 SVG(stampSVG)가 같은 계산을 쓰도록 따로 뺐다. ctx 는 글자 측정에만 쓴다.
    선(outer·inner·double)은 {inset: 윤곽을 안으로 들인 양, lw: 선 두께, amp: 요철 배율}.
-   glyphs 는 글자마다 {ch, cx, cy, sx, sy, gx, gy} — 칸 중심으로 옮기고 (sx,sy) 로 늘린 뒤 (-gx, gy) 에 찍는다. */
+   glyphs 는 글자마다 {ch, f, cx, cy, sx, sy, gx, gy} — 칸 중심으로 옮기고 (sx,sy) 로 늘린 뒤 (-gx, gy) 에 찍는다. */
 function stampGeometry(ctx, size, st){
-  const f = FONTS[st.fontIdx] || FONTS[0];
+  const f = mainFont(st);
   const chars = [...st.text.trim()].filter(c=>c!==' ');
   const all = chars.concat([...st.suffix]);
+  const fonts = all.map(ch=>glyphFont(st, ch));   // 글자마다 그릴 글씨체
   const n = all.length;
 
   const R = stampRadius(size, st.shape, st.rot, st.rough);
@@ -1035,24 +1089,24 @@ function stampGeometry(ctx, size, st){
 
   /* ---- 글자 ---- */
   if(n>0 && riX>4 && riY>4){
-    ctx.font = fontSpec(f, REF);
     ctx.textAlign='center';
     ctx.textBaseline='alphabetic';
-    const boxes=all.map(ch=>glyphBox(ctx.measureText(ch)));
+    // 글씨체가 달라도 글자마다 실측해 칸에 맞춰 늘리므로 한글과 한자의 크기가 고르게 맞는다
+    const boxes=all.map((ch,i)=>{ ctx.font=fontSpec(fonts[i], REF); return glyphBox(ctx.measureText(ch)); });
 
     // 칸이 정사각형에 가까워지도록 글자판 비율을 정하고, 실제 획 모양이 허용하는 만큼 테두리 가까이 키운다
     const grid = layoutCells(n, st.layout);
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
     const fill = st.glyphFill/100;
-    const halfH = fitBlockHalfHeight(f, all, boxes, grid, st.trad, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
+    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, st.trad, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
     const boxH = 2*halfH;
     const boxW = boxH*A;
     const cells = buildCells(grid, st.trad, boxW, boxH);
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
     const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
     for(let i=0;i<n && i<cells.length;i++){
-      g.glyphs.push({ ch:all[i], cx:cells[i].cx, cy:cells[i].cy, sx:scales[i].sx, sy:scales[i].sy, gx:boxes[i].gx, gy:boxes[i].gy });
+      g.glyphs.push({ ch:all[i], f:fonts[i], cx:cells[i].cx, cy:cells[i].cy, sx:scales[i].sx, sy:scales[i].sy, gx:boxes[i].gx, gy:boxes[i].gy, adv:boxes[i].adv });
     }
   }
   return g;
@@ -1092,7 +1146,6 @@ function render(ctx, size, st){
   /* ---- 글자 ---- */
   if(g.glyphs.length){
     ctx.save();
-    ctx.font = fontSpec(g.f, REF);
     ctx.textAlign='center';
     ctx.textBaseline='alphabetic';
     // 테두리와 겹치더라도 글자의 획 전체를 그린다.
@@ -1101,6 +1154,7 @@ function render(ctx, size, st){
       ctx.save();
       ctx.translate(q.cx, q.cy);
       ctx.scale(q.sx, q.sy);
+      ctx.font = fontSpec(q.f, REF);
       ctx.fillText(q.ch, -q.gx, q.gy);
       ctx.restore();
     }
@@ -1180,99 +1234,355 @@ const $ = id => document.getElementById(id);
 /* ---- 글씨체 고르기 ----
    글씨체마다 지금 설정으로 찍은 도장을 작은 캔버스에 그려 보여 준다.
    격자는 처음 펼칠 때 만들고(글씨체마다 글꼴 조각을 내려받게 되므로), 설정이 바뀌면 펼쳐진 동안에만
-   잠깐 뒤에 다시 그린다. 글씨체 번호(fontIdx)만 바뀌면 타일은 그대로다. */
-const fontGrid=$('fontGrid'), fontToggle=$('fontToggle');
+   잠깐 뒤에 다시 그린다. 고르는 번호(fontIdx·hanjaFontIdx)만 바뀌면 그 고르기의 타일은 그대로다.
+   한글(본) 글씨체와 한자 글씨체 두 군데에서 같은 방식으로 쓴다. */
 const TILE_PX=200;                        // 타일 캔버스 해상도 — 표시 크기의 두 배쯤이라 선명하다
-let fontTiles=null;                       // [{idx, ctx, btn}] — 펼칠 때 만든다
-let fontTileKey='', fontTileTimer=0, fontTileJob=0;
 function fontOptionLabel(f){ return f.label+(f.hanja && f.hangul!==false ? ' · 한자 지원' : ''); }   // 한자 전용은 묶음 이름이 말해 준다
 function fontFamilyList(f){ return [f.fam].concat(f.fb||[]).map(x=>`"${x}"`).join(', ')+', serif'; }
-/* 현재 글씨체 버튼에 보여 줄 글자: 입력한 이름 앞 네 글자 (한자 전용 글씨체는 한자만) */
+/* 현재 글씨체 버튼에 보여 줄 글자: 입력한 이름 앞 네 글자 (한자 전용 글씨체는 한자만, 한자 글씨체를 따로 골랐으면 한자 말고) */
 function fontPreviewText(f){
   const t=[...S.text.replace(/\s+/g,'')];
   if(f.hangul===false){ const hj=t.filter(isHanja); return (hj.length ? hj : [...'印章']).slice(0,4).join(''); }
-  return (t.length ? t : [...'도장']).slice(0,4).join('');
+  const own=S.hanjaFontIdx>=0 ? t.filter(c=>!isHanja(c)) : t;
+  return (own.length ? own : [...'도장']).slice(0,4).join('');
+}
+function hanjaPreviewText(){
+  const hj=[...S.text+S.suffix].filter(isHanja);
+  return (hj.length ? hj : [...'印章']).slice(0,4).join('');
 }
 function styleSample(el, f){ el.style.fontFamily=fontFamilyList(f); el.style.fontWeight=String(f.w); }
-function buildFontGrid(){
-  fontGrid.textContent=''; fontTiles=[];
-  const groups=[...new Set(FONTS.filter(f=>!f.hidden).map(f=>f.group))];   // hidden:true 는 목록에 내놓지 않는다
-  groups.forEach(g=>{
-    const h=document.createElement('div'); h.className='fp-group'; h.textContent=g;
-    fontGrid.appendChild(h);
-    FONTS.forEach((f,i)=>{
-      if(f.group!==g || f.hidden) return;
+
+/* o.key: 고르는 상태 이름, o.prefix: 요소 id 머리(…Toggle/Grid/CurSample/CurName/Chev),
+   o.entries(): 묶음 순서대로 [{idx, group, label}], o.current(): {f, text, label} — 현재 글씨체 버튼 */
+function makeFontPicker(o){
+  const grid=$(o.prefix+'Grid'), toggle=$(o.prefix+'Toggle');
+  let tiles=null;                         // [{idx, ctx, btn}] — 펼칠 때 만든다
+  let tileKey='', timer=0, jobId=0;
+  /* 타일 그림에 영향을 주는 상태 — 이 고르기의 번호만 빼고 전부 */
+  const stateKey=()=>JSON.stringify({...S, [o.key]:0});
+  function build(){
+    grid.textContent=''; tiles=[];
+    let group=null;
+    o.entries().forEach(({idx, group:g, label})=>{
+      if(g!==group){
+        group=g;
+        const h=document.createElement('div'); h.className='fp-group'; h.textContent=g;
+        grid.appendChild(h);
+      }
       const b=document.createElement('button');
-      b.type='button'; b.className='fp-tile'; b.dataset.idx=i;
-      b.title=fontOptionLabel(f); b.setAttribute('aria-label', fontOptionLabel(f));
+      b.type='button'; b.className='fp-tile'; b.dataset.idx=idx;
+      b.title=label; b.setAttribute('aria-label', label);
       const c=document.createElement('canvas');
       c.width=c.height=TILE_PX; c.className='fp-img'; c.setAttribute('aria-hidden','true');
-      const n=document.createElement('span'); n.className='fp-name'; n.textContent=fontOptionLabel(f);
+      const n=document.createElement('span'); n.className='fp-name'; n.textContent=label;
       b.appendChild(c); b.appendChild(n);
-      fontGrid.appendChild(b);
-      fontTiles.push({idx:i, ctx:c.getContext('2d',{willReadFrequently:true}), btn:b});
+      grid.appendChild(b);
+      tiles.push({idx, ctx:c.getContext('2d',{willReadFrequently:true}), btn:b});
     });
+  }
+  /* 타일을 프레임마다 세 개씩 나눠 그린다. 한 번에 다 그리면 화면이 잠깐 멈춘다. */
+  function refresh(){
+    clearTimeout(timer);
+    if(!tiles) return;
+    if(grid.hidden){ tileKey=''; return; }          // 접혀 있으면 펼칠 때 그린다
+    const job=++jobId;                              // 새로 시작하면 진행 중이던 작업은 멈춘다
+    const snap={...S};
+    tileKey=stateKey();
+    const order=tiles.slice().sort((a,b)=>(a.idx===snap[o.key]?0:1)-(b.idx===snap[o.key]?0:1));   // 지금 글씨체부터
+    const jobs=order.map(t=>{ const st={...snap, [o.key]:t.idx}; return {st, t, ready:ensureStampFonts(st)}; });   // 글꼴은 한꺼번에 받기 시작한다
+    let i=0;
+    const step=async()=>{
+      if(job!==jobId) return;
+      const end=Math.min(i+3, jobs.length);
+      for(; i<end; i++){
+        const {st, t, ready}=jobs[i];
+        await ready;
+        if(job!==jobId) return;
+        try{ render(t.ctx, TILE_PX, st); }catch(e){ console.error(e); }
+      }
+      if(i<jobs.length) requestAnimationFrame(step);
+    };
+    step();
+  }
+  /* 설정이 바뀌었으니 (펼쳐져 있으면) 잠깐 뒤에 타일을 다시 그린다. 슬라이더를 끄는 동안에는 기다린다. */
+  function queue(){
+    if(!tiles || grid.hidden) return;
+    if(stateKey()===tileKey) return;
+    clearTimeout(timer);
+    timer=setTimeout(refresh, 250);
+  }
+  /* 현재 글씨체 버튼과 타일의 선택 표시를 상태(S)에 맞춘다 */
+  function sync(){
+    const {f, text, label}=o.current();
+    const cur=$(o.prefix+'CurSample');
+    cur.textContent=text; styleSample(cur, f);
+    $(o.prefix+'CurName').textContent=label;
+    if(tiles) tiles.forEach(t=>t.btn.setAttribute('aria-pressed', String(t.idx===S[o.key])));
+  }
+  toggle.addEventListener('click', ()=>{
+    const open=grid.hidden;
+    if(open && !tiles){ build(); sync(); }
+    grid.hidden=!open;
+    toggle.setAttribute('aria-expanded', String(open));
+    $(o.prefix+'Chev').textContent = open ? '접기 ▴' : '바꾸기 ▾';
+    if(open){
+      if(stateKey()!==tileKey) refresh();          // 접혀 있는 동안 바뀐 설정으로 새로 그린다
+      const sel=grid.querySelector('.fp-tile[aria-pressed=true]');   // 지금 글씨체가 보이는 위치로 격자만 스크롤
+      if(sel) grid.scrollTop=Math.max(0, sel.offsetTop-grid.clientHeight/2+sel.offsetHeight/2);
+    }
+  });
+  grid.addEventListener('click', async e=>{
+    const b=e.target.closest('.fp-tile'); if(!b) return;
+    S[o.key]=+b.dataset.idx;
+    syncFontPicker();                               // 두 고르기가 서로의 버튼 모양에 영향을 준다
+    await ensureStampFonts(S);
+    schedule();
+  });
+  /* 목록이 바뀌었을 때(내 글꼴 추가·삭제) 타일을 새로 만든다 */
+  function reset(){
+    tiles=null; tileKey='';
+    if(!grid.hidden){ build(); sync(); refresh(); }
+  }
+  return {sync, queue, reset};
+}
+
+const fontPicker=makeFontPicker({
+  key:'fontIdx', prefix:'font',
+  entries:()=>{
+    const shown=FONTS.map((f,idx)=>({f, idx})).filter(x=>!x.f.hidden);   // hidden:true 는 목록에 내놓지 않는다
+    const groups=[...new Set(shown.map(x=>x.f.group))];
+    return groups.flatMap(g=>shown.filter(x=>x.f.group===g).map(x=>({idx:x.idx, group:g, label:fontOptionLabel(x.f)})));
+  },
+  current:()=>{ const f=mainFont(S); return {f, text:fontPreviewText(f), label:fontOptionLabel(f)}; },
+});
+const hanjaFontPicker=makeFontPicker({
+  key:'hanjaFontIdx', prefix:'hanjaFont',
+  entries:()=>{
+    const hj=FONTS.map((f,idx)=>({f, idx})).filter(x=>x.f.hanja && !x.f.hidden), own=hj.filter(x=>!x.f.custom);
+    return [{idx:-1, group:'따로 고르지 않기', label:'한글 글씨체와 같게'}]
+      .concat(own.filter(x=>x.f.hangul!==false).map(x=>({idx:x.idx, group:'한글·한자 겸용', label:x.f.label})))
+      .concat(own.filter(x=>x.f.hangul===false).map(x=>({idx:x.idx, group:'한자 전용', label:x.f.label})))
+      .concat(hj.filter(x=>x.f.custom).map(x=>({idx:x.idx, group:MYFONT_GROUP, label:x.f.label})));
+  },
+  current:()=>{
+    const f=hanjaFont(S);
+    return {f, text:hanjaPreviewText(), label:S.hanjaFontIdx>=0 ? f.label : `한글 글씨체와 같게 (${mainFont(S).label})`};
+  },
+});
+/* 한자 글씨체는 글자에 한자가 있거나 이미 따로 골라 둔 때만 보인다. 그때는 본 글씨체를 '한글 글씨체'라 부른다. */
+function syncFontPicker(){
+  const on=hasHanja(S.text+S.suffix) || S.hanjaFontIdx>=0;
+  $('hanjaFontRow').hidden=!on;
+  $('fontLabelName').textContent = on ? '한글 글씨체' : '글씨체';
+  fontPicker.sync(); hanjaFontPicker.sync();
+}
+function queueFontTiles(){ fontPicker.queue(); hanjaFontPicker.queue(); }
+
+/* ============================================================
+   내 글꼴
+   사용자가 가진 글꼴 파일(유료 도장 글꼴, 컴퓨터에 깔린 고인체 등)을 이 브라우저 안에서만 쓴다.
+   파일은 서버로 보내지 않고 IndexedDB 에 넣어 두어 다음에 들어와도 그대로 쓸 수 있다.
+   FONTS 끝에 { custom:id, group:'내 글꼴', fb:HANJA_FB, cmap } 로 덧붙인다. 지우면 번호가 밀리지 않도록 hidden 으로만 둔다.
+   ============================================================ */
+const MYFONT_GROUP='내 글꼴';
+const MYFONT_MAX=40*1024*1024;                   // 한 파일 40MB 까지 (한자가 많은 글꼴은 10~20MB)
+const MYFONT_DB='dojang-maker/fonts', MYFONT_STORE='fonts';   // github.io 는 origin 을 같이 쓰므로 이름을 붙인다
+function myFontDB(){
+  return new Promise((resolve, reject)=>{
+    const r=indexedDB.open(MYFONT_DB, 1);
+    r.onupgradeneeded=()=>r.result.createObjectStore(MYFONT_STORE, {keyPath:'id'});
+    r.onsuccess=()=>resolve(r.result);
+    r.onerror=()=>reject(r.error);
   });
 }
-/* 타일 그림에 영향을 주는 상태 — 글씨체 번호만 빼고 전부 */
-function fontTileStateKey(){ return JSON.stringify({...S, fontIdx:0}); }
-/* 타일을 프레임마다 세 개씩 나눠 그린다. 한 번에 다 그리면 화면이 잠깐 멈춘다. */
-function refreshFontTiles(){
-  clearTimeout(fontTileTimer);
-  if(!fontTiles) return;
-  if(fontGrid.hidden){ fontTileKey=''; return; }    // 접혀 있으면 펼칠 때 그린다
-  const job=++fontTileJob;                          // 새로 시작하면 진행 중이던 작업은 멈춘다
-  const snap={...S};
-  fontTileKey=fontTileStateKey();
-  const order=fontTiles.slice().sort((a,b)=>(a.idx===snap.fontIdx?0:1)-(b.idx===snap.fontIdx?0:1));   // 지금 글씨체부터
-  const jobs=order.map(t=>({t, ready:ensureFont(FONTS[t.idx], snap.text+snap.suffix+'가印')}));   // 글꼴은 한꺼번에 받기 시작한다
-  let i=0;
-  const step=async()=>{
-    if(job!==fontTileJob) return;
-    const end=Math.min(i+3, jobs.length);
-    for(; i<end; i++){
-      const {t, ready}=jobs[i];
-      await ready;
-      if(job!==fontTileJob) return;
-      try{ render(t.ctx, TILE_PX, {...snap, fontIdx:t.idx}); }catch(e){ console.error(e); }
+async function myFontStore(mode, fn){
+  const db=await myFontDB();
+  try{
+    return await new Promise((resolve, reject)=>{
+      const tx=db.transaction(MYFONT_STORE, mode), req=fn(tx.objectStore(MYFONT_STORE));
+      tx.oncomplete=()=>resolve(req && req.result);
+      tx.onerror=tx.onabort=()=>reject(tx.error);
+    });
+  }finally{ db.close(); }
+}
+
+/* 글꼴 파일의 cmap 표를 읽어 '이 글자가 글꼴에 있는가'를 알려 주는 함수를 돌려준다.
+   TTF·OTF·TTC(첫 글꼴)·WOFF 를 읽는다. WOFF2 는 압축(brotli)을 풀 수 없어 null — 그때는 다 있다고 본다. */
+async function fontCmap(buf){
+  const dv=new DataView(buf), tag=dv.getUint32(0);
+  let cmap=null;                                  // DataView
+  if(tag===0x774F4646){                           // 'wOFF' — 표마다 zlib 으로 눌려 있을 수 있다
+    const n=dv.getUint16(12);
+    for(let i=0;i<n;i++){
+      const o=44+i*20;
+      if(dv.getUint32(o)!==0x636D6170) continue;  // 'cmap'
+      const off=dv.getUint32(o+4), comp=dv.getUint32(o+8), orig=dv.getUint32(o+12);
+      const raw=new Uint8Array(buf, off, comp);
+      if(comp>=orig){ cmap=new DataView(buf, off, orig); break; }
+      const out=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate'))).arrayBuffer();
+      cmap=new DataView(out); break;
     }
-    if(i<jobs.length) requestAnimationFrame(step);
-  };
-  step();
-}
-/* 설정이 바뀌었으니 (펼쳐져 있으면) 잠깐 뒤에 타일을 다시 그린다. 슬라이더를 끄는 동안에는 기다린다. */
-function queueFontTiles(){
-  if(!fontTiles || fontGrid.hidden) return;
-  if(fontTileStateKey()===fontTileKey) return;
-  clearTimeout(fontTileTimer);
-  fontTileTimer=setTimeout(refreshFontTiles, 250);
-}
-/* 현재 글씨체 버튼과 타일의 선택 표시를 상태(S)에 맞춘다 */
-function syncFontPicker(){
-  const f=FONTS[S.fontIdx]||FONTS[0];
-  const cur=$('fontCurSample');
-  cur.textContent=fontPreviewText(f); styleSample(cur, f);
-  $('fontCurName').textContent=fontOptionLabel(f);
-  if(fontTiles) fontTiles.forEach(t=>t.btn.setAttribute('aria-pressed', String(t.idx===S.fontIdx)));
-}
-fontToggle.addEventListener('click', ()=>{
-  const open=fontGrid.hidden;
-  if(open && !fontTiles){ buildFontGrid(); syncFontPicker(); }
-  fontGrid.hidden=!open;
-  fontToggle.setAttribute('aria-expanded', String(open));
-  $('fontChev').textContent = open ? '접기 ▴' : '바꾸기 ▾';
-  if(open){
-    if(fontTileStateKey()!==fontTileKey) refreshFontTiles();   // 접혀 있는 동안 바뀐 설정으로 새로 그린다
-    const sel=fontGrid.querySelector('.fp-tile[aria-pressed=true]');   // 지금 글씨체가 보이는 위치로 격자만 스크롤
-    if(sel) fontGrid.scrollTop=Math.max(0, sel.offsetTop-fontGrid.clientHeight/2+sel.offsetHeight/2);
+  }else{
+    let base=0;
+    if(tag===0x74746366) base=dv.getUint32(12);  // 'ttcf' — 첫 글꼴
+    const v=dv.getUint32(base);
+    if(v!==0x00010000 && v!==0x4F54544F && v!==0x74727565) return null;   // TrueType · 'OTTO' · 'true'
+    const n=dv.getUint16(base+4);
+    for(let i=0;i<n;i++){
+      const o=base+12+i*16;
+      if(dv.getUint32(o)===0x636D6170){ cmap=new DataView(buf, dv.getUint32(o+8), dv.getUint32(o+12)); break; }
+    }
   }
-});
-fontGrid.addEventListener('click', async e=>{
-  const b=e.target.closest('.fp-tile'); if(!b) return;
-  S.fontIdx=+b.dataset.idx;
+  if(!cmap) return null;
+  /* 유니코드 하위표: 형식 12(전체 유니코드)를 먼저, 없으면 형식 4(BMP) */
+  let f12=null, f4=null;
+  const n=cmap.getUint16(2);
+  for(let i=0;i<n;i++){
+    const pid=cmap.getUint16(4+i*8), eid=cmap.getUint16(6+i*8), off=cmap.getUint32(8+i*8);
+    const unicode = pid===0 || (pid===3 && (eid===1 || eid===10));
+    if(!unicode || off>=cmap.byteLength) continue;
+    const fmt=cmap.getUint16(off);
+    if(fmt===12 && f12==null) f12=off;
+    if(fmt===4 && f4==null) f4=off;
+  }
+  if(f12!=null){
+    const groups=cmap.getUint32(f12+12);
+    return cp=>{
+      for(let g=0;g<groups;g++){
+        const o=f12+16+g*12, lo=cmap.getUint32(o), hi=cmap.getUint32(o+4);
+        if(cp>=lo && cp<=hi) return cmap.getUint32(o+8)+cp-lo!==0;
+      }
+      return false;
+    };
+  }
+  if(f4!=null){
+    const seg=cmap.getUint16(f4+6)/2, ends=f4+14, starts=ends+seg*2+2, deltas=starts+seg*2, ros=deltas+seg*2;
+    return cp=>{
+      if(cp>0xFFFF) return false;
+      for(let i=0;i<seg;i++){
+        if(cp>cmap.getUint16(ends+i*2)) continue;
+        const start=cmap.getUint16(starts+i*2);
+        if(cp<start) return false;
+        const delta=cmap.getInt16(deltas+i*2), ro=cmap.getUint16(ros+i*2);
+        if(!ro) return ((cp+delta)&0xFFFF)!==0;
+        const at=ros+i*2+ro+2*(cp-start);
+        if(at+2>cmap.byteLength) return false;
+        const gi=cmap.getUint16(at);
+        return gi!==0 && ((gi+delta)&0xFFFF)!==0;
+      }
+      return false;
+    };
+  }
+  return null;
+}
+/* 글꼴 f 에 없는 글자들 (내 글꼴만 알 수 있다) */
+function missingGlyphs(f, chars){
+  if(!f.cmap) return [];
+  return [...new Set(chars)].filter(ch=>!f.cmap(ch.codePointAt(0)));
+}
+
+/* 저장해 둔 글꼴 하나를 문서에 등록하고 FONTS 에 덧붙인다. 번호를 돌려준다. */
+const MYFONT_HANJA_PROBE=[...'金李朴崔鄭姜趙尹張林韓吳申徐權黃安宋柳洪印'];
+async function registerMyFont(rec){
+  const fam='MyFont-'+rec.id;
+  const face=new FontFace(fam, rec.data.slice(0));
+  await face.load();                              // 글꼴 파일이 아니면 여기서 실패한다
+  document.fonts.add(face);
+  let cmap=null;
+  try{ cmap=await fontCmap(rec.data); }catch(e){ console.error(e); }
+  const has=ch=>!cmap || cmap(ch.codePointAt(0));
+  const hangul=[...'가한글도장'].every(has);
+  const hanja=MYFONT_HANJA_PROBE.filter(has).length>=MYFONT_HANJA_PROBE.length/2;
+  if(!hangul && !hanja){ document.fonts.delete(face); throw new Error('한글이나 한자가 들어 있지 않은 글꼴입니다'); }
+  // 글꼴에 없는 글자는 노토 세리프(KR → JP)로 그린다. rare:true — 인명용 한자도 그 대체 글꼴이 맡는다.
+  FONTS.push({ fam, w:400, label:rec.name, group:MYFONT_GROUP, custom:rec.id, face, buf:rec.data, cmap,
+               fb:HANJA_FB, hanja, rare:hanja, ...(hangul ? {} : {hangul:false}) });
+  return FONTS.length-1;
+}
+const myFontIdx=id=>FONTS.findIndex(f=>f.custom===id && !f.hidden);
+/* 처음 들어올 때: 저장해 둔 글꼴을 모두 등록한다 */
+async function loadMyFonts(){
+  if(!window.indexedDB) return;
+  const recs=(await myFontStore('readonly', st=>st.getAll())) || [];
+  recs.sort((a,b)=>a.added-b.added);
+  for(const rec of recs){
+    try{ await registerMyFont(rec); }catch(e){ console.error('내 글꼴을 불러오지 못했습니다:', rec.name, e); }
+  }
+}
+
+const myFontNote=$('myFontNote'), MYFONT_HINT=myFontNote.textContent;
+function renderMyFontList(){
+  const ul=$('myFontList');
+  ul.textContent='';
+  FONTS.forEach(f=>{
+    if(!f.custom || f.hidden) return;
+    const li=document.createElement('li');
+    const smp=document.createElement('span'); smp.className='mf-sample'; smp.setAttribute('aria-hidden','true');
+    smp.textContent=(f.hangul!==false ? '도장' : '')+(f.hanja ? '印' : '');
+    styleSample(smp, f);
+    const name=document.createElement('span'); name.className='mf-name'; name.textContent=f.label; name.title=f.label;
+    const kind=document.createElement('small');
+    kind.textContent=f.hangul===false ? '한자' : f.hanja ? '한글·한자' : '한글';
+    name.appendChild(kind);
+    const del=document.createElement('button'); del.type='button'; del.dataset.id=f.custom; del.textContent='지우기';
+    del.setAttribute('aria-label', f.label+' 지우기');
+    li.append(smp, name, del);
+    ul.appendChild(li);
+  });
+}
+function myFontsChanged(){
+  renderMyFontList();
+  fontPicker.reset(); hanjaFontPicker.reset();
   syncFontPicker();
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+}
+async function addMyFontFiles(files){
+  const notes=[];
+  let lastIdx=-1;
+  for(const file of files){
+    if(file.size>MYFONT_MAX){ notes.push(`${file.name}: 파일이 너무 큽니다(40MB 까지).`); continue; }
+    const rec={ id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),
+                name:file.name.replace(/\.[^.]+$/,'').slice(0,40) || '내 글꼴', data:await file.arrayBuffer(), added:Date.now() };
+    try{ lastIdx=await registerMyFont(rec); }
+    catch(e){ notes.push(`${file.name}: ${/한글이나 한자/.test(e.message) ? e.message : '브라우저가 읽을 수 없는 글꼴입니다(손상됐거나 웹에서 쓸 수 없는 형식 — 맥 시스템 글꼴 일부가 그렇습니다)'}.`); continue; }
+    try{ await myFontStore('readwrite', st=>st.put(rec)); }
+    catch(e){ notes.push(`${file.name}: 브라우저에 저장하지 못해 이번에만 씁니다.`); }
+    notes.push(`${FONTS[lastIdx].label}${josaRo(FONTS[lastIdx].label)} 불러왔습니다.`);
+  }
+  if(lastIdx>=0){
+    // 마지막으로 불러온 글꼴을 바로 쓴다: 한글이 있으면 한글 글씨체로, 한자만 있으면 한자 글씨체로
+    const f=FONTS[lastIdx];
+    if(f.hangul!==false) S.fontIdx=lastIdx; else S.hanjaFontIdx=lastIdx;
+    if(f.cmap && f.hanja===false) notes.push('한자가 거의 없는 글꼴이라 한자는 노토 세리프로 그려집니다.');
+  }
+  myFontsChanged();
+  myFontNote.textContent=notes.join(' ');
+  await ensureStampFonts(S);
   schedule();
+}
+async function removeMyFont(id){
+  const i=myFontIdx(id); if(i<0) return;
+  const f=FONTS[i];
+  try{ await myFontStore('readwrite', st=>st.delete(id)); }catch(e){ console.error(e); }
+  f.hidden=true;
+  try{ document.fonts.delete(f.face); }catch(e){}
+  if(S.fontIdx===i) S.fontIdx=DEFAULT_FONT_IDX;
+  if(S.hanjaFontIdx===i) S.hanjaFontIdx=-1;
+  myFontsChanged();
+  myFontNote.textContent=`${f.label}${josaRo(f.label)} 지웠습니다.`;
+  await ensureStampFonts(S);
+  schedule();
+}
+$('myFontAdd').addEventListener('click', ()=>$('myFontFile').click());
+$('myFontFile').addEventListener('change', e=>{
+  const files=[...e.target.files];
+  e.target.value='';                               // 같은 파일을 다시 골라도 change 가 오도록
+  if(!files.length) return;
+  myFontNote.textContent='글꼴을 불러오는 중…';
+  addMyFontFiles(files).catch(err=>{ myFontNote.textContent='글꼴을 불러오지 못했습니다: '+err.message; console.error(err); });
+});
+$('myFontList').addEventListener('click', e=>{
+  const b=e.target.closest('button[data-id]'); if(!b) return;
+  removeMyFont(b.dataset.id).catch(err=>{ myFontNote.textContent='지우지 못했습니다: '+err.message; });
 });
 
 /* 슬라이더 표시값 */
@@ -1311,7 +1621,7 @@ const TEXT_KEYS=[['text','text'],['suffix','suffix']];
 TEXT_KEYS.forEach(([id,key])=>{
   $(id).addEventListener('input', e=>{
     S[key]=e.target.value;
-    if(key==='text') syncFontPicker();   // 글씨체 미리보기도 지금 글자로
+    syncFontPicker();                    // 글씨체 미리보기도 지금 글자로, 한자가 생기면 한자 글씨체 고르기도
     schedule();
   });
 });
@@ -1341,7 +1651,7 @@ $('reset').addEventListener('click', async ()=>{
   try{ localStorage.removeItem(STORE_KEY); }catch(e){}
   setPaper(false);
   pushStateToUI();
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  await ensureStampFonts(S);
   schedule();
 });
 
@@ -1371,7 +1681,7 @@ $('presets').addEventListener('click', async e=>{
   Object.assign(S, p);
   S.seed=(Math.random()*2147483647)|0;
   pushStateToUI();
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  await ensureStampFonts(S);
   schedule();
 });
 
@@ -1464,7 +1774,7 @@ function josaRo(word){
 }
 
 /* ---- 한자 변환: 대화상자 ---- */
-const HANJA_FONT_IDX=fontIdxOf('Noto Serif KR');   // 한자 지원 글씨체로 바꿀 때 쓰는 기본 글씨체
+const HANJA_FONT_IDX=fontIdxOf('Noto Serif KR');   // 한자 글씨체로 골라 줄 기본 글씨체
 const HANJA_RARE_FONT_IDX=FONTS.findIndex(f=>f.hanja && f.rare && f.hangul!==false);   // 인명용 추가 한자까지 그리는 한글 글씨체
 let HANJA=null;                                    // 사전은 처음 쓸 때 한 번만 읽는다
 function hanjaDict(){
@@ -1475,13 +1785,13 @@ function hanjaDict(){
 function hasRareHanja(text){
   return hasHanja(text) && [...text].some(c=>isHanja(c) && hanjaDict().rare.has(c.normalize('NFC')));
 }
-/* 적용할 때 바꿔 줄 글씨체: 인명용 추가 한자가 있으면 그것까지 그리는 쪽으로 */
+/* 적용할 때 한자 글씨체로 골라 줄 글씨체: 인명용 추가 한자가 있으면 그것까지 그리는 쪽으로 */
 function hanjaTargetFont(text){
   return (HANJA_RARE_FONT_IDX>=0 && hasRareHanja(text)) ? HANJA_RARE_FONT_IDX : HANJA_FONT_IDX;
 }
-/* 지금 글씨체가 결과의 한자를 다 못 그리면 바꿔 줄 글씨체 번호, 괜찮으면 -1 */
+/* 지금 한자 글씨체가 결과의 한자를 다 못 그리면 골라 줄 글씨체 번호, 괜찮으면 -1 */
 function fontSwitchTarget(text){
-  const cur=FONTS[S.fontIdx]||FONTS[0], target=hanjaTargetFont(text);
+  const cur=hanjaFont(S), target=hanjaTargetFont(text);
   if(!cur.hanja) return target;
   if(target===HANJA_RARE_FONT_IDX && !cur.rare) return target;
   return -1;
@@ -1583,19 +1893,19 @@ async function applyHanja(){
   if(suffix!==S.suffix){ S.suffix=suffix; notes.push('보조 글자를 印으로 바꿨습니다.'); }
   const target=fontSwitchTarget(text);
   if(target>=0 && $('hjFont').checked && hasHanja(text+S.suffix)){
-    S.fontIdx=target;
+    S.hanjaFontIdx=target;                       // 한글 글씨체는 그대로 두고 한자만 바꾼다
     const label=FONTS[target].label;
-    notes.push(`글씨체를 ${label}${josaRo(label)} 바꿨습니다.`);
+    notes.push(`한자 글씨체를 ${label}${josaRo(label)} 바꿨습니다.`);
   }
   pushStateToUI();
   hjDlg.close();
   schedule();                                    // 우선 지금 있는 글꼴로 보여 주고
   if(hasHanja(S.text+S.suffix)){
     hjNote.textContent=notes.join(' ')+' 글씨체를 불러오는 중…';
-    await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+    await ensureStampFonts(S);
     const rare=[...new Set([...S.text].filter(c=>isHanja(c) && hanjaDict().rare.has(c.normalize('NFC'))))];
-    if(rare.length && !(FONTS[S.fontIdx]||FONTS[0]).rare)
-      notes.push(`인명용 추가 한자(${rare.join(' ')})는 이 글씨체에 없어 컴퓨터의 기본 한자 글꼴로 그려집니다. ‘인명용 한자까지’ 글씨체를 고르면 웹 글씨체로 그려집니다.`);
+    if(rare.length && !hanjaFont(S).rare)
+      notes.push(`인명용 추가 한자(${rare.join(' ')})는 이 글씨체에 없어 컴퓨터의 기본 한자 글꼴로 그려집니다. 한자 글씨체로 ‘인명용 한자까지’나 ‘한자 전용’ 글씨체를 고르면 웹 글씨체로 그려집니다.`);
   }
   hjNote.textContent=notes.join(' ');
   schedule();                                    // 웹폰트가 적용된 모습으로 다시 그린다
@@ -1652,7 +1962,10 @@ function flushState(){
   if(!CAN_STORE) return;
   try{
     const paper=$('paper');   // 글꼴이 늦게 떠서 다시 그릴 때 화면이 이미 바뀌었을 수도 있다
-    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:!!(paper && paper.checked)}));
+    // 내 글꼴은 들어올 때마다 번호가 달라질 수 있어 글꼴 id 도 함께 적는다
+    const customOf=i=>(i>=0 && (FONTS[i]||{}).custom) || null;
+    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:!!(paper && paper.checked),
+      fontCustom:customOf(S.fontIdx), hanjaFontCustom:customOf(S.hanjaFontIdx)}));
   }catch(e){ const note=$('saveNote'); if(note) note.textContent='설정을 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.'; }
 }
 document.addEventListener('visibilitychange', ()=>{
@@ -1687,8 +2000,12 @@ function loadState(){
       const el=$(k);
       if(el && el.type==='range') S[k]=Math.min(+el.max, Math.max(+el.min, v));
       else if(k==='fontIdx'){
-        const i=Math.min(FONTS.length-1, Math.max(0, Math.round(v)));
-        S[k]=FONTS[i].hidden ? DEFAULT_FONT_IDX : i;   // 숨긴 글씨체를 가리키면 기본 글씨체로
+        const i=Math.min(BUILTIN_FONT_COUNT-1, Math.max(0, Math.round(v)));
+        S[k]=FONTS[i].hidden ? DEFAULT_FONT_IDX : i;   // 숨긴 글씨체를 가리키면 기본 글씨체로 (내 글꼴은 아래에서 id 로)
+      }
+      else if(k==='hanjaFontIdx'){                       // 한자가 있는 글씨체만, 아니면 '한글 글씨체와 같게'
+        const i=Math.round(v), f=i<BUILTIN_FONT_COUNT && FONTS[i];
+        S[k]=(f && f.hanja && !f.hidden) ? i : -1;
       }
       else                        S[k]=v|0;
       return;
@@ -1700,6 +2017,9 @@ function loadState(){
     else if(k==='color') { if(/^#[0-9a-fA-F]{6}$/.test(v)) S.color=v; }
     else if(ENUM[k])     { if(ENUM[k].includes(v)) S[k]=v; }
   });
+  // 내 글꼴은 id 로 찾는다 (지워졌으면 위에서 정한 기본값 그대로)
+  if(typeof saved.fontCustom==='string'){ const i=myFontIdx(saved.fontCustom); if(i>=0) S.fontIdx=i; }
+  if(typeof saved.hanjaFontCustom==='string'){ const i=myFontIdx(saved.hanjaFontCustom); if(i>=0 && FONTS[i].hanja) S.hanjaFontIdx=i; }
   return saved;
 }
 
@@ -1711,14 +2031,27 @@ function setPaper(on){
 
 /* 글씨체와 글자가 맞지 않을 때 글씨체 선택 아래에 보여 주는 안내 */
 const FB_LABEL={'Noto Serif KR':'노토 세리프', 'Noto Sans KR':'노토 산스'};
-function fontNoteText(f, text){
-  if(f.hangul===false && hasHangul(text))
+function fontNoteText(st){
+  const f=mainFont(st), hf=hanjaFont(st), text=st.text+st.suffix, own=hf===f ? '이 글씨체' : '한자 글씨체';
+  // 내 글꼴은 실제로 어떤 글자가 없는지 알 수 있다 — 없는 글자는 노토 세리프로 그려진다
+  const chars=[...text].filter(c=>c.trim());
+  const miss=[...new Set([f, hf])].filter(x=>x.custom)
+    .flatMap(x=>missingGlyphs(x, chars.filter(c=>glyphFont(st, c)===x)));
+  if(miss.length) return `내 글꼴에 없는 글자(${miss.join(' ')})는 노토 세리프로 그려집니다.`;
+  if(f.custom && hf.custom) return '';
+  if(f.hangul===false && !f.custom && hasHangul(text))
     return `이 글씨체에는 한글이 없어 한글 부분은 ${FB_LABEL[[].concat(f.fb||[])[0]]||'기본 글씨체'}로 그려집니다.`;
-  if(!f.hanja && hasHanja(text))
-    return '이 글씨체에는 한자가 없어 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. “한자 지원”·“한자 전용” 글씨체를 고르면 웹 글씨체로 그려집니다.';
-  if(f.hanja && !f.rare && hasRareHanja(text))
-    return '이 글씨체에 없는 인명용 추가 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. “인명용 한자까지”나 “한자 전용” 글씨체를 고르면 웹 글씨체로 그려집니다.';
+  if(hf.custom) return '';
+  if(!hf.hanja && hasHanja(text))
+    return `${own}에는 한자가 없어 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. 아래 ‘한자 글씨체’에서 한자가 있는 글씨체를 고르면 웹 글씨체로 그려집니다.`;
+  if(!hf.rare && hasRareHanja(text))
+    return `${own}에 없는 인명용 추가 한자는 컴퓨터의 기본 한자 글꼴로 그려집니다. 한자 글씨체로 “인명용 한자까지”나 “한자 전용” 글씨체를 고르면 웹 글씨체로 그려집니다.`;
   return '';
+}
+/* 미리보기 아래 설명에 적을 글씨체 이름 */
+function fontMetaLabel(st){
+  const f=mainFont(st), hf=hanjaFont(st);
+  return (hf!==f && hasHanja(st.text+st.suffix)) ? `${f.label} + 한자 ${hf.label}` : f.label;
 }
 
 /* ---- 미리보기 (프레임마다 한 번만) ---- */
@@ -1731,8 +2064,8 @@ function schedule(){
     try{
       render(vctx, view.width, S);
       const n=[...S.text.trim()].filter(c=>c!==' ').length+[...S.suffix].length;
-      metaEl.textContent = `글자 ${n}자 · ${FONTS[S.fontIdx].label} · ${S.style==='yang'?'양각':'음각'} · 미리보기 ${view.width}px`;
-      fontNoteEl.textContent = fontNoteText(FONTS[S.fontIdx]||FONTS[0], S.text+S.suffix);
+      metaEl.textContent = `글자 ${n}자 · ${fontMetaLabel(S)} · ${S.style==='yang'?'양각':'음각'} · 미리보기 ${view.width}px`;
+      fontNoteEl.textContent = fontNoteText(S);
       queueFontTiles();                          // 글씨체 고르기 타일도 바뀐 설정으로 (펼쳐져 있을 때만)
     }catch(err){
       statusEl.textContent='그리기 오류: '+err.message;
@@ -1750,7 +2083,7 @@ async function renderToBlob(st, size, background=null){
   const c=document.createElement('canvas');
   c.width=c.height=size;
   const ctx=c.getContext('2d',{willReadFrequently:true});
-  await ensureFont(FONTS[st.fontIdx], st.text+st.suffix+'가印');
+  await ensureStampFonts(st);
   render(ctx, size, st);
   if(background){
     // 음각과 잉크의 반투명 영역까지 완성된 도장 뒤에 배경을 합성한다.
@@ -1859,8 +2192,9 @@ function facesFor(faces, f, chars){
   }
   return out;
 }
-async function embedFontCss(f, chars){
-  const faces=facesFor(await fontFaces(), f, chars);
+/* uses: [[글씨체, 그 글씨체로 그릴 글자들], …] */
+async function embedFontCss(uses){
+  const all=await fontFaces(), faces=[...new Set(uses.flatMap(([f, chars])=>facesFor(all, f, chars)))];
   const parts=await Promise.all(faces.map(async x=>{
     const r=await fetch(x.url);
     if(!r.ok) throw new Error('HTTP '+r.status);
@@ -1871,8 +2205,35 @@ async function embedFontCss(f, chars){
   }));
   return parts.join('\n');
 }
-/* 지금 설정의 도장을 SVG 문자열로. fontCss 가 비어 있으면 글꼴 이름만 적는다. */
-function stampSVG(st, size, fontCss){
+/* 내 글꼴은 글꼴 파일을 SVG 에 넣지 않고(라이선스) 글자 윤곽을 path 로 옮긴다. opentype.js 는 이때만 받는다. */
+const OPENTYPE_URL='https://cdnjs.cloudflare.com/ajax/libs/opentype.js/1.3.4/opentype.min.js';
+let opentypePromise=null;
+function loadOpentype(){
+  if(!opentypePromise) opentypePromise=new Promise((resolve, reject)=>{
+    if(window.opentype){ resolve(window.opentype); return; }
+    const sc=document.createElement('script');
+    sc.src=OPENTYPE_URL; sc.crossOrigin='anonymous';
+    sc.onload=()=>window.opentype ? resolve(window.opentype) : reject(new Error('opentype.js'));
+    sc.onerror=()=>{ opentypePromise=null; reject(new Error('opentype.js 를 받지 못했습니다')); };
+    document.head.appendChild(sc);
+  });
+  return opentypePromise;
+}
+/* 이 도장에 쓰인 내 글꼴들을 opentype.js 로 읽는다: Map(글씨체 → 글꼴). 못 읽은 글꼴은 빠진다. */
+async function outlineFontsFor(st){
+  const out=new Map();
+  const used=[...new Set([...st.text, ...st.suffix].map(ch=>glyphFont(st, ch)))].filter(f=>f.custom);
+  if(!used.length) return out;
+  const ot=await loadOpentype();
+  for(const f of used){
+    if(!f.ot){ try{ f.ot=ot.parse(f.buf.slice(0)); }catch(e){ console.error(e); f.ot=false; } }   // WOFF2 는 못 읽는다
+    if(f.ot) out.set(f, f.ot);
+  }
+  return out;
+}
+/* 지금 설정의 도장을 SVG 문자열로. fontCss 가 비어 있으면 글꼴 이름만 적는다.
+   outline: outlineFontsFor 의 결과 — 그 글꼴의 글자는 <text> 대신 윤곽(path)으로 적는다. */
+function stampSVG(st, size, fontCss, outline=new Map()){
   const ctx=document.createElement('canvas').getContext('2d');   // 글자 측정용
   const g=stampGeometry(ctx, size, st);
   const n2=v=>+v.toFixed(2), n4=v=>+v.toFixed(4);
@@ -1884,7 +2245,19 @@ function stampSVG(st, size, fontCss){
     return d+'Z';
   };
   const stroke=(L, color)=>`<path d="${pathD(L)}" fill="none" stroke="${color}" stroke-width="${n2(L.lw)}" stroke-linejoin="round"/>`;
-  const texts=g.glyphs.map(q=>`<text transform="translate(${n2(q.cx)} ${n2(q.cy)}) scale(${n4(q.sx)} ${n4(q.sy)})" x="${n2(-q.gx)}" y="${n2(q.gy)}">${esc(q.ch)}</text>`).join('');
+  // 본 글씨체와 다른 글자(따로 고른 한자 글씨체)만 <text> 에 글꼴을 따로 적는다
+  const own=q=>q.f===g.f ? '' : ` font-family="${esc(fontFamilyList(q.f))}" font-weight="${q.f.w}"`;
+  /* 내 글꼴 글자의 윤곽. 캔버스와 같은 자리에 놓이도록 글자 폭 가운데를 -gx, 기준선을 gy 에 맞춘다. */
+  const outlineD=q=>{
+    const ot=outline.get(q.f); if(!ot) return '';
+    const gl=ot.charToGlyph(q.ch); if(!gl || !gl.index) return '';   // 글꼴에 없는 글자는 <text>(대체 글씨체)로
+    return gl.getPath(-q.gx-q.adv/2, q.gy, REF).toPathData(2);
+  };
+  const texts=g.glyphs.map(q=>{
+    const d=outlineD(q), tf=`translate(${n2(q.cx)} ${n2(q.cy)}) scale(${n4(q.sx)} ${n4(q.sy)})`;
+    if(d) return `<path transform="${tf}" d="${d}"/>`;
+    return `<text transform="${tf}" x="${n2(-q.gx)}" y="${n2(q.gy)}"${own(q)}>${esc(q.ch)}</text>`;
+  }).join('');
   const textG=fill=>`<g fill="${fill}" font-family="${esc(fontFamilyList(g.f))}" font-weight="${g.f.w}" font-size="${REF}" text-anchor="middle">${texts}</g>`;
   const color=esc(st.color);
   let body;
@@ -1904,14 +2277,23 @@ function stampSVG(st, size, fontCss){
 }
 $('saveSvg').addEventListener('click', ()=>withBusy('SVG를 만들고 있습니다…', async()=>{
   const st={...S}, size=+$('size').value;
-  await ensureFont(FONTS[st.fontIdx], st.text+st.suffix+'가印');   // 글자 측정은 웹폰트가 뜬 뒤에
+  await ensureStampFonts(st);   // 글자 측정은 웹폰트가 뜬 뒤에
   const chars=[...st.text, ...st.suffix];
+  let outline=new Map();
+  try{ outline=await outlineFontsFor(st); }
+  catch(err){ console.error(err); }                               // 받지 못하면 내 글꼴 글자도 <text> 로 적는다
+  const drawn=ch=>{ const f=glyphFont(st, ch), ot=outline.get(f); return !!(ot && ot.charToGlyph(ch).index); };
+  const uses=[...new Set(chars.map(ch=>glyphFont(st, ch)))]
+    .map(f=>[f, chars.filter(ch=>glyphFont(st, ch)===f && !drawn(ch))]).filter(([, cs])=>cs.length);
+  const lostCustom=chars.some(ch=>glyphFont(st, ch).custom && !outline.get(glyphFont(st, ch)));
   let fontCss='';
-  try{ fontCss=await embedFontCss(FONTS[st.fontIdx]||FONTS[0], chars); }
+  try{ fontCss=uses.length ? await embedFontCss(uses) : ''; }
   catch(err){ console.error(err); }                               // 받지 못하면 글꼴 이름만 적는다
-  const svg=stampSVG(st, size, fontCss);
+  const svg=stampSVG(st, size, fontCss, outline);
   downloadBlob(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}), `도장_${sanitize(st.text+st.suffix)}.svg`);
-  statusEl.textContent = fontCss
+  statusEl.textContent = lostCustom
+    ? 'SVG로 저장했습니다. 내 글꼴을 윤곽으로 바꾸지 못해 글꼴 이름만 적었으니, 그 글꼴이 없는 컴퓨터에서는 다르게 보입니다. PNG 저장을 권합니다.'
+    : (fontCss || !uses.length)
     ? `SVG로 저장했습니다 · 벡터 · 글꼴 포함 (${Math.round(svg.length/1024)}KB)`
     : 'SVG로 저장했습니다. 글꼴을 내려받지 못해 글꼴 이름만 적었으니, 글꼴이 없는 컴퓨터에서는 다른 글씨체로 보일 수 있습니다.';
 }));
@@ -1944,6 +2326,8 @@ shareBtn.addEventListener('click', ()=>withBusy('공유할 이미지를 만들�
 
 /* ---- 시작 ---- */
 (async function init(){
+  try{ await loadMyFonts(); }catch(e){ console.error(e); }   // 내 글꼴을 먼저 등록해야 저장된 설정이 그것을 가리킬 수 있다
+  renderMyFontList();
   const restored = loadState();                // 지난번에 쓰던 설정 복원
   if(!CAN_STORE) $('saveNote').textContent='이 브라우저에서는 설정 저장을 쓸 수 없습니다.';
   pushStateToUI();
@@ -1954,7 +2338,7 @@ shareBtn.addEventListener('click', ()=>withBusy('공유할 이미지를 만들�
   // 브라우저가 새로고침 때 입력값을 되살려 놓는 경우가 있어, 로드 후 한 번 더 맞춘다
   window.addEventListener('load', ()=>{ pushStateToUI(); schedule(); });
   try{ await document.fonts.ready; }catch(e){}
-  await ensureFont(FONTS[S.fontIdx], S.text+S.suffix+'가印');
+  await ensureStampFonts(S);
   schedule();                                  // 웹폰트가 적용된 모습으로 다시 그린다
 })();
 </script>
