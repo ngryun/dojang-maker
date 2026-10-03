@@ -12,6 +12,8 @@
      1. 원본 TTF 를 tools/data/fonts/ 에 아래 FONTS 의 file 이름으로 둔다 (git 에는 넣지 않는다).
         - 강원교육 서체: https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDc3MTU=
         - 경기천년체:    https://www.gg.go.kr/contents/contents.do?ciIdx=679&menuId=2457
+        - 전남교육 서체: https://www.jne.go.kr/main/cm/cntnts/cntntsView.do?mi=1778&cntntsId=620
+        - 인천교육 서체: https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=10874&cntntsId=943
      2. npm i --no-save subset-font
      3. node tools/build-local-fonts.cjs
 
@@ -20,6 +22,10 @@
      유료로 양도하거나 판매하는 등의 상업적 행위는 금지.
    - 경기천년체(경기도): 누구나 무료로 자유롭게 사용, 웹에 사용하거나 프로그램에 탑재하여 배포 가능.
      폰트 자체를 그대로 판매하거나 유료로 양도하는 행위는 금지. 공공누리 제1유형(출처표시).
+   - 전남교육 서체(전라남도교육청): 누구나 무료로 자유롭게 사용(출처표기 권장), 웹 사용·프로그램에 탑재하여 배포 가능.
+     유료로 양도·판매하는 행위는 금지.
+   - 인천교육 서체(인천광역시교육청): 누구나 무료로 자유롭게 사용(출처 표기 권장), 웹 등에 특별한 허가 절차 없이 사용 가능.
+     유료로 양도하거나 판매하는 등의 상업적 행위는 금지.
    ============================================================ */
 const fs=require('node:fs');
 const path=require('node:path');
@@ -30,7 +36,8 @@ const SRC=path.join(__dirname, 'data/fonts');
 const OUT=path.join(ROOT, 'fonts');
 const INDEX=path.join(ROOT, 'index.html');
 
-/* fam 은 index.html 의 FONTS 와 같아야 한다 */
+/* fam 은 index.html 의 FONTS 와 같아야 한다.
+   hangulPerChunk: 획이 복잡해 글자당 용량이 큰 손글씨 글꼴은 조각을 잘게 나눠 한 조각이 80KB 안팎이 되게 한다. */
 const FONTS=[
   { file:'GangwonEduModu-Bold.ttf',   slug:'gangwon-modu-bold',  fam:'Gangwon Edu Modu Bold' },
   { file:'GangwonEduModu-Light.ttf',  slug:'gangwon-modu-light', fam:'Gangwon Edu Modu Light' },
@@ -40,6 +47,14 @@ const FONTS=[
   { file:'GyeonggiBatang-Bold.ttf',   slug:'gyeonggi-batang-bold',    fam:'Gyeonggi Batang Bold' },
   { file:'GyeonggiBatang-Regular.ttf',slug:'gyeonggi-batang-regular', fam:'Gyeonggi Batang Regular' },
   { file:'GyeonggiTitle-Bold.ttf',    slug:'gyeonggi-title-bold',     fam:'Gyeonggi Title Bold' },
+  { file:'JeonnamEduDobak-ExtraBold.ttf', slug:'jeonnam-dobak',        fam:'Jeonnam Edu Dobak' },
+  { file:'JeonnamEduBareun-Bold.ttf',     slug:'jeonnam-bareun-bold',  fam:'Jeonnam Edu Bareun Bold' },
+  { file:'JeonnamEduBareun-Light.ttf',    slug:'jeonnam-bareun-light', fam:'Jeonnam Edu Bareun Light' },
+  { file:'JeonnamEduYuna.ttf',            slug:'jeonnam-yuna',         fam:'Jeonnam Edu Yuna' },
+  { file:'IncheonEduSimin.ttf',   slug:'incheon-simin',   fam:'Incheon Edu Simin', hangulPerChunk:240 },
+  { file:'IncheonEduSotong.ttf',  slug:'incheon-sotong',  fam:'Incheon Edu Sotong', hangulPerChunk:240 },
+  { file:'IncheonEduHimchan.ttf', slug:'incheon-himchan', fam:'Incheon Edu Himchan', hangulPerChunk:240 },
+  { file:'IncheonEduJaram.ttf',   slug:'incheon-jaram',   fam:'Incheon Edu Jaram', hangulPerChunk:240 },
 ];
 
 /* 글꼴에 실제로 있는 글자(cmap). 형식 4·12 유니코드 하위표를 읽는다. */
@@ -88,11 +103,11 @@ function runs(list){                    // [1,2,3,7] → [[1,3],[7,7]]
   for(const c of list){ const last=out[out.length-1]; if(last && c===last[1]+1) last[1]=c; else out.push([c,c]); }
   return out;
 }
-function chunks(cps){
+function chunks(cps, hangulPerChunk=HANGUL_PER_CHUNK){
   const out=[];
   const other=cps.filter(c=>c>=0x20 && !isHangul(c) && !isHanja(c));
   if(other.length) out.push({cps:other, ranges:runs(other)});
-  for(const part of [...split(cps.filter(isHangul), HANGUL_PER_CHUNK), ...split(cps.filter(isHanja), HANJA_PER_CHUNK)])
+  for(const part of [...split(cps.filter(isHangul), hangulPerChunk), ...split(cps.filter(isHanja), HANJA_PER_CHUNK)])
     out.push({cps:part, ranges:[[part[0], part[part.length-1]]]});
   return out;
 }
@@ -107,7 +122,7 @@ const rangeText=ranges=>ranges.map(([a,b])=>a===b ? 'U+'+hex(a) : `U+${hex(a)}-$
     const dir=path.join(OUT, f.slug);
     fs.rmSync(dir, {recursive:true, force:true});
     fs.mkdirSync(dir, {recursive:true});
-    const parts=chunks(codepoints(src));
+    const parts=chunks(codepoints(src), f.hangulPerChunk);
     let size=0;
     for(let i=0;i<parts.length;i++){
       const woff2=await subsetFont(src, String.fromCodePoint(...parts[i].cps), {targetFormat:'woff2'});

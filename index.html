@@ -12,7 +12,7 @@
 <!-- 글씨체 24종의 CSS(압축해도 500KB 남짓)가 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다.
      글꼴 파일은 어차피 글자를 쓸 때만 받는다. 스크립트 쪽(ensureFont)은 이 CSS 가 적용될 때까지 기다린다. -->
 <noscript><link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet"></noscript>
-<!-- 구글 폰트에 없는 무료 공공 글씨체(강원교육 서체·경기천년체). fonts/ 의 woff2 조각을 글자 범위별로 받는다.
+<!-- 구글 폰트에 없는 무료 공공 글씨체(강원·전남·인천 교육청 서체, 경기천년체). fonts/ 의 woff2 조각을 글자 범위별로 받는다.
      아래 블록은 tools/build-local-fonts.cjs 가 만들어 넣으니 손으로 고치지 않는다.
      다른 무료 글씨체를 넣을 때도 그 스크립트의 FONTS 에 더하고 아래 JS 의 FONTS 배열에 같은 fam 으로 추가한다. -->
 <style id="localFonts">
@@ -248,6 +248,298 @@
 @font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
 @font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
 @font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/0.woff2) format('woff2');unicode-range:U+20-7F,U+A0-A5,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2013-2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211-2212,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+22EF,U+2312,U+2329-232A,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+301C,U+3041-3093,U+30A1-30F6,U+30FB-30FC,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Jeonnam Edu Dobak';font-weight:400;font-display:swap;src:url(fonts/jeonnam-dobak/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-FF,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+14E-14F,U+152-153,U+166-167,U+16C-16D,U+2C6-2C7,U+2D0,U+2D8-2DD,U+300-304,U+306-308,U+30A-30C,U+312,U+326-328,U+391-3A1,U+3A3-3A9,U+3B1-3C9,U+401,U+410-44F,U+451,U+1100-1112,U+1161-1175,U+11A8-11C2,U+2013-2016,U+2018-201A,U+201C-201E,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+2039-203B,U+2044,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2206-2208,U+220B,U+220F,U+2211-2212,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2248,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2329-232A,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CA-25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+300A-3011,U+3013-3015,U+301C,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5D,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Jeonnam Edu Bareun Bold';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-bold/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-FF,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+14E-14F,U+152-153,U+166-167,U+16C-16D,U+2C6-2C7,U+2D0,U+2D8-2DD,U+300-304,U+306-308,U+30A-30C,U+312,U+326-328,U+391-3A1,U+3A3-3A9,U+3B1-3C9,U+401,U+410-44F,U+451,U+1100-1112,U+1161-1175,U+11A8-11C2,U+2013-2016,U+2018-201A,U+201C-201E,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+2039-203B,U+2044,U+2074,U+207F,U+2081-2084,U+20A9,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2206-2208,U+220B,U+220F,U+2211-2212,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2248,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2329-232A,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CA-25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+300A-3011,U+3013-3015,U+301C,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5D,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Jeonnam Edu Bareun Light';font-weight:400;font-display:swap;src:url(fonts/jeonnam-bareun-light/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/0.woff2) format('woff2');unicode-range:U+20-7F,U+A0-BF,U+C5-C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C6-2C7,U+2D0,U+2D8-2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015-2016,U+2018-201A,U+201C-201E,U+2020-2022,U+2025-2026,U+2030,U+2032-2033,U+2039-203B,U+2044,U+2074-2079,U+207F,U+2081-2089,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2206-2208,U+220B,U+220F,U+2211-2212,U+2215,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2248,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-246E,U+2474-2482,U+249C-24B5,U+24D0-24E9,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+3000-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/2.woff2) format('woff2');unicode-range:U+ADD2-AFA3}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/3.woff2) format('woff2');unicode-range:U+AFA4-B175}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/4.woff2) format('woff2');unicode-range:U+B176-B347}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/5.woff2) format('woff2');unicode-range:U+B348-B519}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/6.woff2) format('woff2');unicode-range:U+B51A-B6EB}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/7.woff2) format('woff2');unicode-range:U+B6EC-B8BD}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/8.woff2) format('woff2');unicode-range:U+B8BE-BA8F}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/9.woff2) format('woff2');unicode-range:U+BA90-BC61}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/10.woff2) format('woff2');unicode-range:U+BC62-BE33}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/11.woff2) format('woff2');unicode-range:U+BE34-C005}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/12.woff2) format('woff2');unicode-range:U+C006-C1D7}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/13.woff2) format('woff2');unicode-range:U+C1D8-C3A9}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/14.woff2) format('woff2');unicode-range:U+C3AA-C57B}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/15.woff2) format('woff2');unicode-range:U+C57C-C74D}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/16.woff2) format('woff2');unicode-range:U+C74E-C91F}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/17.woff2) format('woff2');unicode-range:U+C920-CAF1}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/18.woff2) format('woff2');unicode-range:U+CAF2-CCC3}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/19.woff2) format('woff2');unicode-range:U+CCC4-CE95}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/20.woff2) format('woff2');unicode-range:U+CE96-D067}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/21.woff2) format('woff2');unicode-range:U+D068-D239}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/22.woff2) format('woff2');unicode-range:U+D23A-D40B}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/23.woff2) format('woff2');unicode-range:U+D40C-D5DD}
+@font-face{font-family:'Jeonnam Edu Yuna';font-weight:400;font-display:swap;src:url(fonts/jeonnam-yuna/24.woff2) format('woff2');unicode-range:U+D5DE-D7A3}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A3,U+A5,U+A9,U+AE,U+B0-B1,U+B6-B7,U+BF,U+D7,U+F7,U+2002-2007,U+2009-200A,U+2012-2015,U+2018-2019,U+201C-201D,U+2020-2023,U+2025-2026,U+2032-2033,U+203B,U+20A9,U+20AC,U+2103,U+2109,U+2122,U+2190-2199,U+2212,U+2260,U+2264-2265,U+24B8,U+24C7,U+25A0-25A1,U+25AA,U+25C7,U+25CB,U+25E6,U+2605-2606,U+2661,U+2664-2665,U+2667,U+274C,U+2E3A-2E3B,U+3008-3011,U+3014-3015,U+3131-3163,U+FB00-FB04,U+FF04,U+FFE1,U+FFE5-FFE6}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/1.woff2) format('woff2');unicode-range:U+AC00-ACED}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/2.woff2) format('woff2');unicode-range:U+ACEE-ADDB}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/3.woff2) format('woff2');unicode-range:U+ADDC-AEC9}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/4.woff2) format('woff2');unicode-range:U+AECA-AFB7}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/5.woff2) format('woff2');unicode-range:U+AFB8-B0A5}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/6.woff2) format('woff2');unicode-range:U+B0A6-B193}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/7.woff2) format('woff2');unicode-range:U+B194-B281}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/8.woff2) format('woff2');unicode-range:U+B282-B36F}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/9.woff2) format('woff2');unicode-range:U+B370-B45D}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/10.woff2) format('woff2');unicode-range:U+B45E-B54B}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/11.woff2) format('woff2');unicode-range:U+B54C-B639}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/12.woff2) format('woff2');unicode-range:U+B63A-B727}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/13.woff2) format('woff2');unicode-range:U+B728-B815}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/14.woff2) format('woff2');unicode-range:U+B816-B903}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/15.woff2) format('woff2');unicode-range:U+B904-B9F1}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/16.woff2) format('woff2');unicode-range:U+B9F2-BADF}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/17.woff2) format('woff2');unicode-range:U+BAE0-BBCD}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/18.woff2) format('woff2');unicode-range:U+BBCE-BCBB}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/19.woff2) format('woff2');unicode-range:U+BCBC-BDA9}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/20.woff2) format('woff2');unicode-range:U+BDAA-BE97}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/21.woff2) format('woff2');unicode-range:U+BE98-BF85}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/22.woff2) format('woff2');unicode-range:U+BF86-C073}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/23.woff2) format('woff2');unicode-range:U+C074-C161}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/24.woff2) format('woff2');unicode-range:U+C162-C24F}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/25.woff2) format('woff2');unicode-range:U+C250-C33D}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/26.woff2) format('woff2');unicode-range:U+C33E-C42B}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/27.woff2) format('woff2');unicode-range:U+C42C-C519}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/28.woff2) format('woff2');unicode-range:U+C51A-C607}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/29.woff2) format('woff2');unicode-range:U+C608-C6F5}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/30.woff2) format('woff2');unicode-range:U+C6F6-C7E3}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/31.woff2) format('woff2');unicode-range:U+C7E4-C8D1}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/32.woff2) format('woff2');unicode-range:U+C8D2-C9BF}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/33.woff2) format('woff2');unicode-range:U+C9C0-CAAD}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/34.woff2) format('woff2');unicode-range:U+CAAE-CB9B}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/35.woff2) format('woff2');unicode-range:U+CB9C-CC89}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/36.woff2) format('woff2');unicode-range:U+CC8A-CD77}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/37.woff2) format('woff2');unicode-range:U+CD78-CE65}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/38.woff2) format('woff2');unicode-range:U+CE66-CF53}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/39.woff2) format('woff2');unicode-range:U+CF54-D041}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/40.woff2) format('woff2');unicode-range:U+D042-D12F}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/41.woff2) format('woff2');unicode-range:U+D130-D21D}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/42.woff2) format('woff2');unicode-range:U+D21E-D30B}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/43.woff2) format('woff2');unicode-range:U+D30C-D3F9}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/44.woff2) format('woff2');unicode-range:U+D3FA-D4E7}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/45.woff2) format('woff2');unicode-range:U+D4E8-D5D5}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/46.woff2) format('woff2');unicode-range:U+D5D6-D6C3}
+@font-face{font-family:'Incheon Edu Simin';font-weight:400;font-display:swap;src:url(fonts/incheon-simin/47.woff2) format('woff2');unicode-range:U+D6C4-D7A3}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A3,U+A5,U+A9,U+AE,U+B0-B1,U+B6-B7,U+BF,U+D7,U+F7,U+2002-2007,U+2009-200A,U+2012-2015,U+2018-2019,U+201C-201D,U+2020-2023,U+2025-2026,U+2032-2033,U+203B,U+20A9,U+20AC,U+2103,U+2109,U+2122,U+2190-2199,U+2212,U+2260,U+2264-2265,U+24B8,U+24C7,U+25A0-25A1,U+25AA,U+25C7,U+25CB,U+25E6,U+2605-2606,U+2661,U+2664-2665,U+2667,U+274C,U+2E3A-2E3B,U+3008-3011,U+3014-3015,U+3131-3163,U+FB00-FB04,U+FF04,U+FFE1,U+FFE5-FFE6}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/1.woff2) format('woff2');unicode-range:U+AC00-ACED}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/2.woff2) format('woff2');unicode-range:U+ACEE-ADDB}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/3.woff2) format('woff2');unicode-range:U+ADDC-AEC9}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/4.woff2) format('woff2');unicode-range:U+AECA-AFB7}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/5.woff2) format('woff2');unicode-range:U+AFB8-B0A5}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/6.woff2) format('woff2');unicode-range:U+B0A6-B193}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/7.woff2) format('woff2');unicode-range:U+B194-B281}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/8.woff2) format('woff2');unicode-range:U+B282-B36F}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/9.woff2) format('woff2');unicode-range:U+B370-B45D}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/10.woff2) format('woff2');unicode-range:U+B45E-B54B}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/11.woff2) format('woff2');unicode-range:U+B54C-B639}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/12.woff2) format('woff2');unicode-range:U+B63A-B727}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/13.woff2) format('woff2');unicode-range:U+B728-B815}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/14.woff2) format('woff2');unicode-range:U+B816-B903}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/15.woff2) format('woff2');unicode-range:U+B904-B9F1}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/16.woff2) format('woff2');unicode-range:U+B9F2-BADF}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/17.woff2) format('woff2');unicode-range:U+BAE0-BBCD}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/18.woff2) format('woff2');unicode-range:U+BBCE-BCBB}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/19.woff2) format('woff2');unicode-range:U+BCBC-BDA9}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/20.woff2) format('woff2');unicode-range:U+BDAA-BE97}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/21.woff2) format('woff2');unicode-range:U+BE98-BF85}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/22.woff2) format('woff2');unicode-range:U+BF86-C073}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/23.woff2) format('woff2');unicode-range:U+C074-C161}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/24.woff2) format('woff2');unicode-range:U+C162-C24F}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/25.woff2) format('woff2');unicode-range:U+C250-C33D}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/26.woff2) format('woff2');unicode-range:U+C33E-C42B}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/27.woff2) format('woff2');unicode-range:U+C42C-C519}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/28.woff2) format('woff2');unicode-range:U+C51A-C607}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/29.woff2) format('woff2');unicode-range:U+C608-C6F5}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/30.woff2) format('woff2');unicode-range:U+C6F6-C7E3}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/31.woff2) format('woff2');unicode-range:U+C7E4-C8D1}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/32.woff2) format('woff2');unicode-range:U+C8D2-C9BF}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/33.woff2) format('woff2');unicode-range:U+C9C0-CAAD}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/34.woff2) format('woff2');unicode-range:U+CAAE-CB9B}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/35.woff2) format('woff2');unicode-range:U+CB9C-CC89}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/36.woff2) format('woff2');unicode-range:U+CC8A-CD77}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/37.woff2) format('woff2');unicode-range:U+CD78-CE65}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/38.woff2) format('woff2');unicode-range:U+CE66-CF53}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/39.woff2) format('woff2');unicode-range:U+CF54-D041}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/40.woff2) format('woff2');unicode-range:U+D042-D12F}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/41.woff2) format('woff2');unicode-range:U+D130-D21D}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/42.woff2) format('woff2');unicode-range:U+D21E-D30B}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/43.woff2) format('woff2');unicode-range:U+D30C-D3F9}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/44.woff2) format('woff2');unicode-range:U+D3FA-D4E7}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/45.woff2) format('woff2');unicode-range:U+D4E8-D5D5}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/46.woff2) format('woff2');unicode-range:U+D5D6-D6C3}
+@font-face{font-family:'Incheon Edu Sotong';font-weight:400;font-display:swap;src:url(fonts/incheon-sotong/47.woff2) format('woff2');unicode-range:U+D6C4-D7A3}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A3,U+A5,U+A9,U+AE,U+B0-B1,U+B6-B7,U+BF,U+D7,U+F7,U+2002-2007,U+2009-200A,U+2012-2015,U+2018-2019,U+201C-201D,U+2020-2023,U+2025-2026,U+2032-2033,U+203B,U+20A9,U+20AC,U+2103,U+2109,U+2122,U+2190-2199,U+2212,U+2260,U+2264-2265,U+24B8,U+24C7,U+25A0-25A1,U+25AA,U+25C7,U+25CB,U+25E6,U+2605-2606,U+2661,U+2664-2665,U+2667,U+274C,U+2E3A-2E3B,U+3008-3011,U+3014-3015,U+3131-3163,U+FB00-FB04,U+FF04,U+FFE1,U+FFE5-FFE6}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/1.woff2) format('woff2');unicode-range:U+AC00-ACED}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/2.woff2) format('woff2');unicode-range:U+ACEE-ADDB}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/3.woff2) format('woff2');unicode-range:U+ADDC-AEC9}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/4.woff2) format('woff2');unicode-range:U+AECA-AFB7}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/5.woff2) format('woff2');unicode-range:U+AFB8-B0A5}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/6.woff2) format('woff2');unicode-range:U+B0A6-B193}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/7.woff2) format('woff2');unicode-range:U+B194-B281}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/8.woff2) format('woff2');unicode-range:U+B282-B36F}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/9.woff2) format('woff2');unicode-range:U+B370-B45D}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/10.woff2) format('woff2');unicode-range:U+B45E-B54B}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/11.woff2) format('woff2');unicode-range:U+B54C-B639}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/12.woff2) format('woff2');unicode-range:U+B63A-B727}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/13.woff2) format('woff2');unicode-range:U+B728-B815}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/14.woff2) format('woff2');unicode-range:U+B816-B903}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/15.woff2) format('woff2');unicode-range:U+B904-B9F1}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/16.woff2) format('woff2');unicode-range:U+B9F2-BADF}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/17.woff2) format('woff2');unicode-range:U+BAE0-BBCD}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/18.woff2) format('woff2');unicode-range:U+BBCE-BCBB}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/19.woff2) format('woff2');unicode-range:U+BCBC-BDA9}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/20.woff2) format('woff2');unicode-range:U+BDAA-BE97}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/21.woff2) format('woff2');unicode-range:U+BE98-BF85}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/22.woff2) format('woff2');unicode-range:U+BF86-C073}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/23.woff2) format('woff2');unicode-range:U+C074-C161}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/24.woff2) format('woff2');unicode-range:U+C162-C24F}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/25.woff2) format('woff2');unicode-range:U+C250-C33D}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/26.woff2) format('woff2');unicode-range:U+C33E-C42B}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/27.woff2) format('woff2');unicode-range:U+C42C-C519}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/28.woff2) format('woff2');unicode-range:U+C51A-C607}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/29.woff2) format('woff2');unicode-range:U+C608-C6F5}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/30.woff2) format('woff2');unicode-range:U+C6F6-C7E3}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/31.woff2) format('woff2');unicode-range:U+C7E4-C8D1}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/32.woff2) format('woff2');unicode-range:U+C8D2-C9BF}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/33.woff2) format('woff2');unicode-range:U+C9C0-CAAD}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/34.woff2) format('woff2');unicode-range:U+CAAE-CB9B}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/35.woff2) format('woff2');unicode-range:U+CB9C-CC89}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/36.woff2) format('woff2');unicode-range:U+CC8A-CD77}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/37.woff2) format('woff2');unicode-range:U+CD78-CE65}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/38.woff2) format('woff2');unicode-range:U+CE66-CF53}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/39.woff2) format('woff2');unicode-range:U+CF54-D041}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/40.woff2) format('woff2');unicode-range:U+D042-D12F}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/41.woff2) format('woff2');unicode-range:U+D130-D21D}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/42.woff2) format('woff2');unicode-range:U+D21E-D30B}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/43.woff2) format('woff2');unicode-range:U+D30C-D3F9}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/44.woff2) format('woff2');unicode-range:U+D3FA-D4E7}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/45.woff2) format('woff2');unicode-range:U+D4E8-D5D5}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/46.woff2) format('woff2');unicode-range:U+D5D6-D6C3}
+@font-face{font-family:'Incheon Edu Himchan';font-weight:400;font-display:swap;src:url(fonts/incheon-himchan/47.woff2) format('woff2');unicode-range:U+D6C4-D7A3}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/0.woff2) format('woff2');unicode-range:U+20-7E,U+A0-A3,U+A5,U+A9,U+AE,U+B0-B1,U+B6-B7,U+BF,U+D7,U+F7,U+2002-2007,U+2009-200A,U+2012-2015,U+2018-2019,U+201C-201D,U+2020-2023,U+2025-2026,U+2032-2033,U+203B,U+20A9,U+20AC,U+2103,U+2109,U+2122,U+2190-2199,U+2212,U+2260,U+2264-2265,U+24B8,U+24C7,U+25A0-25A1,U+25AA,U+25C7,U+25CB,U+25E6,U+2605-2606,U+2661,U+2664-2665,U+2667,U+274C,U+2E3A-2E3B,U+3008-3011,U+3014-3015,U+3131-3163,U+FB00-FB04,U+FF04,U+FFE1,U+FFE5-FFE6}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/1.woff2) format('woff2');unicode-range:U+AC00-ACED}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/2.woff2) format('woff2');unicode-range:U+ACEE-ADDB}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/3.woff2) format('woff2');unicode-range:U+ADDC-AEC9}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/4.woff2) format('woff2');unicode-range:U+AECA-AFB7}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/5.woff2) format('woff2');unicode-range:U+AFB8-B0A5}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/6.woff2) format('woff2');unicode-range:U+B0A6-B193}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/7.woff2) format('woff2');unicode-range:U+B194-B281}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/8.woff2) format('woff2');unicode-range:U+B282-B36F}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/9.woff2) format('woff2');unicode-range:U+B370-B45D}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/10.woff2) format('woff2');unicode-range:U+B45E-B54B}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/11.woff2) format('woff2');unicode-range:U+B54C-B639}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/12.woff2) format('woff2');unicode-range:U+B63A-B727}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/13.woff2) format('woff2');unicode-range:U+B728-B815}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/14.woff2) format('woff2');unicode-range:U+B816-B903}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/15.woff2) format('woff2');unicode-range:U+B904-B9F1}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/16.woff2) format('woff2');unicode-range:U+B9F2-BADF}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/17.woff2) format('woff2');unicode-range:U+BAE0-BBCD}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/18.woff2) format('woff2');unicode-range:U+BBCE-BCBB}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/19.woff2) format('woff2');unicode-range:U+BCBC-BDA9}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/20.woff2) format('woff2');unicode-range:U+BDAA-BE97}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/21.woff2) format('woff2');unicode-range:U+BE98-BF85}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/22.woff2) format('woff2');unicode-range:U+BF86-C073}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/23.woff2) format('woff2');unicode-range:U+C074-C161}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/24.woff2) format('woff2');unicode-range:U+C162-C24F}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/25.woff2) format('woff2');unicode-range:U+C250-C33D}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/26.woff2) format('woff2');unicode-range:U+C33E-C42B}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/27.woff2) format('woff2');unicode-range:U+C42C-C519}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/28.woff2) format('woff2');unicode-range:U+C51A-C607}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/29.woff2) format('woff2');unicode-range:U+C608-C6F5}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/30.woff2) format('woff2');unicode-range:U+C6F6-C7E3}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/31.woff2) format('woff2');unicode-range:U+C7E4-C8D1}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/32.woff2) format('woff2');unicode-range:U+C8D2-C9BF}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/33.woff2) format('woff2');unicode-range:U+C9C0-CAAD}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/34.woff2) format('woff2');unicode-range:U+CAAE-CB9B}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/35.woff2) format('woff2');unicode-range:U+CB9C-CC89}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/36.woff2) format('woff2');unicode-range:U+CC8A-CD77}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/37.woff2) format('woff2');unicode-range:U+CD78-CE65}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/38.woff2) format('woff2');unicode-range:U+CE66-CF53}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/39.woff2) format('woff2');unicode-range:U+CF54-D041}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/40.woff2) format('woff2');unicode-range:U+D042-D12F}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/41.woff2) format('woff2');unicode-range:U+D130-D21D}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/42.woff2) format('woff2');unicode-range:U+D21E-D30B}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/43.woff2) format('woff2');unicode-range:U+D30C-D3F9}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/44.woff2) format('woff2');unicode-range:U+D3FA-D4E7}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/45.woff2) format('woff2');unicode-range:U+D4E8-D5D5}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/46.woff2) format('woff2');unicode-range:U+D5D6-D6C3}
+@font-face{font-family:'Incheon Edu Jaram';font-weight:400;font-display:swap;src:url(fonts/incheon-jaram/47.woff2) format('woff2');unicode-range:U+D6C4-D7A3}
 </style>
 <style>
   :root{
@@ -866,7 +1158,9 @@
     글씨체는 <a href="https://fonts.google.com" target="_blank" rel="noopener">구글 폰트</a>에서 불러오며,
     각 글씨체의 저작권은 해당 제작자에게 있습니다.
     <a href="https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDc3MTU=" target="_blank" rel="noopener">강원교육 서체</a>는 강원특별자치도교육청,
-    <a href="https://www.gg.go.kr/contents/contents.do?ciIdx=679&amp;menuId=2457" target="_blank" rel="noopener">경기천년체</a>는 경기도가 무료로 배포하는 글씨체입니다.
+    <a href="https://www.gg.go.kr/contents/contents.do?ciIdx=679&amp;menuId=2457" target="_blank" rel="noopener">경기천년체</a>는 경기도,
+    <a href="https://www.jne.go.kr/main/cm/cntnts/cntntsView.do?mi=1778&amp;cntntsId=620" target="_blank" rel="noopener">전남교육 서체</a>는 전라남도교육청,
+    <a href="https://www.ice.go.kr/ice/cm/cntnts/cntntsView.do?mi=10874&amp;cntntsId=943" target="_blank" rel="noopener">인천교육 서체</a>는 인천광역시교육청이 무료로 배포하는 글씨체입니다.
   </p>
 </footer>
 
@@ -903,7 +1197,7 @@
    ============================================================ */
 const HANJA_GROUP='한자 전용 · 한글은 노토 세리프로';
 const HANJA_FB=['Noto Serif KR','Noto Serif JP'];   // 한글 → 노토 세리프 KR, KR 에도 없는 한자 → 같은 디자인의 JP
-const LOCAL_GROUP='강원교육 · 경기천년 서체';
+const EDU_GROUP='교육청 서체 · 강원 · 전남 · 인천', GG_GROUP='경기천년체';
 const FONTS = [
   { fam:'Nanum Myeongjo',  w:800, label:'나눔명조 굵게',   group:'도장 느낌' },
   { fam:'Song Myung',      w:400, label:'송명',            group:'도장 느낌' },
@@ -936,16 +1230,25 @@ const FONTS = [
   { fam:'LXGW WenKai TC',  w:700, fb:HANJA_FB, label:'LXGW 원카이 · 해서체',          group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
   { fam:'Cactus Classical Serif', w:400, fb:HANJA_FB, label:'캑터스 클래시컬 · 옛 명조', group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
   { fam:'Shippori Mincho B1', w:800, fb:HANJA_FB, label:'싯포리 명조 굵게',           group:HANJA_GROUP, hanja:true, hangul:false, rare:true },
-  // 구글 폰트에 없는 무료 공공 글씨체. 웹 글꼴 조각은 fonts/ 에 직접 두고 <style id="localFonts"> 로 불러온다
+  // 구글 폰트에 없는 무료 공공 글씨체(강원교육 서체·경기천년체). 웹 글꼴 조각은 fonts/ 에 직접 두고 <style id="localFonts"> 로 불러온다
   // (tools/build-local-fonts.cjs). 경기천년바탕은 한자 4,622자가 있고, 없는 한자는 노토 세리프로 채운다.
-  { fam:'Gangwon Edu Modu Bold',   w:400, label:'강원교육모두 굵게',        group:LOCAL_GROUP },
-  { fam:'Gangwon Edu Modu Light',  w:400, label:'강원교육모두 가늘게',      group:LOCAL_GROUP },
-  { fam:'Gangwon Edu Teunteun',    w:400, label:'강원교육튼튼',             group:LOCAL_GROUP },
-  { fam:'Gangwon Edu Hyeonok',     w:400, label:'강원교육현옥샘 · 손글씨',  group:LOCAL_GROUP },
-  { fam:'Gangwon Edu Saeeum',      w:400, label:'강원교육새음 · 손글씨',    group:LOCAL_GROUP },
-  { fam:'Gyeonggi Batang Bold',    w:400, fb:HANJA_FB, label:'경기천년바탕 굵게', group:LOCAL_GROUP, hanja:true, rare:true },
-  { fam:'Gyeonggi Batang Regular', w:400, fb:HANJA_FB, label:'경기천년바탕 보통', group:LOCAL_GROUP, hanja:true, rare:true },
-  { fam:'Gyeonggi Title Bold',     w:400, label:'경기천년제목 굵게',        group:LOCAL_GROUP },
+  { fam:'Gangwon Edu Modu Bold',   w:400, label:'강원교육모두 굵게',        group:EDU_GROUP },
+  { fam:'Gangwon Edu Modu Light',  w:400, label:'강원교육모두 가늘게',      group:EDU_GROUP },
+  { fam:'Gangwon Edu Teunteun',    w:400, label:'강원교육튼튼',             group:EDU_GROUP },
+  { fam:'Gangwon Edu Hyeonok',     w:400, label:'강원교육현옥샘 · 손글씨',  group:EDU_GROUP },
+  { fam:'Gangwon Edu Saeeum',      w:400, label:'강원교육새음 · 손글씨',    group:EDU_GROUP },
+  { fam:'Gyeonggi Batang Bold',    w:400, fb:HANJA_FB, label:'경기천년바탕 굵게', group:GG_GROUP, hanja:true, rare:true },
+  { fam:'Gyeonggi Batang Regular', w:400, fb:HANJA_FB, label:'경기천년바탕 보통', group:GG_GROUP, hanja:true, rare:true },
+  { fam:'Gyeonggi Title Bold',     w:400, label:'경기천년제목 굵게',        group:GG_GROUP },
+  // 전남교육 서체(전라남도교육청)·인천교육 서체(인천광역시교육청). 모두 한자가 없다.
+  { fam:'Jeonnam Edu Dobak',        w:400, label:'전남교육또박 · 굵은 고딕', group:EDU_GROUP },
+  { fam:'Jeonnam Edu Bareun Bold',  w:400, label:'전남교육바른 굵게',        group:EDU_GROUP },
+  { fam:'Jeonnam Edu Bareun Light', w:400, label:'전남교육바른 가늘게',      group:EDU_GROUP },
+  { fam:'Jeonnam Edu Yuna',         w:400, label:'전남교육유나 · 손글씨',    group:EDU_GROUP },
+  { fam:'Incheon Edu Simin',        w:400, label:'인천교육시민',             group:EDU_GROUP },
+  { fam:'Incheon Edu Sotong',       w:400, label:'인천교육소통',             group:EDU_GROUP },
+  { fam:'Incheon Edu Himchan',      w:400, label:'인천교육힘찬',             group:EDU_GROUP },
+  { fam:'Incheon Edu Jaram',        w:400, label:'인천교육자람 · 손글씨',    group:EDU_GROUP },
 ];
 const BUILTIN_FONT_COUNT=FONTS.length;   // 이 뒤 번호는 '내 글꼴' — 들어올 때마다 번호가 달라질 수 있다
 
