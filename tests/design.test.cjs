@@ -41,7 +41,10 @@ const assert=require('node:assert/strict');
     assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'auto'),false,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]]);
     assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(3,'grid'),false,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[0,0.5]]);
     assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'auto'),true,2,2).map(c=>[c.cx,c.cy])),[[0.5,-0.5],[0.5,0.5],[-0.5,-0.5],[-0.5,0.5]]);
-    assert.equal(await page.locator('#tradOrder').isChecked(),false);
+    // 읽는 순서 '자동': 한글이 있으면 Z, 한자만 있으면 오른쪽 세로줄부터 (인감 3 1 / 4 2)
+    assert.equal(await page.evaluate(()=>S.order),'auto');
+    assert.deepEqual(await page.evaluate(()=>[['남궁연','인'],['南宮妍','印'],['남궁妍','印'],['南宮','인']].map(([text,suffix])=>readsTrad({order:'auto',text,suffix}))),[false,true,false,false]);
+    assert.deepEqual(await page.evaluate(()=>[readsTrad({order:'z',text:'南宮',suffix:''}),readsTrad({order:'trad',text:'남궁',suffix:''})]),[false,true]);
     // 한자 변환: 남궁연 → 남궁妍. 妍 은 인명용 추가 한자라 '더 보기' 뒤에 나온다.
     await page.locator('#hanjaBtn').click();
     await page.waitForSelector('#hanjaDlg[open]');

@@ -505,7 +505,12 @@
         </div>
       </div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="tradOrder"> 전통 순서 <span class="hint">끄면 Z 순서(윗줄 왼쪽부터), 켜면 오른쪽 세로줄부터</span></label>
+        <label class="lb" for="order">읽는 순서 <span class="hint">자동: 한글이 있으면 Z 순서, 한자만 있으면 오른쪽 세로줄부터</span></label>
+        <div class="seg" id="order" role="group">
+          <button data-v="auto" aria-pressed="true">자동</button>
+          <button data-v="z" aria-pressed="false">Z 순서</button>
+          <button data-v="trad" aria-pressed="false">오른쪽 줄부터</button>
+        </div>
       </div>
       <div class="row">
         <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
@@ -713,7 +718,7 @@ const S = {
   fontIdx:DEFAULT_FONT_IDX,
   hanjaFontIdx:-1,          // 한자 글씨체. -1 이면 한글 글씨체(fontIdx)로 함께 그린다
   shape:'circle', style:'yang', layout:'auto',
-  tradOrder:false,          // false: Z 순서(윗줄 왼쪽→오른쪽), true: 오른쪽 세로줄부터 위→아래
+  order:'auto',             // 읽는 순서. 'z': 윗줄 왼쪽→오른쪽, 'trad': 오른쪽 세로줄부터 위→아래, 'auto': 글자에 따라 (readsTrad)
   stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
   border:52, pad:40, rot:0,
@@ -970,6 +975,13 @@ function fitBlockHalfHeight(fonts, all, boxes, grid, tradOrder, riX, riY, nExp, 
   for(let i=0;i<28;i++){ const mid=(lo+hi)/2; if(fits(mid)) lo=mid; else hi=mid; }
   return lo;
 }
+/* 오른쪽 세로줄부터 읽는가. 자동이면 한글이 있으면 Z 순서, 한자만 있으면 인감 전통 순서(3 1 / 4 2). */
+function readsTrad(st){
+  if(st.order==='trad') return true;
+  if(st.order==='z') return false;
+  const t=st.text+st.suffix;
+  return hasHanja(t) && !hasHangul(t);
+}
 /* 글자를 채울 순서대로 칸(중심좌표+크기) 목록을 만든다 */
 function buildCells(grid, tradOrder, boxW, boxH){
   const {cols, counts}=grid;
@@ -1099,10 +1111,10 @@ function stampGeometry(ctx, size, st){
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
     const fill = st.glyphFill/100;
-    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, st.tradOrder, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
+    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, readsTrad(st), riX, riY, nExp, fill, st.spacing || 0, st.stretch);
     const boxH = 2*halfH;
     const boxW = boxH*A;
-    const cells = buildCells(grid, st.tradOrder, boxW, boxH);
+    const cells = buildCells(grid, readsTrad(st), boxW, boxH);
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
     const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
     for(let i=0;i<n && i<cells.length;i++){
@@ -1615,6 +1627,7 @@ function setSeg(id, key, val){
 wireSeg('layout','layout');
 wireSeg('shape','shape');
 wireSeg('style','style');
+wireSeg('order','order');
 
 /* 입력 → 상태 */
 const TEXT_KEYS=[['text','text'],['suffix','suffix']];
@@ -1629,7 +1642,7 @@ const NUM_KEYS=['glyphFill','spacing','border','pad','rot','ink','grain','rough'
 NUM_KEYS.forEach(id=>{
   $(id).addEventListener('input', e=>{ S[id]=+e.target.value; syncOutputs(); schedule(); });
 });
-const CHK_KEYS=['tradOrder','stretch','doubleBorder'];
+const CHK_KEYS=['stretch','doubleBorder'];
 CHK_KEYS.forEach(id=>{
   $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
 });
@@ -1695,6 +1708,7 @@ function pushStateToUI(){
   setSeg('layout','layout',S.layout);
   setSeg('shape','shape',S.shape);
   setSeg('style','style',S.style);
+  setSeg('order','order',S.order);
   syncOutputs();
 }
 
@@ -1986,7 +2000,7 @@ function loadState(){
   if(!saved || typeof saved!=='object') return null;
 
   const segVals=id=>[...$(id).querySelectorAll('button')].map(b=>b.dataset.v);
-  const ENUM={shape:segVals('shape'), style:segVals('style'), layout:segVals('layout')};
+  const ENUM={shape:segVals('shape'), style:segVals('style'), layout:segVals('layout'), order:segVals('order')};
   const SUFFIXES=[...$('suffix').options].map(o=>o.value);
 
   Object.keys(DEFAULTS).forEach(k=>{
