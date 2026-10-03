@@ -505,7 +505,7 @@
         </div>
       </div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="trad" checked> 전통 순서 (오른쪽 줄부터 · 격자는 늘 Z 순서)</label>
+        <label class="chk"><input type="checkbox" id="tradOrder"> 전통 순서 <span class="hint">끄면 Z 순서(윗줄 왼쪽부터), 켜면 오른쪽 세로줄부터</span></label>
       </div>
       <div class="row">
         <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
@@ -713,7 +713,8 @@ const S = {
   fontIdx:DEFAULT_FONT_IDX,
   hanjaFontIdx:-1,          // 한자 글씨체. -1 이면 한글 글씨체(fontIdx)로 함께 그린다
   shape:'circle', style:'yang', layout:'auto',
-  trad:true, stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
+  tradOrder:false,          // false: Z 순서(윗줄 왼쪽→오른쪽), true: 오른쪽 세로줄부터 위→아래
+  stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
   color:'#b3272d',
   border:52, pad:40, rot:0,
   ink:34, grain:45, rough:28,
@@ -864,8 +865,7 @@ function layoutCells(n, mode){
   const base=Math.floor(n/cols), extra=n%cols;
   const counts=[];
   for(let c=0;c<cols;c++) counts.push(base+(c<extra?1:0));
-  // 격자는 Z 순서(윗줄 왼쪽→오른쪽, 다음 줄)로 읽는다: 홍길/동인. 칸 수와 줄 수는 세로줄 배치와 같다.
-  return {cols, counts, z:mode==='grid'};
+  return {cols, counts};
 }
 /* 가로:세로 비율이 A 인 직사각형을 초타원 안에 최대로 넣었을 때의 세로 반크기 */
 function inscribedHalfHeight(A, rx, ry, n){
@@ -940,7 +940,7 @@ function glyphSamples(f, ch, box){
    안쪽 윤곽을 넘는 획도 자르지 않고 테두리와 자연스럽게 겹쳐 그린다. */
 const OVERLAP_FRAC = 0.04;    // 안쪽 윤곽과 겹칠 수 있는 잉크 비율
 const OVERLAP_DEPTH = 0.10;   // 획이 윤곽 밖으로 나가도 되는 최대 깊이 (글자 크기 대비)
-function fitBlockHalfHeight(fonts, all, boxes, grid, trad, riX, riY, nExp, fill, spacing, stretch){
+function fitBlockHalfHeight(fonts, all, boxes, grid, tradOrder, riX, riY, nExp, fill, spacing, stretch){
   const rowsMax=Math.max(...grid.counts), cols=grid.cols;
   const A=cols/rowsMax;
   const base=inscribedHalfHeight(A, riX, riY, nExp);
@@ -948,7 +948,7 @@ function fitBlockHalfHeight(fonts, all, boxes, grid, trad, riX, riY, nExp, fill,
   if(samples.some(s=>!s.length)) return base;            // 측정 실패 — 내접 사각형으로
   const fits = halfH => {
     const boxH=2*halfH, boxW=boxH*A;
-    const cells=buildCells(grid, trad, boxW, boxH);
+    const cells=buildCells(grid, tradOrder, boxW, boxH);
     const gap=Math.min(boxW/cols, boxH/rowsMax)*spacing/100;
     const sc=glyphScales(boxes, cells, gap, fill, stretch);
     for(let i=0;i<all.length;i++){
@@ -971,14 +971,14 @@ function fitBlockHalfHeight(fonts, all, boxes, grid, trad, riX, riY, nExp, fill,
   return lo;
 }
 /* 글자를 채울 순서대로 칸(중심좌표+크기) 목록을 만든다 */
-function buildCells(grid, trad, boxW, boxH){
+function buildCells(grid, tradOrder, boxW, boxH){
   const {cols, counts}=grid;
   const cw=boxW/cols;
   // 칸 높이는 가장 긴 열을 기준으로 통일하고, 짧은 열은 위아래 가운데로 모은다.
   // (열마다 높이를 다르게 하면 글자 크기가 들쭉날쭉해진다)
   const ch=boxH/Math.max(...counts);
   const cells=[];
-  if(grid.z){
+  if(!tradOrder){
     // Z 순서: 줄마다 왼쪽부터 채우고, 덜 찬 마지막 줄은 가로 가운데로 모은다
     const n=counts.reduce((a,b)=>a+b, 0), rows=Math.max(...counts);
     for(let r=0;r<rows;r++){
@@ -988,7 +988,7 @@ function buildCells(grid, trad, boxW, boxH){
     return cells;
   }
   for(let c=0;c<cols;c++){
-    const colPos = trad ? (cols-1-c) : c;
+    const colPos = cols-1-c;                 // 전통 순서: 오른쪽 세로줄부터
     const cx = -boxW/2 + cw*(colPos+0.5);
     const rows=counts[c];
     const colH=ch*rows;
@@ -1099,10 +1099,10 @@ function stampGeometry(ctx, size, st){
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
     const fill = st.glyphFill/100;
-    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, st.trad, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
+    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, st.tradOrder, riX, riY, nExp, fill, st.spacing || 0, st.stretch);
     const boxH = 2*halfH;
     const boxW = boxH*A;
-    const cells = buildCells(grid, st.trad, boxW, boxH);
+    const cells = buildCells(grid, st.tradOrder, boxW, boxH);
     const gap=Math.min(boxW/grid.cols, boxH/rowsMax)*(st.spacing || 0)/100;
     const scales=glyphScales(boxes, cells, gap, fill, st.stretch);
     for(let i=0;i<n && i<cells.length;i++){
@@ -1629,7 +1629,7 @@ const NUM_KEYS=['glyphFill','spacing','border','pad','rot','ink','grain','rough'
 NUM_KEYS.forEach(id=>{
   $(id).addEventListener('input', e=>{ S[id]=+e.target.value; syncOutputs(); schedule(); });
 });
-const CHK_KEYS=['trad','stretch','doubleBorder'];
+const CHK_KEYS=['tradOrder','stretch','doubleBorder'];
 CHK_KEYS.forEach(id=>{
   $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
 });
@@ -1661,17 +1661,17 @@ $('reset').addEventListener('click', async ()=>{
 const PRESETS = {
   modern:{ suffix:'', shape:'circle', style:'yang', layout:'auto', color:'#8f1d22',
            fontIdx:0, border:30, pad:100, glyphFill:92, spacing:12, doubleBorder:false,
-           ink:6, grain:65, rough:4, rot:0, stretch:false, trad:true },
+           ink:6, grain:65, rough:4, rot:0, stretch:false },
   classic:{ suffix:'인', shape:'circle', style:'yang', layout:'auto', color:'#9b252b',
             fontIdx:0, border:42, pad:65, glyphFill:96, spacing:7, doubleBorder:true,
-            ink:12, grain:58, rough:8, rot:0, stretch:false, trad:true },
+            ink:12, grain:58, rough:8, rot:0, stretch:false },
   brush:{ suffix:'', shape:'rounded', style:'yang', layout:'auto', color:'#a3382c',
           fontIdx:fontIdxOf('Kirang Haerang'), border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
-          ink:20, grain:55, rough:24, rot:-2, stretch:false, trad:true },
+          ink:20, grain:55, rough:24, rot:-2, stretch:false },
   personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
-             fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true, trad:true },
+             fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true },
   nakgwan:{ spacing:0, doubleBorder:false, suffix:'印', shape:'rounded', style:'eum', layout:'grid',
-             fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true, trad:true },
+             fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true },
   soft:{ ink:16, grain:62, rough:14 },
   worn:{ ink:62, grain:34, rough:58 },
 };

@@ -37,9 +37,11 @@ const assert=require('node:assert/strict');
       return results;
     });
     for(const result of edges){assert.equal(result.count,0,JSON.stringify(result));assert.ok(result.painted>100)}
-    // 격자는 Z 순서: 윗줄 왼쪽→오른쪽, 다음 줄. 덜 찬 마지막 줄은 가운데 (홍길/동인, 洪吉/童)
-    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'grid'),true,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]]);
-    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(3,'grid'),true,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[0,0.5]]);
+    // 기본(자동·격자)은 Z 순서: 윗줄 왼쪽→오른쪽, 다음 줄. 덜 찬 마지막 줄은 가운데 (홍길/동인). 전통 순서는 오른쪽 세로줄부터
+    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'auto'),false,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[-0.5,0.5],[0.5,0.5]]);
+    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(3,'grid'),false,2,2).map(c=>[c.cx,c.cy])),[[-0.5,-0.5],[0.5,-0.5],[0,0.5]]);
+    assert.deepEqual(await page.evaluate(()=>buildCells(layoutCells(4,'auto'),true,2,2).map(c=>[c.cx,c.cy])),[[0.5,-0.5],[0.5,0.5],[-0.5,-0.5],[-0.5,0.5]]);
+    assert.equal(await page.locator('#tradOrder').isChecked(),false);
     // 한자 변환: 남궁연 → 남궁妍. 妍 은 인명용 추가 한자라 '더 보기' 뒤에 나온다.
     await page.locator('#hanjaBtn').click();
     await page.waitForSelector('#hanjaDlg[open]');
