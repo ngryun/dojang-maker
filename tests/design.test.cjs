@@ -100,7 +100,8 @@ const assert=require('node:assert/strict');
     assert.match(await page.locator('#fontNote').textContent(),/한글이 없어/);
     await page.fill('#text','南宮妍');
     await page.waitForFunction(()=>!pending);
-    assert.equal(await page.locator('#fontNote').textContent(),'');
+    // 글자가 모두 한자라 한글 글씨체(유지 슈쿠)는 쓰이지 않는다 — 한글 글씨체 격자가 똑같아 보이는 까닭을 알린다
+    assert.match(await page.locator('#fontNote').textContent(),/모두 한자/);
     await page.fill('#text','남궁妍');
     // 한자 글씨체 고르기: '한글 글씨체와 같게' + 한자가 있는 글씨체들
     await page.locator('#hanjaFontToggle').click();

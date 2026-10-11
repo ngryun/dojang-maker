@@ -14,6 +14,7 @@
         - 경기천년체:    https://www.gg.go.kr/contents/contents.do?ciIdx=679&menuId=2457
      2. npm i --no-save subset-font
      3. node tools/build-local-fonts.cjs
+        (조각 파일은 그대로 두고 unicode-range 만 고칠 때는 node tools/build-local-fonts.cjs --ranges-only — subset-font 가 필요 없다)
 
    저작권 (각 누리집의 안내)
    - 강원교육 서체(강원특별자치도교육청): 누구나 무료로 자유롭게 사용, 웹 등에 특별한 허가 절차 없이 사용 가능(출처 표기 권장).
@@ -23,7 +24,8 @@
    ============================================================ */
 const fs=require('node:fs');
 const path=require('node:path');
-const subsetFont=require('subset-font');
+const RANGES_ONLY=process.argv.includes('--ranges-only');   // woff2 는 그대로 두고 index.html 의 unicode-range 만 다시 적는다
+const subsetFont=RANGES_ONLY ? null : require('subset-font');
 
 const ROOT=path.join(__dirname, '..');
 const SRC=path.join(__dirname, 'data/fonts');
@@ -74,7 +76,10 @@ function codepoints(buf){
 }
 
 /* 조각: 0 은 한글·한자 밖의 글자(영문·문장부호·자모 …), 그다음 한글 음절, 한자 순.
-   한글·한자 조각은 실제 있는 글자를 같은 개수씩 나누고 unicode-range 는 [첫 글자, 끝 글자] 하나로 적는다. */
+   한글·한자 조각은 실제 있는 글자를 같은 개수씩 나누고 unicode-range 는 [첫 글자, 끝 글자] 로 적되,
+   그 사이에 다른 조각의 글자가 끼어 있으면 거기서 끊는다 (spanRanges).
+   끊지 않으면 마지막 한자 조각(U+978F-F949 처럼 호환 한자까지 가는 것)이 한글 음절 블록 전체를 덮는다.
+   크롬은 글꼴 안을 보고 한글 조각으로 넘어가지만, 사파리는 뒤에 적힌 한자 조각을 골라 한글을 대체 글꼴로 그린다. */
 const HANGUL_PER_CHUNK=480, HANJA_PER_CHUNK=320;
 const isHangul=c=>c>=0xAC00 && c<=0xD7A3;
 const isHanja=c=>(c>=0x3400 && c<=0x9FFF) || (c>=0xF900 && c<=0xFAFF) || (c>=0x20000 && c<=0x3FFFF);
@@ -88,12 +93,26 @@ function runs(list){                    // [1,2,3,7] → [[1,3],[7,7]]
   for(const c of list){ const last=out[out.length-1]; if(last && c===last[1]+1) last[1]=c; else out.push([c,c]); }
   return out;
 }
+/* part 의 [첫 글자, 끝 글자] 를 글꼴의 다른 글자(all 에 있고 part 에 없는 것)가 나오는 곳마다 끊는다.
+   글꼴에 없는 글자는 건너뛰어 이어 붙이므로 범위가 잘게 쪼개지지 않는다. */
+function spanRanges(part, all){
+  const mine=new Set(part), lo=part[0], hi=part[part.length-1], out=[];
+  let start=null, last=null;
+  for(const c of all){
+    if(c<lo) continue;
+    if(c>hi) break;
+    if(mine.has(c)){ if(start===null) start=c; last=c; }
+    else if(start!==null){ out.push([start, last]); start=null; }
+  }
+  if(start!==null) out.push([start, last]);
+  return out;
+}
 function chunks(cps){
   const out=[];
   const other=cps.filter(c=>c>=0x20 && !isHangul(c) && !isHanja(c));
   if(other.length) out.push({cps:other, ranges:runs(other)});
   for(const part of [...split(cps.filter(isHangul), HANGUL_PER_CHUNK), ...split(cps.filter(isHanja), HANJA_PER_CHUNK)])
-    out.push({cps:part, ranges:[[part[0], part[part.length-1]]]});
+    out.push({cps:part, ranges:spanRanges(part, cps)});
   return out;
 }
 const hex=n=>n.toString(16).toUpperCase();
@@ -105,22 +124,25 @@ const rangeText=ranges=>ranges.map(([a,b])=>a===b ? 'U+'+hex(a) : `U+${hex(a)}-$
   for(const f of FONTS){
     const src=fs.readFileSync(path.join(SRC, f.file));
     const dir=path.join(OUT, f.slug);
-    fs.rmSync(dir, {recursive:true, force:true});
-    fs.mkdirSync(dir, {recursive:true});
     const parts=chunks(codepoints(src));
+    if(!RANGES_ONLY){ fs.rmSync(dir, {recursive:true, force:true}); fs.mkdirSync(dir, {recursive:true}); }
     let size=0;
     for(let i=0;i<parts.length;i++){
-      const woff2=await subsetFont(src, String.fromCodePoint(...parts[i].cps), {targetFormat:'woff2'});
-      fs.writeFileSync(path.join(dir, i+'.woff2'), woff2);
-      size+=woff2.length;
+      if(RANGES_ONLY){
+        if(!fs.existsSync(path.join(dir, i+'.woff2'))) throw new Error(`${f.slug}/${i}.woff2 가 없습니다 — 조각 나누기가 바뀌었으니 --ranges-only 없이 다시 만드세요`);
+      }else{
+        const woff2=await subsetFont(src, String.fromCodePoint(...parts[i].cps), {targetFormat:'woff2'});
+        fs.writeFileSync(path.join(dir, i+'.woff2'), woff2);
+        size+=woff2.length;
+      }
       rules.push(`@font-face{font-family:'${f.fam}';font-weight:400;font-display:swap;src:url(fonts/${f.slug}/${i}.woff2) format('woff2');unicode-range:${rangeText(parts[i].ranges)}}`);
     }
     total+=size;
-    console.error(`${f.fam}: 조각 ${parts.length}개, ${(size/1024/1024).toFixed(2)}MB`);
+    console.error(`${f.fam}: 조각 ${parts.length}개`+(RANGES_ONLY ? '' : `, ${(size/1024/1024).toFixed(2)}MB`));
   }
   const html=fs.readFileSync(INDEX, 'utf8');
   const re=/(<style id="localFonts">\n)[^<]*(<\/style>)/;   // 블록 안에는 '<' 가 없다 — 다음 </style> 을 넘어가지 않게
   if(!re.test(html)) throw new Error('index.html 에 <style id="localFonts"> 블록이 없습니다');
   fs.writeFileSync(INDEX, html.replace(re, (m, a, b)=>a+rules.join('\n')+'\n'+b));
-  console.error(`woff2 합계 ${(total/1024/1024).toFixed(1)}MB, @font-face ${rules.length}개를 index.html 에 넣었습니다.`);
+  console.error((RANGES_ONLY ? '' : `woff2 합계 ${(total/1024/1024).toFixed(1)}MB, `)+`@font-face ${rules.length}개를 index.html 에 넣었습니다.`);
 })().catch(e=>{ console.error(e); process.exitCode=1; });

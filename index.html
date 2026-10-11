@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f6f1e7">
+<meta name="color-scheme" content="only light">
 <meta name="description" content="이름을 넣으면 배경이 투명한 도장(인감) PNG를 만들어 주는 웹 도구. 글씨체·모양·색을 고르고 잉크 번짐까지 조절할 수 있습니다.">
 <title>도장 만들기 — 투명배경 인감 이미지 생성기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet" media="print" id="fontCss" onload="this.media='all'">
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet" media="print" id="fontCss" onload="this.media='all'">
 <!-- 글씨체 24종의 CSS(압축해도 500KB 남짓)가 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다.
      글꼴 파일은 어차피 글자를 쓸 때만 받는다. 스크립트 쪽(ensureFont)은 이 CSS 가 적용될 때까지 기다린다. -->
-<noscript><link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Kirang+Haerang&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet"></noscript>
+<noscript><link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Song+Myung&family=Gowun+Batang:wght@400;700&family=Hahmlet:wght@400;700;900&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&family=Do+Hyeon&family=Jua&family=Gaegu:wght@400;700&family=East+Sea+Dokdo&family=Yeon+Sung&family=Nanum+Pen+Script&family=Gugi&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@900&family=Noto+Serif+JP:wght@900&family=Yuji+Syuku&family=Yuji+Boku&family=LXGW+WenKai+TC:wght@700&family=Cactus+Classical+Serif&family=Shippori+Mincho+B1:wght@800&display=swap" rel="stylesheet"></noscript>
 <!-- 구글 폰트에 없는 무료 공공 글씨체(강원교육 서체·경기천년체). fonts/ 의 woff2 조각을 글자 범위별로 받는다.
      아래 블록은 tools/build-local-fonts.cjs 가 만들어 넣으니 손으로 고치지 않는다.
      다른 무료 글씨체를 넣을 때도 그 스크립트의 FONTS 에 더하고 아래 JS 의 FONTS 배열에 같은 fam 으로 추가한다. -->
@@ -180,7 +181,7 @@
 @font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/36.woff2) format('woff2');unicode-range:U+83FD-8AAA}
 @font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/37.woff2) format('woff2');unicode-range:U+8AB0-9075}
 @font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/38.woff2) format('woff2');unicode-range:U+9077-978D}
-@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/39.woff2) format('woff2');unicode-range:U+978F-F948}
+@font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/39.woff2) format('woff2');unicode-range:U+978F-9F9C,U+F900-F948}
 @font-face{font-family:'Gyeonggi Batang Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-bold/40.woff2) format('woff2');unicode-range:U+F949-FACE}
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24B5,U+24D0-24E9,U+24EB-24F4,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+2776-277F,U+2F00,U+2F04,U+2F06,U+2F08,U+2F0A-2F0B,U+2F11-2F12,U+2F14,U+2F17-2F18,U+2F1C-2F1D,U+2F1F-2F20,U+2F23-2F26,U+2F28-2F29,U+2F2B,U+2F2D,U+2F2F-2F32,U+2F38,U+2F3C-2F40,U+2F42-2F4C,U+2F4F-2F52,U+2F54-2F58,U+2F5A-2F66,U+2F69-2F70,U+2F72-2F76,U+2F78,U+2F7A-2F7D,U+2F7F-2F8B,U+2F8E-2F90,U+2F92-2F97,U+2F99-2FA0,U+2FA2-2FA3,U+2FA5-2FA9,U+2FAC-2FB1,U+2FB3-2FBC,U+2FC1-2FCA,U+2FCD-2FD4,U+3001-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-3163,U+3165-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+FB00-FB04,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
@@ -221,7 +222,7 @@
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/36.woff2) format('woff2');unicode-range:U+83FD-8AAA}
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/37.woff2) format('woff2');unicode-range:U+8AB0-9075}
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/38.woff2) format('woff2');unicode-range:U+9077-978D}
-@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/39.woff2) format('woff2');unicode-range:U+978F-F949}
+@font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/39.woff2) format('woff2');unicode-range:U+978F-9F9C,U+F900-F949}
 @font-face{font-family:'Gyeonggi Batang Regular';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-batang-regular/40.woff2) format('woff2');unicode-range:U+F94A-FACE}
 @font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/0.woff2) format('woff2');unicode-range:U+20-7E,U+A1,U+A4,U+A7-AA,U+AD-AE,U+B0-B4,U+B6-BA,U+BC-BF,U+C6,U+D0,U+D7-D8,U+DE-DF,U+E6,U+F0,U+F7-F8,U+FE,U+111,U+126-127,U+131-133,U+138,U+13F-142,U+149-14B,U+152-153,U+166-167,U+2C7,U+2D0,U+2D8-2DB,U+2DD,U+391-3A1,U+3A3-3A9,U+3B1-3C1,U+3C3-3C9,U+401,U+410-44F,U+451,U+2015,U+2018-2019,U+201C-201D,U+2020-2021,U+2025-2026,U+2030,U+2032-2033,U+203B,U+2074,U+207F,U+2081-2084,U+20AC,U+2103,U+2109,U+2113,U+2116,U+2121-2122,U+2126,U+212B,U+2153-2154,U+215B-215E,U+2160-2169,U+2170-2179,U+2190-2199,U+21D2,U+21D4,U+2200,U+2202-2203,U+2207-2208,U+220B,U+220F,U+2211,U+221A,U+221D-221E,U+2220,U+2225,U+2227-222C,U+222E,U+2234-2235,U+223C-223D,U+2252,U+2260-2261,U+2264-2265,U+226A-226B,U+2282-2283,U+2286-2287,U+2299,U+22A5,U+2312,U+2460-2487,U+249C-24B5,U+24D0-24E9,U+24EB-24F4,U+2500-2503,U+250C-254B,U+2592,U+25A0-25A1,U+25A3-25A9,U+25B2-25B3,U+25B6-25B7,U+25BC-25BD,U+25C0-25C1,U+25C6-25C8,U+25CB,U+25CE-25D1,U+2605-2606,U+260E-260F,U+261C,U+261E,U+2640,U+2642,U+2660-2661,U+2663-2665,U+2667-266A,U+266C-266D,U+2776-277F,U+3001-3003,U+3008-3011,U+3013-3015,U+3041-3093,U+30A1-30F6,U+3131-3163,U+3165-318E,U+3200-321C,U+3260-327B,U+327E-327F,U+3380-3384,U+3388-33CA,U+33CF-33D0,U+33D3,U+33D6,U+33D8,U+33DB-33DD,U+F537,U+F53A,U+FB00-FB04,U+FF01-FF5E,U+FFE0-FFE3,U+FFE5-FFE6}
 @font-face{font-family:'Gyeonggi Title Bold';font-weight:400;font-display:swap;src:url(fonts/gyeonggi-title-bold/1.woff2) format('woff2');unicode-range:U+AC00-ADD1}
@@ -252,8 +253,11 @@
 <style>
   :root{
     --bg:#f6f1e7; --panel:#fffdf8; --line:#e0d7c4; --ink:#2e2a24;
-    --muted:#8a8071; --accent:#b3272d; --accent-soft:#f3e2e0;
+    --muted:#6b6357; --accent:#b3272d; --accent-soft:#f3e2e0;
+    --ok:#2f6b3a;
     --radius:10px;
+    --stage-h:0px;            /* 모바일에서 위에 고정된 미리보기 높이 (스크립트가 잰다) */
+    color-scheme:only light;  /* 안드로이드 '자동 다크'가 크림색 화면·체커보드를 뒤집지 않게 */
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -297,14 +301,14 @@
   }
   .row{margin-bottom:11px}
   .row:last-child{margin-bottom:0}
-  label.lb{display:block; font-size:12px; font-weight:700; margin-bottom:5px; color:#5d554a}
+  .lb{display:block; font-size:12px; font-weight:700; margin-bottom:5px; color:#5d554a}
   .hint{font-size:11px; color:var(--muted); font-weight:400}
 
-  input[type=text], select{
+  input[type=text], input[type=search], select{
     width:100%; padding:8px 9px; border:1px solid var(--line); border-radius:7px;
     background:#fff; color:var(--ink); font-family:inherit; font-size:14px;
   }
-  input[type=text]:focus, select:focus{outline:2px solid var(--accent-soft); border-color:var(--accent)}
+  input[type=text]:focus, input[type=search]:focus, select:focus{outline:2px solid var(--accent-soft); border-color:var(--accent)}
 
   .seg{display:flex; gap:0; border:1px solid var(--line); border-radius:7px; overflow:hidden}
   .seg button{
@@ -318,7 +322,7 @@
   .sl input[type=range]{flex:1; accent-color:var(--accent); min-width:0}
   .sl output{
     width:46px; text-align:right; font-variant-numeric:tabular-nums;
-    font-size:11.5px; color:var(--muted);
+    font-size:12.5px; color:var(--muted);
   }
 
   .chk{display:flex; align-items:center; gap:7px; font-size:13px; cursor:pointer}
@@ -333,6 +337,7 @@
     width:24px; height:24px; border-radius:50%; border:1px solid rgba(0,0,0,.15);
     cursor:pointer; padding:0;
   }
+  .swatch[aria-pressed=true]{box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--accent)}
 
   button.btn{
     width:100%; padding:10px; border:1px solid var(--line); border-radius:8px;
@@ -347,10 +352,20 @@
   .btns .btn{padding-left:4px; padding-right:4px; line-height:1.5}
   .btns .btn span{display:block; white-space:nowrap}
   .btns .btn.wide{grid-column:1/-1}   /* 공유 버튼이 숨겨진 기기에서는 SVG 버튼이 한 줄을 다 쓴다 */
+  /* 공유가 되는 휴대폰: 사진 앱 저장·카톡 보내기가 가장 쓸모 있으므로 공유를 첫 줄 전체로 */
+  .share-first .btns #share{grid-column:1/-1; order:-1}
+  .hwp-hint{margin:6px 0 0}
+  .more{margin-top:8px}
+  .more summary{cursor:pointer; font-size:12px; color:var(--muted)}
+  .more p{margin:4px 0 0}
+  .inapp{margin-top:10px; padding:9px 10px; border:1px solid var(--accent); border-radius:8px; background:var(--accent-soft)}
+  .inapp p{margin:0 0 8px; font-size:12.5px; color:var(--ink)}
+  .inapp img{display:block; width:min(100%, 256px); margin:8px auto 0; -webkit-touch-callout:default}
 
+  /* 푸터는 왼쪽 패널 맨 끝에 둔다 — .wrap 밖에 있으면 스크롤 끝에서 고정 미리보기가 푸터 높이만큼 밀려 잘린다 */
   footer{
-    border-top:1px solid var(--line); background:var(--panel);
-    padding:18px 20px 24px; text-align:center;
+    border-top:1px solid var(--line);
+    margin-top:22px; padding:16px 4px 0; text-align:center;
   }
   footer p{margin:0}
   footer .made{
@@ -361,6 +376,17 @@
   footer a{color:var(--muted)}
 
   .presets{display:flex; flex-wrap:wrap; gap:6px}
+  .preset-cap{font-size:11px; font-weight:700; color:var(--muted); margin:0 0 5px}
+  .presets + .preset-cap{margin-top:10px}
+  #presetHint{margin:8px 0 0}
+  .undoline{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:8px;
+    padding:6px 8px 6px 10px; border-radius:7px; background:var(--accent-soft)}
+  .undoline[hidden]{display:none}
+  .undoline span{font-size:12px; color:var(--ink); line-height:1.35}
+  .undoline button{
+    flex:none; padding:6px 10px; border:1px solid var(--accent); border-radius:7px;
+    background:#fff; cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; color:var(--accent);
+  }
   .presets button{
     padding:6px 9px; border:1px solid var(--line); border-radius:99px; background:#fff;
     cursor:pointer; font-family:inherit; font-size:12px; color:#6b6357;
@@ -369,7 +395,7 @@
 
   .saveline{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    margin-top:10px; padding-top:9px; border-top:1px dashed var(--line);
+    margin-top:4px; padding:0 2px;
   }
   .saveline span{font-size:11px; color:var(--muted); line-height:1.35}
   .saveline button{
@@ -407,12 +433,19 @@
     background:#fbf7ee;
     box-shadow:inset 0 0 40px rgba(120,100,60,.10);
   }
+  /* 데스크톱: 세로가 짧은 창에서도 정사각형 그대로 한 화면에 들어오게 (줄어들면 도장이 타원으로 찌그러진다) */
+  @media (min-width:901px){
+    .canvas-box{max-width:min(470px, calc(100vh - 150px)); flex:none}
+  }
   #view{width:100%; height:100%; display:block}
   .stage .meta{font-size:12px; color:var(--muted); text-align:center}
   .toggle-view{
     display:flex; gap:8px; align-items:center; font-size:12px; color:var(--muted);
   }
-  .status{font-size:12px; color:var(--accent); min-height:16px}
+  .status{font-size:13px; color:var(--muted); min-height:18px; margin-top:8px}
+  .status:empty{margin-top:0}
+  .status[data-kind=ok]{color:var(--ok)}
+  .status[data-kind=err]{color:var(--accent); font-weight:700}
 
   /* ============================================================
      모바일 (세로 좁은 화면)
@@ -452,10 +485,10 @@
     fieldset{padding:11px 12px 13px}
 
     /* 손가락 크기에 맞춘 조작 요소 — 누르는 것은 36px 이상으로 */
-    input[type=text], select{font-size:16px; padding:12px 10px}
-    input[type=range]{height:38px}
+    input[type=text], input[type=search], select{font-size:16px; padding:12px 10px}
+    input[type=range]{height:38px; touch-action:pan-y}
     .sl{gap:11px}
-    .sl output{font-size:12px; width:50px}
+    .sl output{font-size:13px; width:52px}
     .seg button{padding:13px 4px; font-size:12px}
     .presets button{padding:10px 14px; font-size:12.5px}
     button.btn{padding:14px; font-size:14px}
@@ -467,8 +500,6 @@
     .saveline button{padding:10px 12px; font-size:12px}
     .toggle-view{padding:6px 0}
     .toggle-view input{width:22px; height:22px; accent-color:var(--accent)}
-
-    footer{padding:16px 16px calc(22px + env(safe-area-inset-bottom))}
   }
 
   /* 세로가 짧은 화면 — 고정된 미리보기가 화면을 다 먹지 않게 줄인다 */
@@ -493,26 +524,31 @@
   /* 손가락 입력 기기: 마우스 호버 효과를 끄고 탭 반응을 즉시 */
   @media (hover:none){
     button, .chk, label{-webkit-tap-highlight-color:transparent; touch-action:manipulation}
-    button.btn:hover{background:#fff}
+    button.btn:not(.primary):hover{background:#fff}
     .presets button:hover{border-color:var(--line); color:#6b6357}
     .presets button:active{border-color:var(--accent); color:var(--accent)}
   }
 
   /* ---------- 글씨체 고르기 — 글씨체마다 지금 설정으로 찍은 도장을 보고 고른다 ---------- */
-  .fontpick{border:1px solid var(--line); border-radius:7px; background:#fff; overflow:hidden}
+  /* overflow:clip — hidden 이면 안쪽 '접기' 줄의 sticky 가 이 상자 안에 갇힌다 */
+  .fontpick{border:1px solid var(--line); border-radius:7px; background:#fff; overflow:clip}
   .fontcur{
     display:flex; align-items:center; gap:10px; width:100%; padding:7px 10px; border:0; background:#fff;
     cursor:pointer; font-family:inherit; text-align:left; color:var(--ink);
   }
   .fontcur:hover{background:#faf6ee}
+  /* 펼친 동안 '접기' 줄은 화면 위(휴대폰은 고정 미리보기 바로 아래)에 붙어 따라온다 */
+  .fontcur{scroll-margin-top:var(--stage-h)}
+  .fontcur[aria-expanded=true]{position:sticky; top:var(--stage-h); z-index:5; border-bottom:1px solid var(--line)}
   .fp-sample{color:var(--accent); line-height:1.2; white-space:nowrap; overflow:hidden}
   .fontcur .fp-sample{font-size:22px; flex:none; max-width:55%}
   .fontcur .fp-name{flex:1; min-width:0; font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .fontcur .fp-chev{flex:none; font-size:11.5px; font-weight:700; color:#6b6357}
+  /* 격자는 안쪽 스크롤 없이 페이지 흐름에 펼친다 — 상자 안 스크롤은 끝이 화면 밖에 걸리고 휠이 갇힌다.
+     미리보기는 따로 고정돼 있으니 페이지를 내리며 글씨체를 견줄 수 있다. */
   .fontgrid{
     position:relative; display:grid; grid-template-columns:repeat(auto-fill, minmax(88px,1fr)); gap:6px;   /* 380px 패널에서 세 칸 */
     padding:8px; border-top:1px solid var(--line); background:#fbf9f4;
-    max-height:min(460px, 58vh); overflow:auto;
   }
   .fontgrid[hidden]{display:none}
   .fp-group{grid-column:1/-1; margin:6px 2px 0; font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.02em}
@@ -523,8 +559,10 @@
     cursor:pointer; font-family:inherit; color:var(--ink);
   }
   .fp-img{display:block; width:100%; aspect-ratio:1; border-radius:6px; background:#fff}   /* 도장 미리보기 캔버스 */
+  /* 글씨체를 받아 오는 동안 — 빈 흰 칸이 '그릴 수 없는 글씨체'로 읽히지 않게 */
+  .fp-tile.loading .fp-img{background:repeating-linear-gradient(45deg,#f3efe6 0 6px,#fff 6px 12px)}
   .fp-tile .fp-name{   /* 이름은 두 줄까지 보여 주고 그 뒤는 줄임 */
-    font-size:10px; line-height:1.3; color:var(--muted); max-width:100%; text-align:center;
+    font-size:11px; line-height:1.3; color:var(--muted); max-width:100%; text-align:center;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; word-break:keep-all;
   }
   .fp-tile:hover{border-color:var(--accent)}
@@ -562,7 +600,14 @@
     background:#fff; cursor:pointer; font-family:inherit; font-size:11.5px; color:#6b6357;
   }
   .myfonts button:hover{border-color:var(--accent); color:var(--accent)}
-  #hanjaNote:empty, #fontNote:empty{display:none}
+  /* 비어 있을 때는 여백만 접는다 — display:none 이면 내용이 들어올 때 스크린리더가 읽지 않는다 */
+  #hanjaNote:empty, #fontNote:empty, #suffixNote:empty{margin:0}
+  #suffixNote{margin:5px 0 0; color:var(--accent)}
+  .lb .count{float:right; font-weight:400}
+  .lb .count.full{color:var(--accent); font-weight:700}
+  details.myfont > summary{cursor:pointer; font-size:12px; font-weight:700; color:#5d554a; list-style-position:inside}
+  details.myfont[open] > summary{margin-bottom:6px}
+  details.myfont > .hint{margin:0 0 6px}
 
   body.modal-open{overflow:hidden}
   dialog.hj:not([open]){display:none}          /* <dialog> 를 모르는 브라우저에서 내용이 그냥 보이지 않게 */
@@ -581,6 +626,8 @@
   }
   .hj-head h2{margin:0; font-family:"Nanum Myeongjo",serif; font-size:17px; font-weight:800}
   .hj-head .hint{margin:3px 0 0}
+  .hj-head > div{flex:1; min-width:0}
+  .hj-search{margin-top:8px; padding:7px 9px}
   .hj-x{
     flex:none; width:36px; height:36px; border:1px solid var(--line); border-radius:50%; background:#fff;
     cursor:pointer; color:#6b6357; font-size:14px; font-family:inherit;
@@ -660,31 +707,14 @@
   <div class="panel">
 
     <fieldset>
-      <legend>빠른 설정</legend>
-      <div class="presets" id="presets">
-        <button data-preset="modern" title="여백을 살린 단정한 명조 도장">미니멀</button>
-        <button data-preset="classic" title="가느다란 안쪽 선을 두른 정갈한 인감">클래식 이중선</button>
-        <button data-preset="brush" title="붓글씨와 은은한 인주 질감의 낙관">붓글씨 낙관</button>
-        <button data-preset="personal">개인 인감</button>
-        <button data-preset="nakgwan">사각 낙관</button>
-        <button data-preset="soft">도장밥 옅게</button>
-        <button data-preset="worn">많이 낡은</button>
-      </div>
-      <div class="saveline">
-        <span id="saveNote">설정은 이 브라우저에 자동으로 저장됩니다.</span>
-        <button type="button" id="reset">처음 설정으로</button>
-      </div>
-    </fieldset>
-
-    <fieldset>
       <legend>글자</legend>
       <div class="row">
-        <label class="lb" for="text">도장에 넣을 글자</label>
+        <label class="lb" for="text">도장에 넣을 글자 <span class="hint count" id="textCount"></span></label>
         <div class="textline">
-          <input type="text" id="text" value="남궁연" maxlength="14" autocomplete="off" placeholder="예: 남궁연 / 설악고등학교장">
+          <input type="text" id="text" value="남궁연" maxlength="14" autocomplete="off" enterkeyhint="done" placeholder="예: 남궁연 / 설악고등학교장">
           <button type="button" id="hanjaBtn" title="한글을 한 글자씩 골라 한자로 바꿉니다">한자 변환</button>
         </div>
-        <p class="hint" id="hanjaNote"></p>
+        <p class="hint" id="hanjaNote" role="status"></p>
       </div>
       <div class="row">
         <label class="lb" for="suffix">보조 글자</label>
@@ -692,26 +722,51 @@
           <option value="">없음</option>
           <option value="인" selected>인 붙이기</option>
           <option value="印">印 붙이기</option>
-          <option value="之印">之印 붙이기</option>
+          <option value="之印">之印 붙이기 (…의 도장)</option>
         </select>
+        <p class="hint" id="suffixNote" role="status"></p>
       </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>빠른 설정</legend>
+      <div id="presets">
+        <div class="preset-cap">디자인 통째로</div>
+        <div class="presets">
+          <button type="button" data-preset="modern">미니멀</button>
+          <button type="button" data-preset="classic">클래식 이중선</button>
+          <button type="button" data-preset="brush">붓글씨 낙관</button>
+          <button type="button" data-preset="personal">개인 인감</button>
+          <button type="button" data-preset="nakgwan">사각 낙관</button>
+        </div>
+        <div class="preset-cap">낡은 정도만</div>
+        <div class="presets">
+          <button type="button" data-preset="soft">번짐 적게</button>
+          <button type="button" data-preset="worn">많이 낡게</button>
+        </div>
+      </div>
+      <p class="hint" id="presetHint">디자인은 글씨체·모양·색·보조 글자를 한꺼번에 바꾸고, 낡은 정도는 번짐·얼룩만 바꿉니다. 입력한 글자는 그대로예요.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>글씨체와 배치</legend>
       <div class="row">
         <label class="lb" for="fontToggle"><span id="fontLabelName">글씨체</span> <span class="hint">글씨체별로 찍힌 도장을 보고 고르세요</span></label>
         <div class="fontpick">
-          <button type="button" class="fontcur" id="fontToggle" aria-expanded="false" aria-controls="fontGrid">
+          <button type="button" class="fontcur" id="fontToggle" aria-expanded="false" aria-controls="fontGrid" aria-labelledby="fontLabelName fontCurName">
             <span class="fp-sample" id="fontCurSample"></span>
             <span class="fp-name" id="fontCurName"></span>
             <span class="fp-chev" id="fontChev">바꾸기 ▾</span>
           </button>
           <div class="fontgrid" id="fontGrid" role="group" aria-label="글씨체 고르기" hidden></div>
         </div>
-        <p class="hint" id="fontNote"></p>
+        <p class="hint" id="fontNote" role="status"></p>
       </div>
       <!-- 글자에 한자가 있을 때만 보인다. 한자(印 포함)만 따로 다른 글씨체로 그린다. -->
       <div class="row" id="hanjaFontRow" hidden>
-        <label class="lb" for="hanjaFontToggle">한자 글씨체 <span class="hint">한자만 다른 글씨체로 쓸 수 있어요</span></label>
+        <label class="lb" for="hanjaFontToggle"><span id="hanjaFontLabelName">한자 글씨체</span> <span class="hint">한자만 다른 글씨체로 쓸 수 있어요</span></label>
         <div class="fontpick">
-          <button type="button" class="fontcur" id="hanjaFontToggle" aria-expanded="false" aria-controls="hanjaFontGrid">
+          <button type="button" class="fontcur" id="hanjaFontToggle" aria-expanded="false" aria-controls="hanjaFontGrid" aria-labelledby="hanjaFontLabelName hanjaFontCurName">
             <span class="fp-sample" id="hanjaFontCurSample"></span>
             <span class="fp-name" id="hanjaFontCurName"></span>
             <span class="fp-chev" id="hanjaFontChev">바꾸기 ▾</span>
@@ -719,87 +774,89 @@
           <div class="fontgrid" id="hanjaFontGrid" role="group" aria-label="한자 글씨체 고르기" hidden></div>
         </div>
       </div>
-      <!-- 내 글꼴: 사용자가 가진 글꼴 파일을 이 브라우저 안에서만 쓴다. 서버로 보내지 않는다. -->
-      <div class="row">
-        <label class="lb" for="myFontAdd">내 글꼴 <span class="hint">가진 도장 글꼴(고인체·전서체 등)을 불러와 씁니다</span></label>
-        <button type="button" class="btn" id="myFontAdd">글꼴 파일 불러오기 <span class="hint">.ttf · .otf · .woff</span></button>
+      <!-- 내 글꼴: 사용자가 가진 글꼴 파일을 이 브라우저 안에서만 쓴다. 서버로 보내지 않는다.
+           쓰는 사람이 드물어 접어 두고, 불러온 글꼴이 있으면 펼친다. -->
+      <details class="row myfont" id="myFontBox">
+        <summary>내 글꼴 불러오기 <span class="hint">.ttf · .otf · .woff</span></summary>
+        <p class="hint">가진 도장 글꼴(고인체·전서체 등)을 불러와 씁니다.</p>
+        <button type="button" class="btn" id="myFontAdd" aria-label="글꼴 파일 불러오기">글꼴 파일 불러오기 <span class="hint">.ttf · .otf · .woff</span></button>
         <input type="file" id="myFontFile" accept=".ttf,.otf,.ttc,.woff,.woff2" multiple hidden>
         <ul class="myfonts" id="myFontList"></ul>
-        <p class="hint" id="myFontNote">글꼴 파일은 이 브라우저에만 저장되고 어디로도 올라가지 않습니다.</p>
-      </div>
+        <p class="hint" id="myFontNote" role="status">글꼴 파일은 이 브라우저에만 저장되고 어디로도 올라가지 않습니다.</p>
+      </details>
       <div class="row">
-        <label class="lb" for="layout">배치</label>
-        <div class="seg" id="layout" role="group">
-          <button data-v="auto" aria-pressed="true">자동</button>
-          <button data-v="vertical" aria-pressed="false">세로</button>
-          <button data-v="horizontal" aria-pressed="false">가로</button>
-          <button data-v="grid" aria-pressed="false">격자</button>
+        <span class="lb" id="layoutLb">배치</span>
+        <div class="seg" id="layout" role="group" aria-labelledby="layoutLb">
+          <button type="button" data-v="auto" aria-pressed="true">자동</button>
+          <button type="button" data-v="vertical" aria-pressed="false">세로</button>
+          <button type="button" data-v="horizontal" aria-pressed="false">가로</button>
+          <button type="button" data-v="grid" aria-pressed="false">격자</button>
         </div>
       </div>
       <div class="row">
-        <label class="lb" for="order">읽는 순서 <span class="hint">자동: 한글이 있으면 Z 순서, 한자만 있으면 오른쪽 세로줄부터</span></label>
-        <div class="seg" id="order" role="group">
-          <button data-v="auto" aria-pressed="true">자동</button>
-          <button data-v="z" aria-pressed="false">Z 순서</button>
-          <button data-v="trad" aria-pressed="false">오른쪽 줄부터</button>
+        <span class="lb" id="orderLb">읽는 순서 <span class="hint">자동: 한글은 Z 순서, 한자만 있으면 오른쪽 줄부터</span></span>
+        <div class="seg" id="order" role="group" aria-labelledby="orderLb">
+          <button type="button" data-v="auto" aria-pressed="true">자동</button>
+          <button type="button" data-v="z" aria-pressed="false">Z 순서</button>
+          <button type="button" data-v="trad" aria-pressed="false">오른쪽 줄부터</button>
         </div>
       </div>
       <div class="row">
-        <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸에 꽉 채우기 <span class="hint">(도장 느낌)</span></label>
+        <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸 모양에 맞춰 늘이기 <span class="hint">(끄면 글씨 원래 비율)</span></label>
       </div>
       <div class="row">
         <label class="lb" for="spacing">글자 간격 <span class="hint">글자 사이에 숨 쉴 여백</span></label>
-        <div class="sl"><input type="range" id="spacing" min="0" max="24" value="0"><output id="o-spacing"></output></div>
+        <div class="sl"><input type="range" id="spacing" min="0" max="24" value="0"><output id="o-spacing" for="spacing"></output></div>
       </div>
       <div class="row">
-        <label class="lb" for="glyphFill">글자 크기 <span class="hint">칸을 채우는 비율</span></label>
-        <div class="sl"><input type="range" id="glyphFill" min="50" max="115" value="96"><output id="o-glyphFill"></output></div>
+        <label class="lb" for="glyphFill">글자 크기 <span class="hint">칸 안에서 글자가 차지하는 크기</span></label>
+        <div class="sl"><input type="range" id="glyphFill" min="50" max="115" value="96"><output id="o-glyphFill" for="glyphFill"></output></div>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>모양과 색</legend>
       <div class="row">
-        <label class="lb">테두리 모양</label>
-        <div class="seg" id="shape" role="group">
-          <button data-v="circle" aria-pressed="true">원형</button>
-          <button data-v="ellipse" aria-pressed="false">타원</button>
-          <button data-v="rounded" aria-pressed="false">둥근사각</button>
-          <button data-v="square" aria-pressed="false">사각</button>
+        <span class="lb" id="shapeLb">테두리 모양</span>
+        <div class="seg" id="shape" role="group" aria-labelledby="shapeLb">
+          <button type="button" data-v="circle" aria-pressed="true">원형</button>
+          <button type="button" data-v="ellipse" aria-pressed="false">타원</button>
+          <button type="button" data-v="rounded" aria-pressed="false">둥근사각</button>
+          <button type="button" data-v="square" aria-pressed="false">사각</button>
         </div>
       </div>
       <div class="row">
-        <label class="lb">새김 방식</label>
-        <div class="seg" id="style" role="group">
-          <button data-v="yang" aria-pressed="true">양각 (글자가 붉게)</button>
-          <button data-v="eum" aria-pressed="false">음각 (바탕이 붉게)</button>
+        <span class="lb" id="styleLb">새김 방식</span>
+        <div class="seg" id="style" role="group" aria-labelledby="styleLb">
+          <button type="button" data-v="yang" aria-pressed="true">양각 (글자가 붉게)</button>
+          <button type="button" data-v="eum" aria-pressed="false">음각 (바탕이 붉게)</button>
         </div>
       </div>
       <div class="row">
         <label class="lb" for="color">인주 색</label>
         <div class="colors">
-          <input type="color" id="color" value="#b3272d">
-          <button class="swatch" style="background:#b3272d" data-color="#b3272d" title="전통 인주"></button>
-          <button class="swatch" style="background:#d0353a" data-color="#d0353a" title="밝은 붉은색"></button>
-          <button class="swatch" style="background:#8f1d22" data-color="#8f1d22" title="짙은 주홍"></button>
-          <button class="swatch" style="background:#1f3a93" data-color="#1f3a93" title="청인"></button>
-          <button class="swatch" style="background:#2e2a24" data-color="#2e2a24" title="먹색"></button>
+          <input type="color" id="color" value="#b3272d" title="다른 색 직접 고르기">
+          <button type="button" class="swatch" style="background:#b3272d" data-color="#b3272d" title="전통 인주" aria-label="전통 인주" aria-pressed="true"></button>
+          <button type="button" class="swatch" style="background:#d0353a" data-color="#d0353a" title="밝은 붉은색" aria-label="밝은 붉은색" aria-pressed="false"></button>
+          <button type="button" class="swatch" style="background:#8f1d22" data-color="#8f1d22" title="짙은 주홍" aria-label="짙은 주홍" aria-pressed="false"></button>
+          <button type="button" class="swatch" style="background:#1f3a93" data-color="#1f3a93" title="청인" aria-label="청인" aria-pressed="false"></button>
+          <button type="button" class="swatch" style="background:#2e2a24" data-color="#2e2a24" title="먹색" aria-label="먹색" aria-pressed="false"></button>
         </div>
       </div>
       <div class="row">
         <label class="lb" for="border">테두리 두께</label>
-        <div class="sl"><input type="range" id="border" min="0" max="140" value="52"><output id="o-border"></output></div>
+        <div class="sl"><input type="range" id="border" min="0" max="140" value="52"><output id="o-border" for="border"></output></div>
       </div>
       <div class="row">
         <label class="chk"><input type="checkbox" id="doubleBorder"> 이중 테두리 <span class="hint">양각에 가는 안쪽 선 추가</span></label>
       </div>
       <div class="row">
         <label class="lb" for="pad">안쪽 여백</label>
-        <div class="sl"><input type="range" id="pad" min="0" max="200" value="40"><output id="o-pad"></output></div>
+        <div class="sl"><input type="range" id="pad" min="0" max="200" value="40"><output id="o-pad" for="pad"></output></div>
       </div>
       <div class="row">
         <label class="lb" for="rot">기울기</label>
-        <div class="sl"><input type="range" id="rot" min="-15" max="15" value="0" step="0.5"><output id="o-rot"></output></div>
+        <div class="sl"><input type="range" id="rot" min="-15" max="15" value="0" step="1"><output id="o-rot" for="rot"></output></div>
       </div>
     </fieldset>
 
@@ -807,17 +864,17 @@
       <legend>낡은 느낌</legend>
       <div class="row">
         <label class="lb" for="ink">잉크 번짐·끊김</label>
-        <div class="sl"><input type="range" id="ink" min="0" max="100" value="34"><output id="o-ink"></output></div>
+        <div class="sl"><input type="range" id="ink" min="0" max="100" value="34"><output id="o-ink" for="ink"></output></div>
       </div>
       <div class="row">
         <label class="lb" for="grain">얼룩 크기 <span class="hint">왼쪽=굵은 얼룩, 오른쪽=고운 알갱이</span></label>
-        <div class="sl"><input type="range" id="grain" min="0" max="100" value="45"><output id="o-grain"></output></div>
+        <div class="sl"><input type="range" id="grain" min="0" max="100" value="45"><output id="o-grain" for="grain"></output></div>
       </div>
       <div class="row">
         <label class="lb" for="rough">테두리 울퉁불퉁</label>
-        <div class="sl"><input type="range" id="rough" min="0" max="100" value="28"><output id="o-rough"></output></div>
+        <div class="sl"><input type="range" id="rough" min="0" max="100" value="28"><output id="o-rough" for="rough"></output></div>
       </div>
-      <button class="btn" id="reseed">🎲 같은 설정으로 다시 찍기</button>
+      <button type="button" class="btn" id="reseed">🎲 같은 설정으로 다시 찍기</button>
     </fieldset>
 
     <fieldset>
@@ -825,24 +882,59 @@
       <div class="row">
         <label class="lb" for="size">이미지 크기</label>
         <select id="size">
-          <option value="256" selected>256 × 256 (기본)</option>
-          <option value="512">512 × 512</option>
-          <option value="1024">1024 × 1024</option>
-          <option value="2048">2048 × 2048</option>
+          <option value="256" selected>256px · 문서에 넣기 (기본)</option>
+          <option value="512">512px · 문서·인쇄 (더 선명)</option>
+          <option value="1024">1024px · 크게 인쇄</option>
+          <option value="2048">2048px · 아주 크게</option>
         </select>
       </div>
-      <button class="btn primary" id="save">투명배경 PNG 저장</button>
-      <div class="btns">
-        <button class="btn" id="copy"><span>투명 배경</span><span>클립보드 복사</span></button>
-        <button class="btn" id="copyWhite" title="한글에서 클립보드의 투명 배경 이미지를 붙여넣으면 배경이 검게 나오는 호환 문제가 발생할 수 있습니다. 흰 배경으로 복사하면 이 문제를 피할 수 있습니다."><span>흰 배경 (한글용)</span><span>클립보드 복사</span></button>
-        <button class="btn" id="saveSvg" title="잉크 번짐 없이 테두리와 글자를 벡터로 저장합니다. 크게 인쇄해도 선명합니다."><span>SVG 저장</span><span>벡터 · 인쇄용</span></button>
-        <button class="btn" id="share" hidden title="사진 앱이나 메신저로 바로 보냅니다"><span>공유</span><span>사진 · 메신저로</span></button>
+      <!-- 카카오톡·네이버 앱 안의 브라우저에서만 보인다 — 그 안에서는 내려받기가 안 되는 경우가 많다 -->
+      <div class="inapp" id="inapp" hidden>
+        <p>카카오톡·네이버 앱 안에서는 저장이 안 될 수 있어요. 오른쪽 위 ⋮ 또는 ··· 를 눌러 <b>다른 브라우저로 열기</b>를 고르거나, 아래 버튼으로 이미지를 띄운 뒤 길게 눌러 저장하세요.</p>
+        <button type="button" class="btn" id="showImg">이미지로 띄우기 · 길게 눌러 저장</button>
+        <img id="longPressImg" alt="도장 이미지 — 길게 눌러 저장하세요" hidden>
       </div>
-      <p class="hint">한글에서 배경이 검게 나오면 흰 배경으로 복사하세요. 투명 배경이 필요하면 PNG를 저장한 뒤 한글의 그림 넣기로 삽입하세요.
-        SVG는 잉크 번짐 없이 벡터로 저장되어 크게 인쇄해도 선명합니다. 글꼴이 함께 들어 있어 브라우저에서는 그대로 보이지만, 일러스트레이터 같은 프로그램에서는 글꼴을 따로 설치해야 할 수 있습니다.</p>
-      <div class="status" id="status"></div>
+      <button type="button" class="btn primary" id="save">투명배경 PNG 저장</button>
+      <p class="hint hwp-hint">한글(HWP)에 넣으려면: PNG 저장 → 한글에서 <b>입력 ▸ 그림 ▸ 그림</b>(Ctrl+N, I) → 저장한 파일 선택</p>
+      <div class="btns">
+        <button type="button" class="btn" id="copy"><span>투명 배경 복사</span><span>클립보드로</span></button>
+        <button type="button" class="btn" id="copyWhite" title="흰 바탕이 도장 뒤의 글자·표 선을 가립니다"><span>흰 배경 복사</span><span>글자를 가림</span></button>
+        <button type="button" class="btn" id="saveSvg" title="잉크 번짐 없이 벡터로 저장합니다"><span>SVG 저장</span><span>벡터 · 인쇄용</span></button>
+        <button type="button" class="btn" id="share" hidden title="사진 앱이나 메신저로 바로 보냅니다"><span>공유</span><span id="shareSub">사진 · 메신저로</span></button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+      <p class="hint">한글에 붙여넣었더니 배경이 검게 나오면 ‘흰 배경 복사’를 쓰세요. 다만 흰 바탕이 도장 뒤의 글자·표 선을 가립니다.</p>
+      <details class="more">
+        <summary>SVG(벡터)는 언제 쓰나요?</summary>
+        <p class="hint">SVG는 잉크 번짐 없이 벡터로 저장되어 크게 인쇄해도 선명합니다. 글꼴이 함께 들어 있어 브라우저에서는 그대로 보이지만, 일러스트레이터 같은 프로그램에서는 글꼴을 따로 설치해야 할 수 있습니다.</p>
+      </details>
     </fieldset>
 
+    <div class="saveline">
+      <span id="saveNote">모양·색 설정은 이 브라우저에 자동으로 저장됩니다.</span>
+      <button type="button" id="reset">처음 설정으로</button>
+    </div>
+    <!-- 프리셋·'처음 설정으로' 바로 뒤에 한 단계 되돌리기를 띄운다. 누른 자리 아래로 옮겨 붙인다. -->
+    <div class="undoline" id="undoLine" hidden>
+      <span id="undoMsg"></span>
+      <button type="button" id="undo">되돌리기</button>
+    </div>
+
+    <footer>
+      <p class="made">만든 사람 · 강원 고성교육지원청 장학사 <strong>남궁연</strong></p>
+      <p class="copy">
+        © 2026 남궁연 ·
+        <a href="https://github.com/ngryun/dojang-maker/blob/main/LICENSE" target="_blank" rel="noopener">MIT 라이선스</a> ·
+        <a href="https://github.com/ngryun/dojang-maker" target="_blank" rel="noopener">소스 보기</a>
+      </p>
+      <p class="copy">
+        만든 도장 이미지는 마음대로 쓰세요.
+        글씨체는 <a href="https://fonts.google.com" target="_blank" rel="noopener">구글 폰트</a>에서 불러오며,
+        각 글씨체의 저작권은 해당 제작자에게 있습니다.
+        <a href="https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDc3MTU=" target="_blank" rel="noopener">강원교육 서체</a>는 강원특별자치도교육청,
+        <a href="https://www.gg.go.kr/contents/contents.do?ciIdx=679&amp;menuId=2457" target="_blank" rel="noopener">경기천년체</a>는 경기도가 무료로 배포하는 글씨체입니다.
+      </p>
+    </footer>
   </div>
 
   <!-- ================= 미리보기 ================= -->
@@ -855,28 +947,13 @@
   </div>
 </div>
 
-<footer>
-  <p class="made">만든 사람 · 강원 고성교육지원청 장학사 <strong>남궁연</strong></p>
-  <p class="copy">
-    © 2026 남궁연 ·
-    <a href="https://github.com/ngryun/dojang-maker/blob/main/LICENSE" target="_blank" rel="noopener">MIT 라이선스</a> ·
-    <a href="https://github.com/ngryun/dojang-maker" target="_blank" rel="noopener">소스 보기</a>
-  </p>
-  <p class="copy">
-    만든 도장 이미지는 마음대로 쓰세요.
-    글씨체는 <a href="https://fonts.google.com" target="_blank" rel="noopener">구글 폰트</a>에서 불러오며,
-    각 글씨체의 저작권은 해당 제작자에게 있습니다.
-    <a href="https://www.gwe.go.kr/main/content.do?key=bTIzMDcyMTEyMDc3MTU=" target="_blank" rel="noopener">강원교육 서체</a>는 강원특별자치도교육청,
-    <a href="https://www.gg.go.kr/contents/contents.do?ciIdx=679&amp;menuId=2457" target="_blank" rel="noopener">경기천년체</a>는 경기도가 무료로 배포하는 글씨체입니다.
-  </p>
-</footer>
-
 <!-- ================= 한자 변환 대화상자 ================= -->
 <dialog id="hanjaDlg" class="hj" aria-labelledby="hjTitle">
   <div class="hj-head">
     <div>
       <h2 id="hjTitle">한자 변환</h2>
       <p class="hint">글자마다 원하는 한자를 고르세요. 고르지 않은 글자는 한글 그대로 둡니다.</p>
+      <input type="search" class="hj-search" id="hjSearch" placeholder="뜻이나 한자로 찾기 (예: 고울)" aria-label="뜻이나 한자로 찾기" autocomplete="off" enterkeyhint="search">
     </div>
     <button type="button" class="hj-x" id="hjClose" aria-label="닫기">✕</button>
   </div>
@@ -925,7 +1002,8 @@ const FONTS = [
   { fam:'Yeon Sung',       w:400, label:'연성 · 부드러운 붓글씨', group:'손글씨' },
   { fam:'Nanum Pen Script',w:400, label:'나눔펜글씨',          group:'손글씨' },
   { fam:'Gugi',            w:400, label:'구기 · 개성 있는 장식체', group:'개성 있는' },
-  { fam:'Kirang Haerang',  w:400, label:'기랑해랑 · 굵은 붓글씨',   group:'도장 느낌' },
+  // 기랑해랑도 목록에서 숨긴다 (글씨 모양이 도장에 어울리지 않음). 번호는 남겨 둔다.
+  { fam:'Kirang Haerang',  w:400, label:'기랑해랑 · 굵은 붓글씨',   group:'도장 느낌', hidden:true },
   // 한자 변환용. 구글 폰트의 한글 글씨체 중 한자 글리프가 있는 것은 노토 세리프·노토 산스뿐이다.
   { fam:'Noto Sans KR',    w:900, label:'노토 산스 블랙',   group:'두꺼운', hanja:true },
   // 인명용 추가 한자까지: 노토 세리프 KR 로 그리되, KR 에 없는 한자만 같은 디자인의 JP 글꼴로 보완한다.
@@ -968,6 +1046,7 @@ const S = {
   color:'#b3272d',
   border:52, pad:40, rot:0,
   ink:34, grain:45, rough:28,
+  size:256,                 // 저장 이미지 크기 (px)
   seed:20260730,
 };
 
@@ -1263,12 +1342,13 @@ const REF = 220; // 글자 측정용 기준 폰트 크기
 
 /* 구글 폰트 CSS 는 첫 화면을 막지 않도록 media="print" 로 받아 두었다가 다 오면 적용한다(<link onload>).
    그 전에는 @font-face 가 하나도 없어 document.fonts.load 가 아무것도 받지 못하므로, 글꼴을 쓰기 전에 기다린다. */
+let fontCssFailed=false;                                         // 구글 폰트를 받지 못했다 — 글씨체 아래에 알린다
 const fontCssReady=new Promise(resolve=>{
   const link=document.getElementById('fontCss');
   if(!link || link.media==='all'){ resolve(); return; }         // 스크립트보다 먼저 도착해 이미 적용된 경우
-  link.addEventListener('load', ()=>resolve(), {once:true});
-  link.addEventListener('error', ()=>resolve(), {once:true});    // CDN 차단 — 대체 글씨체로 그린다
-  setTimeout(resolve, 8000);                                     // 응답이 아예 없을 때도 영원히 기다리지 않는다
+  link.addEventListener('load', ()=>{ fontCssFailed=false; resolve(); }, {once:true});
+  link.addEventListener('error', ()=>{ fontCssFailed=true; resolve(); }, {once:true});    // CDN 차단 — 대체 글씨체로 그린다
+  setTimeout(()=>{ if(link.media!=='all') fontCssFailed=true; resolve(); }, 8000);       // 응답이 아예 없을 때도 영원히 기다리지 않는다
 });
 /* 글꼴에 없는 글자(한자 전용 글씨체의 한글, KR 에 없는 인명용 한자)는 fb 의 대체 글씨체가 차례로 이어 그린다. */
 function fontSpec(f, px){
@@ -1487,6 +1567,16 @@ const metaEl = document.getElementById('meta');
 const fontNoteEl = document.getElementById('fontNote');   // 글씨체와 글자가 맞지 않을 때의 안내
 
 const $ = id => document.getElementById(id);
+const MOBILE = matchMedia('(max-width:900px)');            // CSS 의 모바일 구간과 같게
+
+/* 모바일에서 위에 고정된 미리보기 높이를 CSS 에 알려 준다 — 글씨체 '접기' 줄이 그 바로 아래에 붙는다 */
+(function(){
+  const stage=document.querySelector('.stage');
+  const set=()=>document.documentElement.style.setProperty('--stage-h', (MOBILE.matches ? stage.offsetHeight : 0)+'px');
+  if(window.ResizeObserver) new ResizeObserver(set).observe(stage);
+  window.addEventListener('resize', set);
+  set();
+})();
 
 /* ---- 글씨체 고르기 ----
    글씨체마다 지금 설정으로 찍은 도장을 작은 캔버스에 그려 보여 준다.
@@ -1516,7 +1606,7 @@ function makeFontPicker(o){
   let tiles=null;                         // [{idx, ctx, btn}] — 펼칠 때 만든다
   let tileKey='', timer=0, jobId=0;
   /* 타일 그림에 영향을 주는 상태 — 이 고르기의 번호만 빼고 전부 */
-  const stateKey=()=>JSON.stringify({...S, [o.key]:0});
+  const stateKey=()=>JSON.stringify({...S, [o.key]:0, size:0});
   function build(){
     grid.textContent=''; tiles=[];
     let group=null;
@@ -1527,7 +1617,7 @@ function makeFontPicker(o){
         grid.appendChild(h);
       }
       const b=document.createElement('button');
-      b.type='button'; b.className='fp-tile'; b.dataset.idx=idx;
+      b.type='button'; b.className='fp-tile loading'; b.dataset.idx=idx;   // loading: 처음 그릴 때까지 줄무늬
       b.title=label; b.setAttribute('aria-label', label);
       const c=document.createElement('canvas');
       c.width=c.height=TILE_PX; c.className='fp-img'; c.setAttribute('aria-hidden','true');
@@ -1537,7 +1627,8 @@ function makeFontPicker(o){
       tiles.push({idx, ctx:c.getContext('2d',{willReadFrequently:true}), btn:b});
     });
   }
-  /* 타일을 프레임마다 세 개씩 나눠 그린다. 한 번에 다 그리면 화면이 잠깐 멈춘다. */
+  /* 글꼴이 도착한 타일부터 프레임마다 세 개씩 그린다. 한 번에 다 그리면 화면이 잠깐 멈추고,
+     차례대로 기다리면 느린 글꼴 하나가 뒤의 타일을 모두 막는다. */
   function refresh(){
     clearTimeout(timer);
     if(!tiles) return;
@@ -1546,20 +1637,29 @@ function makeFontPicker(o){
     const snap={...S};
     tileKey=stateKey();
     const order=tiles.slice().sort((a,b)=>(a.idx===snap[o.key]?0:1)-(b.idx===snap[o.key]?0:1));   // 지금 글씨체부터
-    const jobs=order.map(t=>{ const st={...snap, [o.key]:t.idx}; return {st, t, ready:ensureStampFonts(st)}; });   // 글꼴은 한꺼번에 받기 시작한다
-    let i=0;
-    const step=async()=>{
+    const ready=[];                                 // 글꼴이 도착해 그릴 차례를 기다리는 타일
+    let left=order.length, queued=false;
+    grid.setAttribute('aria-busy','true');
+    const pump=()=>{
+      queued=false;
       if(job!==jobId) return;
-      const end=Math.min(i+3, jobs.length);
-      for(; i<end; i++){
-        const {st, t, ready}=jobs[i];
-        await ready;
-        if(job!==jobId) return;
+      for(let k=0; k<3 && ready.length; k++){
+        const {st, t}=ready.shift();
         try{ render(t.ctx, TILE_PX, st); }catch(e){ console.error(e); }
+        t.btn.classList.remove('loading');
+        left--;
       }
-      if(i<jobs.length) requestAnimationFrame(step);
+      if(ready.length){ queued=true; requestAnimationFrame(pump); }
+      else if(!left) grid.setAttribute('aria-busy','false');
     };
-    step();
+    order.forEach(t=>{
+      const st={...snap, [o.key]:t.idx};
+      ensureStampFonts(st).then(()=>{               // 글꼴은 한꺼번에 받기 시작한다
+        if(job!==jobId) return;
+        ready.push({st, t});
+        if(!queued){ queued=true; requestAnimationFrame(pump); }
+      });
+    });
   }
   /* 설정이 바뀌었으니 (펼쳐져 있으면) 잠깐 뒤에 타일을 다시 그린다. 슬라이더를 끄는 동안에는 기다린다. */
   function queue(){
@@ -1582,11 +1682,22 @@ function makeFontPicker(o){
     grid.hidden=!open;
     toggle.setAttribute('aria-expanded', String(open));
     $(o.prefix+'Chev').textContent = open ? '접기 ▴' : '바꾸기 ▾';
+    // 위에 고정된 것(휴대폰의 미리보기) 바로 아래 높이. 데스크톱은 0.
+    const topEdge=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--stage-h'))||0;
+    if(!open && toggle.getBoundingClientRect().top<topEdge+1){
+      toggle.scrollIntoView({block:'start'});     // 격자 아래까지 내려가 있었으면 접은 뒤 버튼 자리로 돌아간다
+    }
     if(open){
       if(stateKey()!==tileKey) refresh();          // 접혀 있는 동안 바뀐 설정으로 새로 그린다
-      const sel=grid.querySelector('.fp-tile[aria-pressed=true]');   // 지금 글씨체가 보이는 위치로 격자만 스크롤
-      if(sel) grid.scrollTop=Math.max(0, sel.offsetTop-grid.clientHeight/2+sel.offsetHeight/2);
+      // 격자는 페이지 흐름에 펼쳐지므로 '접기' 줄이 화면 위(휴대폰은 미리보기 아래)에 오도록 페이지를 내린다
+      toggle.scrollIntoView({block:'start', behavior:'smooth'});
     }
+  });
+  // Esc 로 격자를 접고 '바꾸기' 버튼으로 돌아간다
+  grid.addEventListener('keydown', e=>{
+    if(e.key!=='Escape') return;
+    e.preventDefault();
+    toggle.click(); toggle.focus();
   });
   grid.addEventListener('click', async e=>{
     const b=e.target.closest('.fp-tile'); if(!b) return;
@@ -1771,6 +1882,7 @@ const myFontNote=$('myFontNote'), MYFONT_HINT=myFontNote.textContent;
 function renderMyFontList(){
   const ul=$('myFontList');
   ul.textContent='';
+  if(FONTS.some(f=>f.custom && !f.hidden)) $('myFontBox').open=true;   // 불러온 글꼴이 있으면 펼쳐 둔다
   FONTS.forEach(f=>{
     if(!f.custom || f.hidden) return;
     const li=document.createElement('li');
@@ -1835,11 +1947,11 @@ $('myFontFile').addEventListener('change', e=>{
   e.target.value='';                               // 같은 파일을 다시 골라도 change 가 오도록
   if(!files.length) return;
   myFontNote.textContent='글꼴을 불러오는 중…';
-  addMyFontFiles(files).catch(err=>{ myFontNote.textContent='글꼴을 불러오지 못했습니다: '+err.message; console.error(err); });
+  addMyFontFiles(files).catch(err=>{ myFontNote.textContent='글꼴을 불러오지 못했습니다. 다른 글꼴 파일(.ttf·.otf·.woff)로 다시 해 보세요.'; console.error(err); });
 });
 $('myFontList').addEventListener('click', e=>{
   const b=e.target.closest('button[data-id]'); if(!b) return;
-  removeMyFont(b.dataset.id).catch(err=>{ myFontNote.textContent='지우지 못했습니다: '+err.message; });
+  removeMyFont(b.dataset.id).catch(err=>{ myFontNote.textContent='글꼴을 지우지 못했습니다. 새로고침한 뒤 다시 해 보세요.'; console.error(err); });
 });
 
 /* 슬라이더 표시값 */
@@ -1850,7 +1962,9 @@ const SL_FMT = {
 function syncOutputs(){
   Object.keys(SL_FMT).forEach(k=>{
     const el=$(k), out=$('o-'+k);
-    if(el&&out) out.textContent=SL_FMT[k](el.value);
+    if(!el||!out) return;
+    out.textContent=SL_FMT[k](el.value);
+    el.setAttribute('aria-valuetext', out.textContent);   // 스크린리더도 '52' 가 아니라 '5.2%' 로
   });
 }
 
@@ -1875,14 +1989,29 @@ wireSeg('style','style');
 wireSeg('order','order');
 
 /* 입력 → 상태 */
+/* 글자 수(입력칸 오른쪽)와 보조 글자 겹침 안내 — '…학교장인' 에 '인' 이 또 붙어 '인인' 이 되는 것을 미리 알린다 */
+function syncTextNotes(){
+  const el=$('text'), n=el.value.length, max=el.maxLength, cnt=$('textCount');
+  cnt.textContent=n>=max ? `${n}/${max} · 최대` : `${n}/${max}`;
+  cnt.classList.toggle('full', n>=max);
+  const sx=S.suffix, t=S.text.trim();
+  const msg=(sx && t.length>sx.length && t.endsWith(sx))
+    ? `보조 글자가 끝에 한 번 더 붙어 ‘…${sx}${sx}’처럼 찍힙니다. 보조 글자를 ‘없음’으로 바꾸거나 글자에서 빼세요.` : '';
+  if($('suffixNote').textContent!==msg) $('suffixNote').textContent=msg;
+}
 const TEXT_KEYS=[['text','text'],['suffix','suffix']];
 TEXT_KEYS.forEach(([id,key])=>{
   $(id).addEventListener('input', e=>{
     S[key]=e.target.value;
     syncFontPicker();                    // 글씨체 미리보기도 지금 글자로, 한자가 생기면 한자 글씨체 고르기도
+    syncTextNotes();
     schedule();
   });
 });
+// 처음 들어온 이름(만든 사람 예시)이면 누를 때 통째로 골라 바로 덮어쓰게 한다
+$('text').addEventListener('focus', e=>{ if(e.target.value===DEFAULTS.text) e.target.select(); });
+// 휴대폰 키보드의 '완료' 키로 키보드를 내린다
+$('text').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing) e.target.blur(); });
 const NUM_KEYS=['glyphFill','spacing','border','pad','rot','ink','grain','rough'];
 NUM_KEYS.forEach(id=>{
   $(id).addEventListener('input', e=>{ S[id]=+e.target.value; syncOutputs(); schedule(); });
@@ -1891,24 +2020,56 @@ const CHK_KEYS=['stretch','doubleBorder'];
 CHK_KEYS.forEach(id=>{
   $(id).addEventListener('change', e=>{ S[id]=e.target.checked; schedule(); });
 });
-$('color').addEventListener('input', e=>{ S.color=e.target.value; schedule(); });
+/* 인주 색 견본의 선택 표시를 지금 색에 맞춘다 (직접 고른 색이면 모두 꺼짐) */
+function syncSwatches(){
+  document.querySelectorAll('.swatch').forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.color.toLowerCase()===S.color.toLowerCase())));
+}
+$('color').addEventListener('input', e=>{ S.color=e.target.value; syncSwatches(); schedule(); });
 document.querySelectorAll('.swatch').forEach(b=>{
-  b.addEventListener('click', ()=>{ S.color=b.dataset.color; $('color').value=S.color; schedule(); });
+  b.addEventListener('click', ()=>{ S.color=b.dataset.color; $('color').value=S.color; syncSwatches(); schedule(); });
 });
+$('size').addEventListener('change', e=>{ S.size=+e.target.value; schedule(); });
 $('reseed').addEventListener('click', ()=>{
   S.seed=(Math.random()*2147483647)|0;
   schedule();
 });
 $('paper').addEventListener('change', e=>{
   setPaper(e.target.checked);
-  saveState();
+  schedule();                            // 미리보기 아래 설명(종이 배경은 미리보기용)도 바꾼다
 });
+
+/* 한 단계 되돌리기 — 프리셋·'처음 설정으로' 바로 전 상태를 하나만 기억한다.
+   되돌리기 줄은 누른 자리 아래에 붙이고, 그 뒤에 다른 설정을 바꾸면 거둔다. */
+const undoLine=$('undoLine');
+let undoSnap=null, undoKey='';
+function rememberUndo(msg, after){
+  undoSnap={S:JSON.stringify(S), paper:$('paper').checked, back:document.activeElement};
+  $('undoMsg').textContent=msg;
+  after.after(undoLine);
+  undoLine.hidden=false;
+}
+function armUndo(){ undoKey=JSON.stringify(S); }   // 바뀐 뒤의 상태 — 이것과 달라지면 되돌리기를 거둔다
+function dropUndo(){ undoSnap=null; undoLine.hidden=true; }
+$('undo').addEventListener('click', async ()=>{
+  if(!undoSnap) return;
+  const snap=undoSnap; dropUndo();
+  Object.assign(S, JSON.parse(snap.S));
+  setPaper(snap.paper);
+  pushStateToUI();
+  if(snap.back && snap.back.focus) snap.back.focus({preventScroll:true});   // 되돌리기 버튼이 사라지므로 누르던 자리로
+  await ensureStampFonts(S);
+  schedule();
+});
+
 $('reset').addEventListener('click', async ()=>{
-  Object.assign(S, JSON.parse(JSON.stringify(DEFAULTS)));
+  if(!confirm('모양·색·낡은 느낌을 처음 상태로 되돌릴까요? 입력한 글자는 그대로 둡니다.')) return;
+  rememberUndo('처음 설정으로 되돌렸습니다.', $('reset').parentElement);
+  const keep={text:S.text, suffix:S.suffix};   // 입력한 이름과 한자 변환 결과는 남긴다
+  Object.assign(S, JSON.parse(JSON.stringify(DEFAULTS)), keep);
   S.seed=(Math.random()*2147483647)|0;
-  try{ localStorage.removeItem(STORE_KEY); }catch(e){}
   setPaper(false);
   pushStateToUI();
+  armUndo();
   await ensureStampFonts(S);
   schedule();
 });
@@ -1924,7 +2085,7 @@ const PRESETS = {
             fontIdx:0, border:42, pad:65, glyphFill:96, spacing:7, doubleBorder:true,
             ink:12, grain:58, rough:8, rot:0, stretch:false },
   brush:{ suffix:'', shape:'rounded', style:'yang', layout:'auto', color:'#a3382c',
-          fontIdx:fontIdxOf('Kirang Haerang'), border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
+          fontIdx:fontIdxOf('Yeon Sung'), border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
           ink:20, grain:55, rough:24, rot:-2, stretch:false },
   personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
              fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true },
@@ -1936,9 +2097,11 @@ const PRESETS = {
 $('presets').addEventListener('click', async e=>{
   const b=e.target.closest('button'); if(!b) return;
   const p=PRESETS[b.dataset.preset]; if(!p) return;
+  rememberUndo(`‘${b.textContent}’ 적용했습니다.`, $('presetHint'));
   Object.assign(S, p);
   S.seed=(Math.random()*2147483647)|0;
   pushStateToUI();
+  armUndo();
   await ensureStampFonts(S);
   schedule();
 });
@@ -1954,7 +2117,10 @@ function pushStateToUI(){
   setSeg('shape','shape',S.shape);
   setSeg('style','style',S.style);
   setSeg('order','order',S.order);
+  $('size').value=String(S.size);
+  syncSwatches();
   syncOutputs();
+  syncTextNotes();
 }
 
 /* ============================================================
@@ -2073,7 +2239,7 @@ function openHanjaDialog(){
   }
   HJ.text=text; HJ.rows=rows; HJ.choices=[...text].map(()=>null);
   renderHanjaRows();
-  $('hjSuffixWrap').hidden = S.suffix!=='인';
+  $('hjSearch').value='';
   $('hjSuffix').checked=true;
   $('hjFont').checked=true;
   updateHanjaPreview();
@@ -2138,9 +2304,11 @@ function hanjaSuffixAfter(text){
 function updateHanjaPreview(){
   const text=applyHanjaChoices(HJ.text, HJ.choices), suffix=hanjaSuffixAfter(text);
   $('hjPreview').textContent = text + (suffix ? ' · '+suffix : '');
+  // 한자를 하나도 고르지 않았으면 두 체크박스는 효과가 없으니 숨긴다. ('적용'은 그대로 — 한글로 되돌릴 때도 쓴다)
+  $('hjSuffixWrap').hidden = S.suffix!=='인' || !hasHanja(text);
   // 지금 글씨체가 결과의 한자를 못 그릴 때만 글씨체 바꾸기를 제안한다 (고른 한자에 따라 바뀐다)
   const t=fontSwitchTarget(text);
-  $('hjFontWrap').hidden = t<0;
+  $('hjFontWrap').hidden = t<0 || !hasHanja(text+suffix);
   if(t>=0) $('hjFontName').textContent=FONTS[t].label;
 }
 async function applyHanja(){
@@ -2167,6 +2335,7 @@ async function applyHanja(){
       notes.push(`인명용 추가 한자(${rare.join(' ')})는 이 글씨체에 없어 컴퓨터의 기본 한자 글꼴로 그려집니다. 한자 글씨체로 ‘인명용 한자까지’나 ‘한자 전용’ 글씨체를 고르면 웹 글씨체로 그려집니다.`);
   }
   hjNote.textContent=notes.join(' ');
+  syncTextNotes();                               // 印 + 印 처럼 보조 글자와 겹치면 알린다
   schedule();                                    // 웹폰트가 적용된 모습으로 다시 그린다
 }
 
@@ -2174,12 +2343,22 @@ $('hanjaBtn').addEventListener('click', openHanjaDialog);
 $('hjClose').addEventListener('click', ()=>hjDlg.close());
 $('hjCancel').addEventListener('click', ()=>hjDlg.close());
 $('hjApply').addEventListener('click', ()=>{
-  applyHanja().catch(err=>{ hjNote.textContent='한자 변환 오류: '+err.message; console.error(err); });
+  applyHanja().catch(err=>{ hjNote.textContent='한자를 적용하지 못했습니다. 새로고침한 뒤 다시 해 보세요.'; console.error(err); });
 });
+/* 후보를 뜻이나 한자로 거른다. '그대로'·'한글로' 칩은 늘 보인다. */
+function filterHanjaChips(){
+  const q=$('hjSearch').value.trim();
+  hjRows.querySelectorAll('.hj-chip').forEach(c=>{
+    if(c.classList.contains('keep') || c.classList.contains('hangul')){ c.hidden=false; return; }
+    const sub=c.querySelector('small');
+    c.hidden=!!q && !(c.dataset.ch.includes(q) || (sub && sub.textContent.includes(q)));
+  });
+}
+$('hjSearch').addEventListener('input', filterHanjaChips);
 $('hjSuffix').addEventListener('change', updateHanjaPreview);
 hjRows.addEventListener('click', e=>{
   const more=e.target.closest('.hj-more');
-  if(more){ expandRare(more); return; }
+  if(more){ expandRare(more); filterHanjaChips(); return; }
   const chip=e.target.closest('.hj-chip');
   if(!chip) return;
   HJ.choices[+chip.dataset.i]=chip.dataset.ch || null;
@@ -2257,7 +2436,11 @@ function loadState(){
     if(typeof d==='number'){
       if(!isFinite(v)) return;
       const el=$(k);
-      if(el && el.type==='range') S[k]=Math.min(+el.max, Math.max(+el.min, v));
+      if(el && el.type==='range'){
+        const step=+el.step || 1;                        // 눈금이 바뀐 예전 값(기울기 0.5° 등)은 가까운 눈금으로
+        S[k]=Math.min(+el.max, Math.max(+el.min, Math.round(v/step)*step));
+      }
+      else if(k==='size'){ if([...$('size').options].some(o=>+o.value===v)) S.size=v; }
       else if(k==='fontIdx'){
         const i=Math.min(BUILTIN_FONT_COUNT-1, Math.max(0, Math.round(v)));
         S[k]=FONTS[i].hidden ? DEFAULT_FONT_IDX : i;   // 숨긴 글씨체를 가리키면 기본 글씨체로 (내 글꼴은 아래에서 id 로)
@@ -2292,6 +2475,12 @@ function setPaper(on){
 const FB_LABEL={'Noto Serif KR':'노토 세리프', 'Noto Sans KR':'노토 산스'};
 function fontNoteText(st){
   const f=mainFont(st), hf=hanjaFont(st), text=st.text+st.suffix, own=hf===f ? '이 글씨체' : '한자 글씨체';
+  // 구글 폰트를 받지 못했다 (강원교육·경기천년 글씨체와 내 글꼴은 이 폴더·브라우저에 있어 괜찮다)
+  if(fontCssFailed && [f, hf].some(x=>!x.custom && x.group!==LOCAL_GROUP))
+    return '글씨체를 받아오지 못해 컴퓨터 기본 글씨체로 그려집니다. 인터넷 연결을 확인한 뒤 새로고침하세요.';
+  // 한자 글씨체를 따로 골랐고 글자가 모두 한자면, 한글 글씨체 격자를 눌러도 도장이 바뀌지 않는다
+  if(st.hanjaFontIdx>=0 && hasHanja(text) && !hasHangul(text))
+    return '글자가 모두 한자라 한글 글씨체는 쓰이지 않습니다. 아래 ‘한자 글씨체’에서 고르세요.';
   // 내 글꼴은 실제로 어떤 글자가 없는지 알 수 있다 — 없는 글자는 노토 세리프로 그려진다
   const chars=[...text].filter(c=>c.trim());
   const miss=[...new Set([f, hf])].filter(x=>x.custom)
@@ -2314,20 +2503,28 @@ function fontMetaLabel(st){
 }
 
 /* ---- 미리보기 (프레임마다 한 번만) ---- */
-let pending=false;
+let pending=false, shownKey='';
 function schedule(){
   if(pending) return;
   pending=true;
   requestAnimationFrame(()=>{
     pending=false;
+    // 설정이 바뀌었으면 '저장했습니다' 는 지금 도장 이야기가 아니다 — 지운다. 되돌리기도 거둔다.
+    const key=JSON.stringify(S);
+    if(key!==shownKey){
+      if(shownKey && statusEl.dataset.kind==='ok') setStatus('');
+      if(undoKey && key!==undoKey){ dropUndo(); undoKey=''; }
+      shownKey=key;
+    }
     try{
       render(vctx, view.width, S);
-      const n=[...S.text.trim()].filter(c=>c!==' ').length+[...S.suffix].length;
-      metaEl.textContent = `글자 ${n}자 · ${fontMetaLabel(S)} · ${S.style==='yang'?'양각':'음각'} · 미리보기 ${view.width}px`;
-      fontNoteEl.textContent = fontNoteText(S);
+      const bg=$('paper').checked ? '종이 배경은 미리보기용' : '격자무늬는 저장되지 않음';
+      metaEl.textContent = `${fontMetaLabel(S)} · ${S.style==='yang'?'양각':'음각'} · 저장 ${S.size}px · ${bg}`;
+      const note=fontNoteText(S);
+      if(fontNoteEl.textContent!==note) fontNoteEl.textContent=note;   // 같은 안내를 스크린리더가 거듭 읽지 않게
       queueFontTiles();                          // 글씨체 고르기 타일도 바뀐 설정으로 (펼쳐져 있을 때만)
     }catch(err){
-      statusEl.textContent='그리기 오류: '+err.message;
+      setStatus('도장을 그리지 못했습니다. 새로고침하거나 글씨체·글자를 바꿔 보세요.', 'err');
       console.error(err);
     }
     saveState();
@@ -2338,6 +2535,12 @@ function schedule(){
 function sanitize(s){
   return (s||'도장').trim().replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30) || '도장';
 }
+/* 저장·복사 결과 문구. kind: 'ok'(초록) | 'err'(붉게 굵게) | 'busy'(회색). ok 문구는 설정이 바뀌면 지운다. */
+function setStatus(msg, kind='busy'){
+  statusEl.textContent=msg;
+  statusEl.dataset.kind=msg ? kind : '';
+}
+
 async function renderToBlob(st, size, background=null){
   const c=document.createElement('canvas');
   c.width=c.height=size;
@@ -2359,23 +2562,36 @@ async function renderToBlob(st, size, background=null){
 }
 async function withBusy(msg, fn){
   const btns=[$('save'),$('copy'),$('copyWhite'),$('saveSvg'),$('share')];
+  const prev=document.activeElement;              // 버튼을 끄면 키보드 포커스가 문서 맨 앞으로 떨어진다 — 끝나면 돌려준다
   btns.forEach(b=>b.disabled=true);
-  statusEl.textContent=msg;
+  setStatus(msg, 'busy');
   // 복사는 클릭의 사용자 활성화가 유지되는 동안 시작해야 한다.
   try{ await fn(); }
-  catch(err){ statusEl.textContent='오류: '+err.message; console.error(err); }
-  finally{ btns.forEach(b=>b.disabled=false); }
+  catch(err){ setStatus('이미지를 만들지 못했습니다. 이미지 크기를 줄여 다시 시도해 보세요.', 'err'); console.error(err); }
+  finally{
+    btns.forEach(b=>b.disabled=false);
+    if(btns.includes(prev)) prev.focus();
+  }
 }
+/* 휴대폰에서는 내려받은 파일이 사진 앱이 아니라 파일 앱(다운로드)에 들어간다 */
+const SAVED_WHERE=()=>TOUCH_DEVICE
+  ? ' · 파일 앱(다운로드)에서 확인하세요.'+(shareBtn.hidden ? '' : ' 사진 앱에 넣거나 카톡으로 보내려면 ‘공유’를 쓰세요.')
+  : ' (다운로드 폴더)';
 $('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', async()=>{
   const st={...S}, size=+$('size').value;
   const blob=await renderToBlob(st, size);
-  downloadBlob(blob, `도장_${sanitize(st.text+st.suffix)}_${size}.png`);
-  statusEl.textContent=`저장했습니다 · ${size}px · 배경 투명`;
+  const name=`도장_${sanitize(st.text+st.suffix)}_${size}.png`;
+  downloadBlob(blob, name);
+  setStatus(`내려받았습니다: ${name} · ${size}px · 배경 투명${SAVED_WHERE()}`, 'ok');
 }));
+const COPY_FALLBACK='위의 ‘투명배경 PNG 저장’으로 저장한 뒤 한글에서 입력 ▸ 그림 ▸ 그림으로 넣으세요.';
 function copyImage(background=null){
   return withBusy('복사할 이미지를 만들고 있습니다…', async()=>{
   if(!navigator.clipboard?.write || !window.ClipboardItem){
-    statusEl.textContent='이 브라우저는 이미지 복사를 지원하지 않습니다. PNG 저장을 이용하세요.';
+    // http:// 로 연 페이지는 브라우저가 클립보드를 아예 내주지 않는다 — 브라우저 탓이 아니다
+    setStatus((window.isSecureContext===false
+      ? '이 주소(http)에서는 브라우저가 이미지 복사를 막습니다. '
+      : '이 브라우저는 이미지 복사를 지원하지 않습니다. ')+COPY_FALLBACK, 'err');
     return;
   }
   const blobPromise=renderToBlob({...S}, +$('size').value, background);
@@ -2384,13 +2600,13 @@ function copyImage(background=null){
   try{
     await navigator.clipboard.write([new ClipboardItem({'image/png':blobPromise})]);
   }catch(err){
-    statusEl.textContent='이미지 복사를 완료하지 못했습니다. 브라우저 권한을 확인하거나 PNG 저장을 이용하세요.';
+    setStatus('이 환경에서는 이미지 복사가 막혀 있습니다. '+COPY_FALLBACK, 'err');
     console.error(err);
     return;
   }
-  statusEl.textContent=background
-    ? '흰 배경으로 복사했습니다. 한글에 붙여넣기 하세요. (배경 불투명)'
-    : '투명 배경으로 복사했습니다. 문서에 붙여넣기 하세요.';
+  setStatus(background
+    ? '흰 배경으로 복사했습니다. 한글에 붙여넣기 하세요. (흰 바탕이 뒤의 글자를 가립니다)'
+    : '투명 배경으로 복사했습니다. 문서에 붙여넣기 하세요.', 'ok');
   });
 }
 $('copy').addEventListener('click', ()=>copyImage());
@@ -2550,12 +2766,12 @@ $('saveSvg').addEventListener('click', ()=>withBusy('SVG를 만들고 있습니�
   try{ fontCss=uses.length ? await embedFontCss(uses) : ''; }
   catch(err){ console.error(err); }                               // 받지 못하면 글꼴 이름만 적는다
   const svg=stampSVG(st, size, fontCss, outline);
-  downloadBlob(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}), `도장_${sanitize(st.text+st.suffix)}.svg`);
-  statusEl.textContent = lostCustom
-    ? 'SVG로 저장했습니다. 내 글꼴을 윤곽으로 바꾸지 못해 글꼴 이름만 적었으니, 그 글꼴이 없는 컴퓨터에서는 다르게 보입니다. PNG 저장을 권합니다.'
-    : (fontCss || !uses.length)
-    ? `SVG로 저장했습니다 · 벡터 · 글꼴 포함 (${Math.round(svg.length/1024)}KB)`
-    : 'SVG로 저장했습니다. 글꼴을 내려받지 못해 글꼴 이름만 적었으니, 글꼴이 없는 컴퓨터에서는 다른 글씨체로 보일 수 있습니다.';
+  const name=`도장_${sanitize(st.text+st.suffix)}.svg`;
+  downloadBlob(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}), name);
+  const saved=`내려받았습니다: ${name}`;
+  if(lostCustom) setStatus(saved+'. 내 글꼴을 윤곽으로 바꾸지 못해 글꼴 이름만 적었으니, 그 글꼴이 없는 컴퓨터에서는 다르게 보입니다. PNG 저장을 권합니다.', 'err');
+  else if(fontCss || !uses.length) setStatus(`${saved} · 벡터 · 글꼴 포함 (${Math.round(svg.length/1024)}KB)${SAVED_WHERE()}`, 'ok');
+  else setStatus(saved+'. 글꼴을 내려받지 못해 글꼴 이름만 적었으니, 글꼴이 없는 컴퓨터에서는 다른 글씨체로 보일 수 있습니다.', 'err');
 }));
 
 /* ---- 공유 (Web Share API) ----
@@ -2568,18 +2784,41 @@ function canShareFiles(){
     return !!(navigator.share && navigator.canShare && navigator.canShare({files:[probe]}));
   }catch(e){ return false; }
 }
-if(canShareFiles()){ shareBtn.hidden=false; }
+const TOUCH_DEVICE=!!(window.matchMedia && matchMedia('(hover:none)').matches);
+if(canShareFiles()){
+  shareBtn.hidden=false;
+  if(TOUCH_DEVICE){                                 // 휴대폰: 공유를 첫 줄 전체로 올리고 할 수 있는 일을 적는다
+    document.body.classList.add('share-first');
+    $('shareSub').textContent='사진 앱에 저장 · 카톡으로 보내기';
+  }
+}
 else { shareBtn.hidden=true; $('saveSvg').classList.add('wide'); }
+
+/* 카카오톡·네이버·인스타그램·페이스북 앱 안의 브라우저 — 내려받기가 조용히 실패하는 경우가 많다.
+   다른 브라우저로 열라고 알리고, 이미지를 띄워 길게 눌러 저장하는 길을 하나 더 둔다. */
+const IN_APP=/KAKAOTALK|NAVER\(inapp|Line\/|Instagram|FBAN|FBAV/i.test(navigator.userAgent||'');
+if(IN_APP) $('inapp').hidden=false;
+$('showImg').addEventListener('click', ()=>withBusy('이미지를 만들고 있습니다…', async()=>{
+  const blob=await renderToBlob({...S}, +$('size').value);
+  const url=await new Promise((resolve, reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result); r.onerror=()=>reject(r.error);
+    r.readAsDataURL(blob);                          // blob: 주소는 앱 안 브라우저에서 길게 눌러 저장이 안 되기도 한다
+  });
+  const img=$('longPressImg');
+  img.src=url; img.hidden=false;
+  setStatus('이미지를 길게 눌러 ‘이미지 저장’을 고르세요.', 'ok');
+}));
 shareBtn.addEventListener('click', ()=>withBusy('공유할 이미지를 만들고 있습니다…', async()=>{
   const st={...S}, size=+$('size').value;
   const blob=await renderToBlob(st, size);
   const file=new File([blob], `도장_${sanitize(st.text+st.suffix)}_${size}.png`, {type:'image/png'});
   try{
     await navigator.share({files:[file], title:'도장 이미지'});
-    statusEl.textContent='공유했습니다.';
+    setStatus('공유했습니다.', 'ok');
   }catch(err){
-    if(err.name==='AbortError'){ statusEl.textContent=''; return; }          // 공유 창을 닫은 것
-    if(err.name==='NotAllowedError'){ statusEl.textContent='공유 창을 열지 못했습니다. 한 번 더 눌러 보세요.'; return; }
+    if(err.name==='AbortError'){ setStatus(''); return; }          // 공유 창을 닫은 것
+    if(err.name==='NotAllowedError'){ setStatus('공유 창을 열지 못했습니다. 한 번 더 눌러 보세요.', 'err'); return; }
     throw err;
   }
 }));

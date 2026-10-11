@@ -6,13 +6,13 @@ const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),
 const script=html.match(/<script>([\s\S]*?)<\/script>/)[1];
 function setup({unsupported=false, denied=false, nullBlob=false}={}){
   const events={}, lifecycle={}, nodes={}, saved=[], renders=[], downloads=[];
-  for(const id of ['save','copy','copyWhite','saveSvg','share','size','paper','saveNote','fontCss']) nodes[id]={value:'1024',checked:false,disabled:false,hidden:false,classList:{add(){}},addEventListener:(name,fn)=>events[id]=fn};
+  for(const id of ['save','copy','copyWhite','saveSvg','share','shareSub','size','paper','saveNote','fontCss','inapp','showImg','longPressImg']) nodes[id]={value:'1024',checked:false,disabled:false,hidden:false,classList:{add(){}},addEventListener:(name,fn)=>events[id]=fn};
   let resolveFont;
   const fontReady=new Promise(r=>resolveFont=r);
   const blob={type:'image/png'};
   const state={text:'처음',suffix:'인',fontIdx:0,color:'#b3272d'};
   let clipboardCalls=0, item;
-  const context={S:state,FONTS:[{}],$:id=>nodes[id],statusEl:{textContent:''},console:{error(){}},
+  const context={S:state,FONTS:[{}],$:id=>nodes[id],statusEl:{textContent:'',dataset:{}},console:{error(){}},
     setTimeout:()=>1,clearTimeout(){}, STORE_KEY:'settings',CAN_STORE:true,
     localStorage:{setItem:(k,v)=>saved.push(JSON.parse(v))},
     ensureFont:()=>fontReady,ensureStampFonts:()=>fontReady,render:(ctx,size,st)=>renders.push({size,st}),
