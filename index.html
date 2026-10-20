@@ -805,12 +805,12 @@
         <label class="chk"><input type="checkbox" id="stretch" checked> 글자를 칸 모양에 맞춰 늘이기 <span class="hint">(끄면 글씨 원래 비율)</span></label>
       </div>
       <div class="row">
-        <label class="lb" for="spacing">글자 간격 <span class="hint">글자 사이에 숨 쉴 여백</span></label>
+        <label class="lb" for="spacing">글자 간격 <span class="hint">글자 사이 여백 · 바깥 크기는 그대로</span></label>
         <div class="sl"><input type="range" id="spacing" min="0" max="24" value="0"><output id="o-spacing" for="spacing"></output></div>
       </div>
       <div class="row">
-        <label class="lb" for="glyphFill">글자 크기 <span class="hint">칸 안에서 글자가 차지하는 크기</span></label>
-        <div class="sl"><input type="range" id="glyphFill" min="50" max="115" value="96"><output id="o-glyphFill" for="glyphFill"></output></div>
+        <label class="lb" for="glyphFill">글자 크기 <span class="hint">글자 전체 크기 · 100%는 테두리에 맞춤</span></label>
+        <div class="sl"><input type="range" id="glyphFill" min="60" max="110" value="100"><output id="o-glyphFill" for="glyphFill"></output></div>
       </div>
     </fieldset>
 
@@ -1042,7 +1042,7 @@ const S = {
   hanjaFontIdx:-1,          // 한자 글씨체. -1 이면 한글 글씨체(fontIdx)로 함께 그린다
   shape:'circle', style:'yang', layout:'auto',
   order:'auto',             // 읽는 순서. 'z': 윗줄 왼쪽→오른쪽, 'trad': 오른쪽 세로줄부터 위→아래, 'auto': 글자에 따라 (readsTrad)
-  stretch:true, glyphFill:96, spacing:0, doubleBorder:false,
+  stretch:true, glyphFill:100, spacing:0, doubleBorder:false,
   color:'#b3272d',
   border:52, pad:40, rot:0,
   ink:34, grain:45, rough:28,
@@ -1393,6 +1393,7 @@ function stampRadius(size, shape, rotation, rough){
 /* 도장 하나의 기하 정보. 캔버스(render)와 SVG(stampSVG)가 같은 계산을 쓰도록 따로 뺐다. ctx 는 글자 측정에만 쓴다.
    선(outer·inner·double)은 {inset: 윤곽을 안으로 들인 양, lw: 선 두께, amp: 요철 배율}.
    glyphs 는 글자마다 {ch, f, cx, cy, sx, sy, gx, gy} — 칸 중심으로 옮기고 (sx,sy) 로 늘린 뒤 (-gx, gy) 에 찍는다. */
+const CELL_FILL = 0.96;   // 칸 안에서 글자가 차지하는 몫
 function stampGeometry(ctx, size, st){
   const f = mainFont(st);
   const chars = [...st.text.trim()].filter(c=>c!==' ');
@@ -1435,8 +1436,11 @@ function stampGeometry(ctx, size, st){
     const grid = layoutCells(n, st.layout);
     const rowsMax = Math.max(...grid.counts);
     const A = grid.cols/rowsMax;
-    const fill = st.glyphFill/100;
-    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, readsTrad(st), riX, riY, nExp, fill, st.spacing || 0, st.stretch);
+    // 칸 안에서 글자가 차지하는 몫은 고정하고, 글자판을 테두리에 맞춘 뒤 '글자 크기' 만큼 전체를 키우고 줄인다.
+    // (칸 안 비율을 바꾸면 글자판이 다시 테두리까지 커져 글자 크기는 그대로, 사이만 벌어진다 — '글자 간격'과 같은 일이 된다)
+    const fill = CELL_FILL;
+    const halfH = fitBlockHalfHeight(fonts, all, boxes, grid, readsTrad(st), riX, riY, nExp, fill, st.spacing || 0, st.stretch)
+                  * st.glyphFill/100;
     const boxH = 2*halfH;
     const boxW = boxH*A;
     const cells = buildCells(grid, readsTrad(st), boxW, boxH);
@@ -2079,18 +2083,18 @@ $('reset').addEventListener('click', async ()=>{
    프리셋을 눌러 볼 때마다 이름을 다시 치게 만들면 안 되므로 여기에 text 를 넣지 않는다. */
 const PRESETS = {
   modern:{ suffix:'', shape:'circle', style:'yang', layout:'auto', color:'#8f1d22',
-           fontIdx:0, border:30, pad:100, glyphFill:92, spacing:12, doubleBorder:false,
+           fontIdx:0, border:30, pad:100, glyphFill:96, spacing:12, doubleBorder:false,
            ink:6, grain:65, rough:4, rot:0, stretch:false },
   classic:{ suffix:'인', shape:'circle', style:'yang', layout:'auto', color:'#9b252b',
-            fontIdx:0, border:42, pad:65, glyphFill:96, spacing:7, doubleBorder:true,
+            fontIdx:0, border:42, pad:65, glyphFill:100, spacing:7, doubleBorder:true,
             ink:12, grain:58, rough:8, rot:0, stretch:false },
   brush:{ suffix:'', shape:'rounded', style:'yang', layout:'auto', color:'#a3382c',
-          fontIdx:fontIdxOf('Yeon Sung'), border:36, pad:80, glyphFill:100, spacing:5, doubleBorder:false,
+          fontIdx:fontIdxOf('Yeon Sung'), border:36, pad:80, glyphFill:104, spacing:5, doubleBorder:false,
           ink:20, grain:55, rough:24, rot:-2, stretch:false },
   personal:{ spacing:0, doubleBorder:false, suffix:'인', shape:'circle', style:'yang', layout:'auto',
-             fontIdx:0, border:52, pad:40, glyphFill:96, ink:34, grain:45, rough:28, rot:0, stretch:true },
+             fontIdx:0, border:52, pad:40, glyphFill:100, ink:34, grain:45, rough:28, rot:0, stretch:true },
   nakgwan:{ spacing:0, doubleBorder:false, suffix:'印', shape:'rounded', style:'eum', layout:'grid',
-             fontIdx:2, border:38, pad:58, glyphFill:97, ink:44, grain:38, rough:40, rot:-2, stretch:true },
+             fontIdx:2, border:38, pad:58, glyphFill:101, ink:44, grain:38, rough:40, rot:-2, stretch:true },
   soft:{ ink:16, grain:62, rough:14 },
   worn:{ ink:62, grain:34, rough:58 },
 };
@@ -2402,7 +2406,7 @@ function flushState(){
     const paper=$('paper');   // 글꼴이 늦게 떠서 다시 그릴 때 화면이 이미 바뀌었을 수도 있다
     // 내 글꼴은 들어올 때마다 번호가 달라질 수 있어 글꼴 id 도 함께 적는다
     const customOf=i=>(i>=0 && (FONTS[i]||{}).custom) || null;
-    localStorage.setItem(STORE_KEY, JSON.stringify({...S, paper:!!(paper && paper.checked),
+    localStorage.setItem(STORE_KEY, JSON.stringify({...S, fillV:2, paper:!!(paper && paper.checked),
       fontCustom:customOf(S.fontIdx), hanjaFontCustom:customOf(S.hanjaFontIdx)}));
   }catch(e){ const note=$('saveNote'); if(note) note.textContent='설정을 저장하지 못했습니다. 브라우저 저장 공간을 확인하세요.'; }
 }
@@ -2459,6 +2463,8 @@ function loadState(){
     else if(k==='color') { if(/^#[0-9a-fA-F]{6}$/.test(v)) S.color=v; }
     else if(ENUM[k])     { if(ENUM[k].includes(v)) S[k]=v; }
   });
+  // 예전 '글자 크기'는 칸 안 비율이었다(뜻이 달라 그대로 쓰면 작아진다) — 기본값으로 둔다
+  if(saved.fillV!==2) S.glyphFill=DEFAULTS.glyphFill;
   // 내 글꼴은 id 로 찾는다 (지워졌으면 위에서 정한 기본값 그대로)
   if(typeof saved.fontCustom==='string'){ const i=myFontIdx(saved.fontCustom); if(i>=0) S.fontIdx=i; }
   if(typeof saved.hanjaFontCustom==='string'){ const i=myFontIdx(saved.hanjaFontCustom); if(i>=0 && FONTS[i].hanja) S.hanjaFontIdx=i; }
