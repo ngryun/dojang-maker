@@ -69,3 +69,23 @@ test('storage write failure is visible without throwing',()=>{
   const app=setup();app.context.localStorage.setItem=()=>{throw new Error('quota')};
   assert.doesNotThrow(()=>app.lifecycle.pagehide());assert.match(app.nodes.saveNote.textContent,/저장하지 못했습니다/);
 });
+test('pngSetDpi inserts a pHYs chunk after IHDR, replaces an old one, and leaves non-PNG data alone',()=>{
+  const {context}=setup();
+  const zlib=require('node:zlib');
+  const chunk=(type,data)=>{const t=Buffer.from(type,'latin1');const len=Buffer.alloc(4);len.writeUInt32BE(data.length);
+    const crc=Buffer.alloc(4);crc.writeUInt32BE(zlib.crc32(Buffer.concat([t,data])));return Buffer.concat([len,t,data,crc]);};
+  const sig=Buffer.from([137,80,78,71,13,10,26,10]);
+  const ihdr=chunk('IHDR',Buffer.alloc(13)), idat=chunk('IDAT',Buffer.from([1,2,3])), iend=chunk('IEND',Buffer.alloc(0));
+  const ppm=context.pixelsPerMetre(256,15);
+  assert.equal(ppm,17067);
+  const out=Buffer.from(context.pngSetDpi(new Uint8Array(Buffer.concat([sig,ihdr,idat,iend])),ppm));
+  const phys=Buffer.alloc(9);phys.writeUInt32BE(ppm,0);phys.writeUInt32BE(ppm,4);phys[8]=1;
+  assert.deepEqual(out,Buffer.concat([sig,ihdr,chunk('pHYs',phys),idat,iend]));
+  // 이미 pHYs 가 있으면 새 값으로 바꾼다
+  const old=chunk('pHYs',Buffer.from([0,0,0,1,0,0,0,1,1]));
+  const out2=Buffer.from(context.pngSetDpi(new Uint8Array(Buffer.concat([sig,ihdr,old,idat,iend])),ppm));
+  assert.deepEqual(out2,out);
+  // PNG 가 아니면 그대로
+  const junk=new Uint8Array([1,2,3]);
+  assert.equal(context.pngSetDpi(junk,ppm),junk);
+});

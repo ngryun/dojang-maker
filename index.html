@@ -888,6 +888,20 @@
           <option value="2048">2048px · 아주 크게</option>
         </select>
       </div>
+      <div class="row">
+        <label class="lb" for="mm">문서에 넣을 크기 <span class="hint">한글·워드에 넣으면 이 크기로 들어가요</span></label>
+        <select id="mm">
+          <option value="0">정하지 않음</option>
+          <option value="10">10mm</option>
+          <option value="12">12mm · 개인 인감</option>
+          <option value="15" selected>15mm · 인감 (기본)</option>
+          <option value="18">18mm</option>
+          <option value="20">20mm</option>
+          <option value="24">24mm · 직인</option>
+          <option value="30">30mm · 큰 직인</option>
+          <option value="36">36mm</option>
+        </select>
+      </div>
       <!-- 카카오톡·네이버 앱 안의 브라우저에서만 보인다 — 그 안에서는 내려받기가 안 되는 경우가 많다 -->
       <div class="inapp" id="inapp" hidden>
         <p>카카오톡·네이버 앱 안에서는 저장이 안 될 수 있어요. 오른쪽 위 ⋮ 또는 ··· 를 눌러 <b>다른 브라우저로 열기</b>를 고르거나, 아래 버튼으로 이미지를 띄운 뒤 길게 눌러 저장하세요.</p>
@@ -1047,6 +1061,7 @@ const S = {
   border:52, pad:40, rot:0,
   ink:34, grain:45, rough:28,
   size:256,                 // 저장 이미지 크기 (px)
+  mm:15,                    // 문서에 넣을 실제 크기 (mm). PNG 에는 해상도(pHYs)로, SVG 에는 width·height 로 적는다. 0 이면 적지 않는다
   seed:20260730,
 };
 
@@ -2033,6 +2048,7 @@ document.querySelectorAll('.swatch').forEach(b=>{
   b.addEventListener('click', ()=>{ S.color=b.dataset.color; $('color').value=S.color; syncSwatches(); schedule(); });
 });
 $('size').addEventListener('change', e=>{ S.size=+e.target.value; schedule(); });
+$('mm').addEventListener('change', e=>{ S.mm=+e.target.value; schedule(); });
 $('reseed').addEventListener('click', ()=>{
   S.seed=(Math.random()*2147483647)|0;
   schedule();
@@ -2122,6 +2138,7 @@ function pushStateToUI(){
   setSeg('style','style',S.style);
   setSeg('order','order',S.order);
   $('size').value=String(S.size);
+  $('mm').value=String(S.mm);
   syncSwatches();
   syncOutputs();
   syncTextNotes();
@@ -2445,6 +2462,7 @@ function loadState(){
         S[k]=Math.min(+el.max, Math.max(+el.min, Math.round(v/step)*step));
       }
       else if(k==='size'){ if([...$('size').options].some(o=>+o.value===v)) S.size=v; }
+      else if(k==='mm')  { if([...$('mm').options].some(o=>+o.value===v)) S.mm=v; }
       else if(k==='fontIdx'){
         const i=Math.min(BUILTIN_FONT_COUNT-1, Math.max(0, Math.round(v)));
         S[k]=FONTS[i].hidden ? DEFAULT_FONT_IDX : i;   // 숨긴 글씨체를 가리키면 기본 글씨체로 (내 글꼴은 아래에서 id 로)
@@ -2525,7 +2543,7 @@ function schedule(){
     try{
       render(vctx, view.width, S);
       const bg=$('paper').checked ? '종이 배경은 미리보기용' : '격자무늬는 저장되지 않음';
-      metaEl.textContent = `${fontMetaLabel(S)} · ${S.style==='yang'?'양각':'음각'} · 저장 ${S.size}px · ${bg}`;
+      metaEl.textContent = `${fontMetaLabel(S)} · ${S.style==='yang'?'양각':'음각'} · 저장 ${S.size}px${S.mm ? ' · 문서에 '+S.mm+'mm' : ''} · ${bg}`;
       const note=fontNoteText(S);
       if(fontNoteEl.textContent!==note) fontNoteEl.textContent=note;   // 같은 안내를 스크린리더가 거듭 읽지 않게
       queueFontTiles();                          // 글씨체 고르기 타일도 바뀐 설정으로 (펼쳐져 있을 때만)
@@ -2541,6 +2559,45 @@ function schedule(){
 function sanitize(s){
   return (s||'도장').trim().replace(/[\\/:*?"<>|\s]+/g,'_').slice(0,30) || '도장';
 }
+/* ---- PNG 실제 크기 ----
+   PNG 에는 그림의 실제 크기가 없어 한글·워드가 96dpi 로 보고 256px 을 6.8cm 로 넣는다.
+   pHYs 청크(미터당 픽셀 수)를 적어 두면 넣자마자 정한 크기(mm)로 들어간다. 캔버스가 만든 PNG 에는 이 청크가 없으므로
+   IHDR 바로 뒤에 끼워 넣고, 있으면 바꾼다. bytes: PNG 파일 전체(Uint8Array). PNG 가 아니면 그대로 돌려준다. */
+let CRC_TABLE=null;
+function crc32(bytes, start, end){
+  if(!CRC_TABLE){
+    CRC_TABLE=new Int32Array(256);
+    for(let n=0;n<256;n++){ let c=n; for(let k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; CRC_TABLE[n]=c; }
+  }
+  let c=-1;
+  for(let i=start;i<end;i++) c=CRC_TABLE[(c^bytes[i])&0xFF]^(c>>>8);
+  return (c^-1)>>>0;
+}
+function pngSetDpi(bytes, ppm){
+  const SIG=[137,80,78,71,13,10,26,10];
+  if(bytes.length<8 || SIG.some((b,i)=>bytes[i]!==b)) return bytes;
+  const dv=new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const phys=new Uint8Array(4+4+9+4), pd=new DataView(phys.buffer);
+  pd.setUint32(0, 9); phys.set([0x70,0x48,0x59,0x73], 4);        // 길이 9, 'pHYs'
+  pd.setUint32(8, ppm); pd.setUint32(12, ppm); phys[16]=1;       // 가로·세로 미터당 픽셀, 단위=미터
+  pd.setUint32(17, crc32(phys, 4, 17));                          // CRC 는 이름부터 자료 끝까지
+  const out=[bytes.subarray(0,8)];
+  let p=8, inserted=false;
+  while(p+8<=bytes.length){
+    const len=dv.getUint32(p), type=String.fromCharCode(bytes[p+4],bytes[p+5],bytes[p+6],bytes[p+7]);
+    const next=Math.min(bytes.length, p+12+len);
+    if(type==='pHYs'){ p=next; continue; }                       // 있던 것은 버리고 새것을 넣는다
+    if(!inserted && type!=='IHDR'){ out.push(phys); inserted=true; }
+    out.push(bytes.subarray(p, next)); p=next;
+  }
+  if(!inserted) out.push(phys);
+  const res=new Uint8Array(out.reduce((n,a)=>n+a.length, 0));
+  let o=0; for(const a of out){ res.set(a, o); o+=a.length; }
+  return res;
+}
+/* 실제 크기 mm 로 넣을 때 size px 그림의 미터당 픽셀 수 */
+function pixelsPerMetre(size, mm){ return Math.round(size/mm*1000); }
+
 /* 저장·복사 결과 문구. kind: 'ok'(초록) | 'err'(붉게 굵게) | 'busy'(회색). ok 문구는 설정이 바뀌면 지운다. */
 function setStatus(msg, kind='busy'){
   statusEl.textContent=msg;
@@ -2561,10 +2618,16 @@ async function renderToBlob(st, size, background=null){
     ctx.fillRect(0,0,size,size);
     ctx.restore();
   }
-  return await new Promise((resolve,reject)=>c.toBlob(blob=>{
+  const blob=await new Promise((resolve,reject)=>c.toBlob(blob=>{
     if(blob) resolve(blob);
     else reject(new Error('이미지를 만들지 못했습니다. 다시 시도하세요.'));
   },'image/png'));
+  if(!(st.mm>0)) return blob;
+  // 실제 크기를 적는다. 못 적어도 그림은 멀쩡하므로 그대로 내준다.
+  try{
+    const bytes=pngSetDpi(new Uint8Array(await blob.arrayBuffer()), pixelsPerMetre(size, st.mm));
+    return new Blob([bytes], {type:'image/png'});
+  }catch(e){ console.error(e); return blob; }
 }
 async function withBusy(msg, fn){
   const btns=[$('save'),$('copy'),$('copyWhite'),$('saveSvg'),$('share')];
@@ -2586,9 +2649,9 @@ const SAVED_WHERE=()=>TOUCH_DEVICE
 $('save').addEventListener('click', ()=>withBusy('만들고 있습니다…', async()=>{
   const st={...S}, size=+$('size').value;
   const blob=await renderToBlob(st, size);
-  const name=`도장_${sanitize(st.text+st.suffix)}_${size}.png`;
+  const name=`도장_${sanitize(st.text+st.suffix)}_${size}${st.mm ? '_'+st.mm+'mm' : ''}.png`;
   downloadBlob(blob, name);
-  setStatus(`내려받았습니다: ${name} · ${size}px · 배경 투명${SAVED_WHERE()}`, 'ok');
+  setStatus(`내려받았습니다: ${name} · ${size}px · 배경 투명${st.mm ? ' · 문서에 넣으면 '+st.mm+'mm' : ''}${SAVED_WHERE()}`, 'ok');
 }));
 const COPY_FALLBACK='위의 ‘투명배경 PNG 저장’으로 저장한 뒤 한글에서 입력 ▸ 그림 ▸ 그림으로 넣으세요.';
 function copyImage(background=null){
@@ -2754,7 +2817,7 @@ function stampSVG(st, size, fontCss, outline=new Map()){
   }
   const style=fontCss ? `<style>${fontCss}</style>` : `<style>@import url("${esc(FONT_CSS_URL)}");</style>`;
   return `<?xml version="1.0" encoding="UTF-8"?>\n`
-    +`<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`
+    +`<svg xmlns="http://www.w3.org/2000/svg" width="${st.mm ? st.mm+'mm' : size}" height="${st.mm ? st.mm+'mm' : size}" viewBox="0 0 ${size} ${size}">`
     +style+`<g transform="translate(${size/2} ${size/2}) rotate(${st.rot})">${body}</g></svg>`;
 }
 $('saveSvg').addEventListener('click', ()=>withBusy('SVG를 만들고 있습니다…', async()=>{
@@ -2776,7 +2839,7 @@ $('saveSvg').addEventListener('click', ()=>withBusy('SVG를 만들고 있습니�
   downloadBlob(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}), name);
   const saved=`내려받았습니다: ${name}`;
   if(lostCustom) setStatus(saved+'. 내 글꼴을 윤곽으로 바꾸지 못해 글꼴 이름만 적었으니, 그 글꼴이 없는 컴퓨터에서는 다르게 보입니다. PNG 저장을 권합니다.', 'err');
-  else if(fontCss || !uses.length) setStatus(`${saved} · 벡터 · 글꼴 포함 (${Math.round(svg.length/1024)}KB)${SAVED_WHERE()}`, 'ok');
+  else if(fontCss || !uses.length) setStatus(`${saved} · 벡터${st.mm ? ' · '+st.mm+'mm' : ''} · 글꼴 포함 (${Math.round(svg.length/1024)}KB)${SAVED_WHERE()}`, 'ok');
   else setStatus(saved+'. 글꼴을 내려받지 못해 글꼴 이름만 적었으니, 글꼴이 없는 컴퓨터에서는 다른 글씨체로 보일 수 있습니다.', 'err');
 }));
 
